@@ -1,0 +1,35 @@
+PREFIX schema: <https://schema.org/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+SELECT DISTINCT
+  ?site ?dataset ?dataset_name ?temporal_coverage
+  ?distribution ?access_url ?media_type
+  ?variable ?variable_name ?variable_match ?unit_uri ?unit_label
+WHERE {
+  ?site schema:subjectOf ?dataset .
+  ?dataset a schema:Dataset ;
+    schema:variableMeasured ?variable .
+  {
+    FILTER(?variable = {{variable_uri}})
+  }
+  UNION
+  {
+    ?variable skos:exactMatch {{variable_uri}} .
+  }
+  OPTIONAL { ?dataset schema:name ?dataset_name . }
+  OPTIONAL { ?dataset schema:temporalCoverage ?temporal_coverage . }
+  OPTIONAL {
+    ?dataset schema:distribution ?distribution .
+    OPTIONAL { ?distribution schema:contentUrl ?access_url . }
+    OPTIONAL { ?distribution schema:encodingFormat ?media_type . }
+  }
+  OPTIONAL { ?variable schema:name ?variable_name . }
+  OPTIONAL { ?variable skos:exactMatch ?variable_match . }
+  OPTIONAL { ?variable schema:unitCode ?unit_uri . }
+  OPTIONAL { ?variable schema:unitText ?unit_label . }
+}
+ORDER BY ?site ?dataset ?distribution ?variable ?access_url
+  ?dataset_name ?temporal_coverage ?media_type ?variable_name
+  ?variable_match ?unit_uri ?unit_label
+LIMIT {{limit}}
+OFFSET {{offset}}

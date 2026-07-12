@@ -1,0 +1,65 @@
+name: Bug report
+description: Report reproducible incorrect behavior in geoconnexr.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve geoconnexr. Remove tokens, credentials,
+        private URLs, and sensitive data from logs and examples.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What happened, and what did you expect instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproducible example
+      description: Prefer an offline fixture or a small, bounded request.
+      render: r
+    validations:
+      required: true
+
+  - type: textarea
+    id: output
+    attributes:
+      label: Output and diagnostics
+      description: Include classed errors, warnings, completeness flags, or a redacted request ledger.
+
+  - type: textarea
+    id: session
+    attributes:
+      label: Session information
+      description: Paste `sessioninfo::session_info()` or `utils::sessionInfo()` output.
+      render: text
+    validations:
+      required: true
+
+  - type: dropdown
+    id: network
+    attributes:
+      label: Network mode
+      options:
+        - Offline or fixture-backed
+        - Live upstream service
+        - Unknown
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues for this problem.
+          required: true
+        - label: I removed credentials and sensitive data.
+          required: true
+        - label: This is not a security vulnerability.
+          required: true

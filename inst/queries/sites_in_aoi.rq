@@ -1,0 +1,13 @@
+PREFIX schema: <https://schema.org/>
+PREFIX gsp: <http://www.opengis.net/ont/geosparql#>
+PREFIX geof: <http://www.opengis.net/def/function/geosparql/>
+
+SELECT DISTINCT ?site ?name ?provider ?site_wkt WHERE {
+  ?site gsp:hasGeometry/gsp:asWKT ?site_wkt .
+  FILTER(geof:sfIntersects(?site_wkt, {{aoi_wkt}}))
+  OPTIONAL { ?site schema:name ?name . }
+  OPTIONAL { ?site schema:provider ?provider . }
+}
+ORDER BY ?site ?name ?provider ?site_wkt
+LIMIT {{limit}}
+OFFSET {{offset}}

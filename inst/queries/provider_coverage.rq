@@ -1,0 +1,25 @@
+PREFIX schema: <https://schema.org/>
+
+SELECT ?provider
+  (COUNT(DISTINCT ?site) AS ?site_count)
+  (COUNT(DISTINCT ?dataset) AS ?dataset_count)
+  (COUNT(DISTINCT ?distribution) AS ?distribution_count)
+WHERE {
+  {
+    ?site schema:provider {{provider_uri}} .
+  }
+  UNION
+  {
+    ?site schema:provider ?provider_node .
+    ?provider_node schema:url {{provider_uri}} .
+  }
+  BIND({{provider_uri}} AS ?provider)
+  OPTIONAL {
+    ?site schema:subjectOf ?dataset .
+    OPTIONAL { ?dataset schema:distribution ?distribution . }
+  }
+}
+GROUP BY ?provider
+ORDER BY ?provider
+LIMIT {{limit}}
+OFFSET {{offset}}

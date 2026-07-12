@@ -1,0 +1,9 @@
+rule_id,from_unit_uri,to_unit_uri,scale,offset,dimension,source_uri,review_date,status
+temperature-deg-f-to-deg-c,http://qudt.org/vocab/unit/DEG_F,http://qudt.org/vocab/unit/DEG_C,0.5555555555555556,-17.77777777777778,thermodynamic-temperature,https://qudt.org/vocab/unit/DEG_F,2026-07-12,reviewed
+temperature-deg-c-to-deg-f,http://qudt.org/vocab/unit/DEG_C,http://qudt.org/vocab/unit/DEG_F,1.8,32,thermodynamic-temperature,https://qudt.org/vocab/unit/DEG_C,2026-07-12,reviewed
+length-ft-to-m,http://qudt.org/vocab/unit/FT,http://qudt.org/vocab/unit/M,0.3048,0,length,https://www.nist.gov/pml/special-publication-811,2026-07-12,reviewed
+length-m-to-ft,http://qudt.org/vocab/unit/M,http://qudt.org/vocab/unit/FT,3.280839895013123,0,length,https://www.nist.gov/pml/special-publication-811,2026-07-12,reviewed
+length-in-to-mm,http://qudt.org/vocab/unit/IN,http://qudt.org/vocab/unit/MilliM,25.4,0,length,https://www.nist.gov/pml/special-publication-811,2026-07-12,reviewed
+length-mm-to-in,http://qudt.org/vocab/unit/MilliM,http://qudt.org/vocab/unit/IN,0.03937007874015748,0,length,https://www.nist.gov/pml/special-publication-811,2026-07-12,reviewed
+flow-ft3-s-to-m3-s,http://qudt.org/vocab/unit/FT3-PER-SEC,http://qudt.org/vocab/unit/M3-PER-SEC,0.028316846592,0,volume-flow-rate,https://www.nist.gov/pml/special-publication-811,2026-07-12,reviewed
+flow-m3-s-to-ft3-s,http://qudt.org/vocab/unit/M3-PER-SEC,http://qudt.org/vocab/unit/FT3-PER-SEC,35.31466672148859,0,volume-flow-rate,https://www.nist.gov/pml/special-publication-811,2026-07-12,reviewed

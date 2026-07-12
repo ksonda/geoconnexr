@@ -1,0 +1,207 @@
+version: 1
+contract_version: "0.1.0"
+endpoint_policy:
+  method: POST
+  content_type: application/sparql-query
+  accept: application/sparql-results+json
+  follow_redirects: false
+  reject_content_types:
+    - text/html
+defaults:
+  page_size: 500
+  max_page_size: 1000
+  uri_list_chunk_size: 200
+templates:
+  sites_on_mainstem:
+    file: sites_on_mainstem.rq
+    query_type: select
+    parameters:
+      mainstem_uri:
+        type: uri
+        required: true
+      limit:
+        type: integer
+        required: true
+        minimum: 1
+        maximum: 1000
+      offset:
+        type: integer
+        required: true
+        minimum: 0
+    stable_order:
+      - site
+      - name
+      - provider
+      - site_wkt
+    page_strategy: offset
+    result_key:
+      - site
+      - name
+      - provider
+      - site_wkt
+    row_budget: 10000
+  sites_in_aoi:
+    file: sites_in_aoi.rq
+    query_type: select
+    parameters:
+      aoi_wkt:
+        type: wkt
+        required: true
+      limit:
+        type: integer
+        required: true
+        minimum: 1
+        maximum: 1000
+      offset:
+        type: integer
+        required: true
+        minimum: 0
+    stable_order:
+      - site
+      - name
+      - provider
+      - site_wkt
+    page_strategy: offset
+    result_key:
+      - site
+      - name
+      - provider
+      - site_wkt
+    row_budget: 10000
+  datasets_for_sites:
+    file: datasets_for_sites.rq
+    query_type: select
+    parameters:
+      site_uris:
+        type: uri_list
+        required: true
+        minimum_items: 1
+        maximum_items: 200
+      limit:
+        type: integer
+        required: true
+        minimum: 1
+        maximum: 1000
+      offset:
+        type: integer
+        required: true
+        minimum: 0
+    stable_order:
+      - site
+      - dataset
+      - distribution
+      - variable
+      - access_url
+      - dataset_name
+      - temporal_coverage
+      - media_type
+      - variable_name
+      - variable_match
+      - unit_uri
+      - unit_label
+    page_strategy: offset
+    result_key:
+      - site
+      - dataset
+      - distribution
+      - variable
+      - access_url
+      - dataset_name
+      - temporal_coverage
+      - media_type
+      - variable_name
+      - variable_match
+      - unit_uri
+      - unit_label
+    row_budget: 10000
+  datasets_by_variable:
+    file: datasets_by_variable.rq
+    query_type: select
+    parameters:
+      variable_uri:
+        type: uri
+        required: true
+      limit:
+        type: integer
+        required: true
+        minimum: 1
+        maximum: 1000
+      offset:
+        type: integer
+        required: true
+        minimum: 0
+    stable_order:
+      - site
+      - dataset
+      - distribution
+      - variable
+      - access_url
+      - dataset_name
+      - temporal_coverage
+      - media_type
+      - variable_name
+      - variable_match
+      - unit_uri
+      - unit_label
+    page_strategy: offset
+    result_key:
+      - site
+      - dataset
+      - distribution
+      - variable
+      - access_url
+      - dataset_name
+      - temporal_coverage
+      - media_type
+      - variable_name
+      - variable_match
+      - unit_uri
+      - unit_label
+    row_budget: 10000
+  sites_by_provider:
+    file: sites_by_provider.rq
+    query_type: select
+    parameters:
+      provider_uri:
+        type: uri
+        required: true
+      limit:
+        type: integer
+        required: true
+        minimum: 1
+        maximum: 1000
+      offset:
+        type: integer
+        required: true
+        minimum: 0
+    stable_order:
+      - site
+      - name
+      - provider
+    page_strategy: offset
+    result_key:
+      - site
+      - name
+      - provider
+    row_budget: 10000
+  provider_coverage:
+    file: provider_coverage.rq
+    query_type: select
+    parameters:
+      provider_uri:
+        type: uri
+        required: true
+      limit:
+        type: integer
+        required: true
+        minimum: 1
+        maximum: 1
+      offset:
+        type: integer
+        required: true
+        minimum: 0
+        maximum: 0
+    stable_order: [provider]
+    page_strategy: offset
+    result_key: [provider]
+    row_budget: 1

@@ -1,0 +1,65 @@
+{
+  "evidence_version": 1,
+  "checked_at": "2026-07-12T00:00:00-04:00",
+  "timezone": "America/New_York",
+  "purpose": "Known-answer metadata only; live payloads are intentionally not embedded.",
+  "observations": [
+    {
+      "id": "pid-mainstem-29559",
+      "request": {"method": "GET", "url": "https://geoconnex.us/ref/mainstems/29559"},
+      "observed": {"initial_status": 303, "redirect_host": "reference.geoconnex.us"},
+      "mutable": true
+    },
+    {
+      "id": "gage-provider-crosswalk",
+      "request": {
+        "method": "GET",
+        "url": "https://reference.geoconnex.us/collections/gages/items",
+        "query": {"provider_id": "USGS-08332622", "limit": 2}
+      },
+      "observed": {
+        "feature_id": "1000001",
+        "mainstem_id": "1622734",
+        "nhdpv2_comid": "17789327"
+      },
+      "mutable": true
+    },
+    {
+      "id": "graph-mainstem-sites",
+      "request": {
+        "method": "POST",
+        "url": "https://graph.geoconnex.us/",
+        "content_type": "application/sparql-query",
+        "template": "sites_on_mainstem",
+        "mainstem_uri": "https://geoconnex.us/ref/mainstems/1622734",
+        "limit": 10
+      },
+      "observed": {"distinct_site_count": 4, "working_shape": "nested_indirect_position"},
+      "mutable": true
+    },
+    {
+      "id": "mainstem-item-fallback",
+      "request": {
+        "method": "GET",
+        "url": "https://reference.geoconnex.us/collections/mainstems/items/29559"
+      },
+      "observed": {"status": 500, "filtered_collection_fallback_worked": true},
+      "mutable": true
+    },
+    {
+      "id": "reference-gage-jsonld-profile",
+      "request": {
+        "method": "GET",
+        "url": "https://reference.geoconnex.us/collections/gages/items/1000001",
+        "accept": "application/ld+json"
+      },
+      "observed": {
+        "provider_shape": "iri_string",
+        "wkt_shape": "value_object",
+        "position_shape": "nested_HY_IndirectPosition",
+        "hydro_location_type_shape": "literal"
+      },
+      "mutable": true
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ksonda.github.io/geoconnexr/schema/handler-registry-v1.json",
+  "title": "geoconnexr portable handler classifier registry v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "contract_version", "evaluation", "allowed_fact_names", "handlers"],
+  "properties": {
+    "version": {"const": 1},
+    "contract_version": {"const": "0.1.0"},
+    "evaluation": {"const": "first_match_wins"},
+    "allowed_fact_names": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "handlers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/handler"}
+    }
+  },
+  "$defs": {
+    "predicate": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["fact", "operator", "value"],
+          "properties": {
+            "fact": {"enum": ["access_url", "media_type", "conforms_to"]},
+            "operator": {"const": "regex"},
+            "value": {"type": "string", "minLength": 1}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["fact", "operator", "values"],
+          "properties": {
+            "fact": {"enum": ["access_url", "media_type", "conforms_to"]},
+            "operator": {"enum": ["scheme_in", "contains_any", "equals_any"]},
+            "values": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+          }
+        }
+      ]
+    },
+    "classifier": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["always"],
+          "properties": {"always": {"const": true}}
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "anyOf": [{"required": ["all"]}, {"required": ["any"]}],
+          "properties": {
+            "all": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/predicate"}},
+            "any": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/predicate"}}
+          }
+        }
+      ]
+    },
+    "handler": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "precedence", "classifier"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+        "precedence": {"type": "integer", "minimum": 0},
+        "lifecycle": {"type": "string"},
+        "outcome": {"enum": ["reference_only"]},
+        "classifier": {"$ref": "#/$defs/classifier"}
+      }
+    }
+  }
+}

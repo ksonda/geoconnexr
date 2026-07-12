@@ -1,0 +1,41 @@
+name: Feature request
+description: Propose a scoped enhancement or upstream integration.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: User need
+      description: What workflow or problem should this change address?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Include a small R example or expected object contract when useful.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+
+  - type: textarea
+    id: upstream
+    attributes:
+      label: Upstream services and stability
+      description: List any Geoconnex, OGC, USGS, or other live contracts this depends on.
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope checks
+      options:
+        - label: The proposal can remain bounded by request, row, time, and byte budgets.
+          required: true
+        - label: Partial upstream failure can be surfaced explicitly.
+          required: true

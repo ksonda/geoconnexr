@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "contract_version": "0.1.0",
+  "runtime_status": "metadata_only; implementations are planned and not exported in the P0 scaffold",
+  "protocol": ["probe", "plan", "fetch", "normalize"],
+  "implementations": {
+    "edr": {
+      "implementation_id": "geoconnexr:edr4r",
+      "availability": "planned",
+      "package": "edr4r",
+      "minimum_version": "0.1.1",
+      "functions": {
+        "client": "edr_client",
+        "position": "edr_position",
+        "area": "edr_area",
+        "cube": "edr_cube",
+        "radius": "edr_radius",
+        "corridor": "edr_corridor",
+        "trajectory": "edr_trajectory",
+        "locations": "edr_locations",
+        "items": "edr_items",
+        "coveragejson_normalizer": "covjson_to_tibble"
+      },
+      "missing_package_status": "skipped_missing_pkg"
+    },
+    "usgs_waterdata_continuous": {
+      "implementation_id": "geoconnexr:dataRetrieval-continuous",
+      "availability": "planned",
+      "package": "dataRetrieval",
+      "function": "read_waterdata_continuous",
+      "query_semantics": ["monitoring_location_id", "parameter_code", "time", "limit"],
+      "missing_package_status": "skipped_missing_pkg"
+    },
+    "usgs_waterdata_daily": {
+      "implementation_id": "geoconnexr:dataRetrieval-daily",
+      "availability": "planned",
+      "package": "dataRetrieval",
+      "function": "read_waterdata_daily",
+      "query_semantics": ["monitoring_location_id", "parameter_code", "statistic_id", "time", "limit"],
+      "missing_package_status": "skipped_missing_pkg"
+    },
+    "nwis_legacy_iv": {
+      "implementation_id": "geoconnexr:dataRetrieval-legacy-iv",
+      "availability": "planned",
+      "package": "dataRetrieval",
+      "function": "readNWISuv",
+      "lifecycle": "deprecated_compatibility",
+      "warning": "Legacy NWIS IV URL classified; prefer the current USGS Water Data API when possible.",
+      "missing_package_status": "skipped_missing_pkg"
+    },
+    "nwis_legacy_dv": {
+      "implementation_id": "geoconnexr:dataRetrieval-legacy-dv",
+      "availability": "planned",
+      "package": "dataRetrieval",
+      "function": "readNWISdv",
+      "lifecycle": "deprecated_compatibility",
+      "warning": "Legacy NWIS DV URL classified; prefer the current USGS Water Data API when possible.",
+      "missing_package_status": "skipped_missing_pkg"
+    },
+    "wqp": {
+      "implementation_id": "geoconnexr:dataRetrieval-wqp",
+      "availability": "planned",
+      "package": "dataRetrieval",
+      "function": "readWQPdata",
+      "plan_must_record": ["service", "profile", "site", "characteristic", "time"],
+      "missing_package_status": "skipped_missing_pkg"
+    },
+    "ogc_api_features": {
+      "implementation_id": "geoconnexr:native-oaf",
+      "availability": "planned",
+      "package": null,
+      "function": "gx_handler_oaf",
+      "payload_class": "sf"
+    },
+    "csv": {
+      "implementation_id": "geoconnexr:readr-csv",
+      "availability": "planned",
+      "package": "readr",
+      "function": "read_csv",
+      "plan_must_record": ["content_type", "encoded_byte_limit", "decoded_byte_limit", "row_limit", "column_limit"],
+      "missing_package_status": "skipped_missing_pkg"
+    },
+    "unknown": {
+      "implementation_id": "geoconnexr:reference-only",
+      "availability": "classifier_only",
+      "package": null,
+      "outcome": "reference_only"
+    }
+  },
+  "checked": {
+    "date": "2026-07-12",
+    "edr4r": {
+      "minimum_version": "0.1.1",
+      "reference": "https://cran.r-project.org/package=edr4r"
+    },
+    "dataRetrieval": {
+      "current_functions": ["read_waterdata_continuous", "read_waterdata_daily"],
+      "legacy_functions": ["readNWISuv", "readNWISdv"],
+      "reference": "https://doi-usgs.github.io/dataRetrieval/articles/tutorial.html"
+    }
+  }
+}

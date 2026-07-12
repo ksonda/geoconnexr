@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ksonda.github.io/geoconnexr/schema/recipe-v1.json",
+  "title": "geoconnexr replay recipe v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract_version", "aoi", "pipeline"],
+  "properties": {
+    "contract_version": {"const": "1.0.0"},
+    "aoi": {"$ref": "#/$defs/aoi"},
+    "pipeline": {"$ref": "#/$defs/pipeline"},
+    "time": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["start", "end"],
+          "properties": {
+            "start": {"type": ["string", "null"], "format": "date-time"},
+            "end": {"type": ["string", "null"], "format": "date-time"}
+          }
+        }
+      ]
+    },
+    "catalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "include": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"enum": ["sites", "datasets", "reference"]}
+        },
+        "providers": {"$ref": "#/$defs/string_array"},
+        "variables": {"$ref": "#/$defs/string_array"}
+      }
+    },
+    "fetch": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "max_datasets": {"type": "integer", "minimum": 0},
+        "max_requests": {"type": "integer", "minimum": 0},
+        "max_encoded_bytes": {"type": "integer", "minimum": 0},
+        "max_decoded_bytes": {"type": "integer", "minimum": 0},
+        "handler_order": {"$ref": "#/$defs/string_array"}
+      }
+    },
+    "harmonize": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "target_units": {
+          "type": "object",
+          "additionalProperties": {"type": "string", "format": "uri"}
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "timeseries": {"enum": ["csv", "parquet"]},
+        "keep_raw": {"type": "boolean"},
+        "report": {"type": "boolean"}
+      }
+    }
+  },
+  "$defs": {
+    "string_array": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "pipeline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_stage", "end_stage"],
+      "properties": {
+        "start_stage": {"enum": ["aoi", "catalog", "fetched", "harmonized"]},
+        "end_stage": {"enum": ["catalog", "fetched", "harmonized", "package"]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"start_stage": {"const": "catalog"}}, "required": ["start_stage"]},
+          "then": {"properties": {"end_stage": {"enum": ["fetched", "harmonized", "package"]}}}
+        },
+        {
+          "if": {"properties": {"start_stage": {"const": "fetched"}}, "required": ["start_stage"]},
+          "then": {"properties": {"end_stage": {"enum": ["harmonized", "package"]}}}
+        },
+        {
+          "if": {"properties": {"start_stage": {"const": "harmonized"}}, "required": ["start_stage"]},
+          "then": {"properties": {"end_stage": {"const": "package"}}}
+        }
+      ]
+    },
+    "aoi": {
+      "oneOf": [
+        {"$ref": "#/$defs/id_aoi"},
+        {"$ref": "#/$defs/geometry_aoi"},
+        {"$ref": "#/$defs/point_upstream_aoi"}
+      ]
+    },
+    "id_aoi": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "identifier"],
+      "properties": {
+        "kind": {"enum": ["huc", "county", "state", "mainstem_basin"]},
+        "identifier": {"type": "string", "minLength": 1},
+        "canonical_uri": {"type": "string", "format": "uri"}
+      }
+    },
+    "geometry_aoi": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "canonical_geojson", "crs"],
+      "properties": {
+        "kind": {"const": "sf"},
+        "canonical_geojson": {"$ref": "#/$defs/geojson_geometry"},
+        "crs": {"type": "string", "minLength": 1},
+        "wkb_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "point_upstream_aoi": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "longitude", "latitude", "crs"],
+      "properties": {
+        "kind": {"const": "point_upstream"},
+        "longitude": {"type": "number", "minimum": -180, "maximum": 180},
+        "latitude": {"type": "number", "minimum": -90, "maximum": 90},
+        "crs": {"type": "string", "minLength": 1},
+        "comid": {"type": "string", "pattern": "^[0-9]+$"}
+      }
+    },
+    "geojson_geometry": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "coordinates"],
+          "properties": {
+            "type": {"enum": ["Point", "MultiPoint", "LineString", "MultiLineString", "Polygon", "MultiPolygon"]},
+            "coordinates": {"type": "array"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "geometries"],
+          "properties": {
+            "type": {"const": "GeometryCollection"},
+            "geometries": {"type": "array", "items": {"$ref": "#/$defs/geojson_geometry"}}
+          }
+        }
+      ]
+    },
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

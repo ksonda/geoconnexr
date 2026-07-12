@@ -1,0 +1,83 @@
+name: Bounded live smoke
+
+on:
+  schedule:
+    - cron: "17 11 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: geoconnexr-live-smoke
+  cancel-in-progress: true
+
+jobs:
+  live-smoke:
+    if: github.repository == 'ksonda/geoconnexr'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      GEOCONNEXR_RUN_LIVE: "true"
+      GEOCONNEXR_LIVE_MAX_REQUESTS: "12"
+      GEOCONNEXR_LIVE_MAX_ENCODED_BYTES: "5000000"
+      GEOCONNEXR_LIVE_MAX_DECODED_BYTES: "20000000"
+      GEOCONNEXR_LIVE_REQUEST_TIMEOUT_SECONDS: "15"
+      GEOCONNEXR_LIVE_MAX_ROWS: "100"
+      TZ: UTC
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::pkgload, any::testthat, any::httr2, any::jsonlite
+          needs: check
+
+      - name: Select tagged live tests and enforce policy
+        id: live_tests
+        run: |
+          files <- list.files(
+            "tests/testthat",
+            pattern = "^test-live-.*\\.[Rr]$",
+            full.names = TRUE
+          )
+
+          if (length(files)) {
+            bodies <- vapply(
+              files,
+              function(path) paste(readLines(path, warn = FALSE), collapse = "\n"),
+              FUN.VALUE = character(1)
+            )
+            if (any(grepl("COUNT\\s*\\(\\s*\\*", bodies, ignore.case = TRUE))) {
+              stop("Live smoke tests must not issue full-graph COUNT(*) queries.")
+            }
+            message("Selected live smoke files: ", paste(files, collapse = ", "))
+          } else {
+            stop("No test-live-*.R files are registered; live smoke cannot succeed vacuously.")
+          }
+
+          cat(
+            "found=", tolower(length(files) > 0L), "\n",
+            file = Sys.getenv("GITHUB_OUTPUT"), append = TRUE, sep = ""
+          )
+        shell: Rscript {0}
+
+      - name: Run tagged live tests only
+        if: steps.live_tests.outputs.found == 'true'
+        run: |
+          testthat::test_dir(
+            "tests/testthat",
+            filter = "^live-",
+            reporter = "summary",
+            package = "geoconnexr",
+            load_package = "source",
+            stop_on_failure = TRUE,
+            stop_on_warning = TRUE
+          )
+        shell: Rscript {0}

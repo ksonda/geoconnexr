@@ -1,0 +1,20 @@
+PREFIX schema: <https://schema.org/>
+PREFIX gsp: <http://www.opengis.net/ont/geosparql#>
+PREFIX hyf: <https://www.opengis.net/def/schema/hy_features/hyf/>
+
+SELECT DISTINCT ?site ?name ?provider ?site_wkt WHERE {
+  {
+    ?site hyf:referencedPosition/hyf:HY_IndirectPosition/hyf:linearElement
+      {{mainstem_uri}} .
+  }
+  UNION
+  {
+    ?site hyf:referencedPosition/hyf:linearElement {{mainstem_uri}} .
+  }
+  OPTIONAL { ?site schema:name ?name . }
+  OPTIONAL { ?site schema:provider ?provider . }
+  OPTIONAL { ?site gsp:hasGeometry/gsp:asWKT ?site_wkt . }
+}
+ORDER BY ?site ?name ?provider ?site_wkt
+LIMIT {{limit}}
+OFFSET {{offset}}

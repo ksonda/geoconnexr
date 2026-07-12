@@ -1,0 +1,108 @@
+version: 1
+contract_version: "0.1.0"
+evaluation: first_match_wins
+allowed_fact_names:
+  - access_url
+  - media_type
+  - conforms_to
+handlers:
+  - id: edr
+    precedence: 10
+    classifier:
+      all:
+        - fact: access_url
+          operator: scheme_in
+          values: [https, http]
+      any:
+        - fact: conforms_to
+          operator: contains_any
+          values:
+            - http://www.opengis.net/spec/ogcapi-edr-1/1.1/conf/core
+            - http://www.opengis.net/spec/ogcapi-edr-1/1.0/conf/core
+        - fact: access_url
+          operator: regex
+          value: '/collections/[^/?#]+/(position|area|cube|radius|corridor|trajectory|locations)([/?#]|$)'
+        - fact: media_type
+          operator: equals_any
+          values:
+            - application/prs.coverage+json
+            - application/vnd.cov+json
+  - id: usgs_waterdata_continuous
+    precedence: 20
+    classifier:
+      all:
+        - fact: access_url
+          operator: scheme_in
+          values: [https, http]
+        - fact: access_url
+          operator: regex
+          value: '^https?://api\.waterdata\.usgs\.gov/ogcapi/[^/?#]+/collections/(continuous|latest-continuous)/items([/?#]|$)'
+  - id: usgs_waterdata_daily
+    precedence: 30
+    classifier:
+      all:
+        - fact: access_url
+          operator: scheme_in
+          values: [https, http]
+        - fact: access_url
+          operator: regex
+          value: '^https?://api\.waterdata\.usgs\.gov/ogcapi/[^/?#]+/collections/(daily|latest-daily)/items([/?#]|$)'
+  - id: nwis_legacy_iv
+    precedence: 40
+    lifecycle: deprecated
+    classifier:
+      all:
+        - fact: access_url
+          operator: regex
+          value: '^https?://waterservices\.usgs\.gov/nwis/iv([/?#]|$)'
+  - id: nwis_legacy_dv
+    precedence: 50
+    lifecycle: deprecated
+    classifier:
+      all:
+        - fact: access_url
+          operator: regex
+          value: '^https?://waterservices\.usgs\.gov/nwis/dv([/?#]|$)'
+  - id: wqp
+    precedence: 60
+    classifier:
+      all:
+        - fact: access_url
+          operator: scheme_in
+          values: [https, http]
+        - fact: access_url
+          operator: regex
+          value: '^https?://(www\.)?waterqualitydata\.us/(data/[^/?#]+/search|[^?#]*WQP)([/?#]|$)'
+  - id: ogc_api_features
+    precedence: 70
+    classifier:
+      all:
+        - fact: access_url
+          operator: scheme_in
+          values: [https, http]
+      any:
+        - fact: conforms_to
+          operator: contains_any
+          values:
+            - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core
+            - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson
+        - fact: access_url
+          operator: regex
+          value: '/collections/[^/?#]+/items([/?#]|$)'
+  - id: csv
+    precedence: 80
+    classifier:
+      any:
+        - fact: media_type
+          operator: equals_any
+          values:
+            - text/csv
+            - application/csv
+        - fact: access_url
+          operator: regex
+          value: '\.csv([?#].*)?$'
+  - id: unknown
+    precedence: 9999
+    outcome: reference_only
+    classifier:
+      always: true

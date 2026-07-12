@@ -1,0 +1,18 @@
+PREFIX schema: <https://schema.org/>
+
+SELECT DISTINCT ?site ?name ?provider WHERE {
+  {
+    ?site schema:provider {{provider_uri}} .
+    BIND({{provider_uri}} AS ?provider)
+  }
+  UNION
+  {
+    ?site schema:provider ?provider_node .
+    ?provider_node schema:url {{provider_uri}} .
+    BIND({{provider_uri}} AS ?provider)
+  }
+  OPTIONAL { ?site schema:name ?name . }
+}
+ORDER BY ?site ?name ?provider
+LIMIT {{limit}}
+OFFSET {{offset}}

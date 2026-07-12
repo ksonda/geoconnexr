@@ -1,0 +1,17 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^\.github$
+^\.gitignore$
+^docs$
+^data-raw$
+^CONTRIBUTING\.md$
+^CODE_OF_CONDUCT\.md$
+^SECURITY\.md$
+^LICENSE\.md$
+^cran-comments\.md$
+^CRAN-SUBMISSION$
+^geoconnexr-plan-review\.md$
+^geoconnexr-spec-v0\.2\.md$
+^.*\.Rcheck$
+^.*\.tar\.gz$
+^CITATION\.cff$
