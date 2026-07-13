@@ -20,6 +20,13 @@
   tests.
 - Added three explicitly gated live semantic checks for PID redirects, bounded
   graph discovery, and reference-gage JSON-LD negotiation.
+- Added the first runtime protocol slice: bounded endpoint clients,
+  representation-specific HTTP caching and offline misses, public-target and
+  redirect safety checks, and vectorized PID resolution with recorded redirect
+  chains and `HEAD`-to-`GET` fallback.
+- Added a fail-closed HTTP safety policy with DNS-to-connection pinning,
+  identity-only streamed bodies, fixed cache freshness, credential-aware cache
+  exclusion, and package-owned cache clearing.
 
 Public APIs and serialized contracts remain experimental during the P0
 architecture spike.

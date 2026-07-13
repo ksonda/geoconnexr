@@ -33,8 +33,8 @@ data-packaging client for the Geoconnex ecosystem.
 The repository is currently in its P0 architecture-spike phase. The initial
 scaffold provides versioned contracts, safe SPARQL template metadata,
 identifier/recipe foundations, recorded infrastructure evidence, and offline
-tests. Public network retrieval functions will be added only after the P0
-vertical slice validates their contracts against production services.
+tests. The first network-facing slice adds bounded, cache-aware PID resolution;
+other retrieval functions remain gated on fixture-backed production evidence.
 
 ## Intended workflow
 
@@ -57,6 +57,10 @@ implemented in the P0 scaffold.
 aoi <- gx_aoi("02070010")
 aoi$recipe
 
+# Resolve a PID while preserving its identity and redirect chain
+resolution <- gx_resolve("https://geoconnex.us/ref/gages/1000001")
+resolution[c("pid_uri", "landing_url", "problem_code")]
+
 # Inspect and safely render a bounded named SPARQL template
 gx_templates()
 query <- gx_render_query(
@@ -75,9 +79,10 @@ gx_classify_distribution(
 gx_unit_conversions()
 ```
 
-These functions are offline. Network execution, fetch handlers, and snapshot
-writing remain planned interfaces and are labeled as such in the bundled
-implementation metadata.
+`gx_resolve()` makes bounded network requests, validates every redirect target,
+and uses a representation-specific cache. The other functions shown above are
+offline. Dataset fetch handlers and snapshot writing remain planned interfaces
+and are labeled as such in the bundled implementation metadata.
 
 ## Design commitments
 

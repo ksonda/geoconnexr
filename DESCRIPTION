@@ -8,23 +8,25 @@ Description: Tools for discovering water-data sites and datasets through the
     infrastructure. Provides typed identifier crosswalk foundations, safe
     query-template assets, versioned contracts, and reproducible-procedure
     metadata for watershed data snapshots. The package is in an architecture
-    spike stage; retrieval and packaging modules will be added behind tested
-    public contracts.
+    spike stage; its first protocol slice provides bounded, cache-aware PID
+    resolution while discovery and packaging modules remain under development.
 License: MIT + file LICENSE
 URL: https://github.com/ksonda/geoconnexr
 BugReports: https://github.com/ksonda/geoconnexr/issues
 Depends:
     R (>= 4.1)
 Imports:
+    cachem (>= 1.1.0),
     cli (>= 3.6.0),
+    curl (>= 5.0.0),
     digest (>= 0.6.30),
+    httr2 (>= 1.2.0),
     rlang (>= 1.1.0),
     tibble (>= 3.2.0),
     yaml (>= 2.3.0)
 Suggests:
     dataRetrieval,
     edr4r,
-    httr2,
     jsonlite,
     jsonvalidate,
     readr,

@@ -17,13 +17,16 @@ live_request <- function(url) {
 
 test_that("live PID preserves a 303 redirect identity", {
   live_guard()
-  response <- live_request("https://geoconnex.us/ref/mainstems/29559") |>
-    httr2::req_perform()
-  expect_equal(httr2::resp_status(response), 303L)
+  withr::local_options(geoconnexr.cache_dir = withr::local_tempdir())
+  response <- gx_resolve("https://geoconnex.us/ref/mainstems/29559")
+  expect_equal(response$initial_status, 303L)
+  expect_equal(response$final_status, 200L)
+  expect_equal(response$pid_uri, "https://geoconnex.us/ref/mainstems/29559")
   expect_match(
-    httr2::resp_header(response, "location"),
+    response$landing_url,
     "^https://reference\\.geoconnex\\.us/"
   )
+  expect_true(is.na(response$problem_code))
 })
 
 test_that("live bounded mainstem query returns the checked gage", {
