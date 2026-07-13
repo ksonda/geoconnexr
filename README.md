@@ -13,7 +13,7 @@ and related repositories, then let it research, critique, plan, scaffold, and
 test the package autonomously. This is what it came up with; the result remains
 experimental rather than production-ready.
 
-A plausible initializing prompt is:
+The initializing prompt was:
 
 > Design a build-ready plan for an R package called `geoconnexr` that helps
 > water-data users discover Geoconnex resources, crosswalk among Geoconnex
