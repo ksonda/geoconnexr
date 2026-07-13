@@ -1,0 +1,153 @@
+{
+  "manifest_version": 1,
+  "contract_version": "0.1.0",
+  "note": "Only observed_minimized entries are derived from checked production responses. Synthetic entries do not count toward the five-real-pages/three-providers P0 gate.",
+  "fixtures": [
+    {
+      "fixture_id": "reference-gage-1000001",
+      "path": "observed/reference-gage-1000001.min.json",
+      "evidence_kind": "observed_minimized",
+      "counts_toward_real_profile_acceptance": true,
+      "profile_features": ["undefined_gsp_prefix", "provider_iri", "wkt_value_object", "nested_indirect_position", "literal_location_type", "incomplete_dataset"],
+      "source_url": "https://reference.geoconnex.us/collections/gages/items/1000001",
+      "pid_uri": "https://geoconnex.us/ref/gages/1000001",
+      "request": {"method": "GET", "accept": "application/ld+json"},
+      "observed": {
+        "checked_at": "2026-07-13T03:49:00Z",
+        "status": 200,
+        "final_url": "https://reference.geoconnex.us/collections/gages/items/1000001",
+        "media_type": "application/ld+json",
+        "publisher_host": "reference.geoconnex.us",
+        "semantic_provider": "https://waterdata.usgs.gov",
+        "original_bytes": 1791,
+        "original_sha256": "5bca73c01dad9b284be17f43d39bd62c62865eb127de6246401326502a427644"
+      },
+      "stored_sha256": "d39c3f4512d9c173a48a1f75117a2134fe7f359850fd1180b371781d21f6c070",
+      "transformations": ["retained identity and profile-shape fields", "removed unrelated containment metadata", "normalized whitespace only"],
+      "sanitization": "No secrets or personal data were present; monitoring-location identity is public.",
+      "source_reuse_basis": "Public machine-readable reference feature; minimized factual metadata retained for interoperability testing.",
+      "mutable": true,
+      "expected_case": "reference_gage"
+    },
+    {
+      "fixture_id": "reference-mainstem-29559",
+      "path": "observed/reference-mainstem-29559.min.json",
+      "evidence_kind": "observed_minimized",
+      "counts_toward_real_profile_acceptance": true,
+      "profile_features": ["context_array", "expanded_geometry_value", "non_monitoring_place", "large_source_geometry"],
+      "source_url": "https://reference.geoconnex.us/collections/mainstems/items/29559",
+      "pid_uri": "https://geoconnex.us/ref/mainstems/29559",
+      "request": {"method": "GET", "accept": "application/ld+json"},
+      "observed": {
+        "checked_at": "2026-07-13T03:49:00Z",
+        "status": 200,
+        "final_url": "https://reference.geoconnex.us/collections/mainstems/items/29559",
+        "media_type": "application/ld+json",
+        "publisher_host": "reference.geoconnex.us",
+        "semantic_provider": null,
+        "original_bytes": 83678,
+        "original_sha256": "0ff67577c6f27b46d67b68def343178a791d1ca974d168af79b660c1db7acd84"
+      },
+      "stored_sha256": "763a3d5222147d45731cddbdcca48d6882ad6ce92670089dbe36cbad46d9a1cd",
+      "transformations": ["reduced LineString to three representative coordinates", "retained identity, types, name, and geometry shape"],
+      "sanitization": "No secrets or personal data were present.",
+      "source_reuse_basis": "Public machine-readable reference feature; minimized factual metadata retained for interoperability testing.",
+      "mutable": true,
+      "expected_case": "reference_mainstem"
+    },
+    {
+      "fixture_id": "standard-compact",
+      "path": "synthetic/standard-compact.json",
+      "evidence_kind": "synthetic_conformance",
+      "counts_toward_real_profile_acceptance": false,
+      "authored_from": "Geoconnex JSON-LD monitoring-location and dataset profile documentation",
+      "profile_features": ["compact_terms", "provider_object", "wkt_string", "closed_temporal_interval"],
+      "stored_sha256": "923251cfa0258345fcaf205e834c0f71ad45a998fcfd782c6bc7459d6d7df0af",
+      "expected_case": "standard_compact"
+    },
+    {
+      "fixture_id": "expanded-at-graph",
+      "path": "synthetic/expanded-at-graph.json",
+      "evidence_kind": "synthetic_conformance",
+      "counts_toward_real_profile_acceptance": false,
+      "authored_from": "JSON-LD 1.1 expanded form and Geoconnex profile documentation",
+      "profile_features": ["at_graph", "fully_expanded_terms", "node_references"],
+      "stored_sha256": "ee43935d8a7e16ddb04332a2bda86a590b6a931b56a6fa0dfa9777f5f2e05dd0",
+      "expected_case": "expanded_graph"
+    },
+    {
+      "fixture_id": "aliased-singletons",
+      "path": "synthetic/aliased-singletons.json",
+      "evidence_kind": "synthetic_conformance",
+      "counts_toward_real_profile_acceptance": false,
+      "authored_from": "JSON-LD 1.1 term aliasing and Geoconnex profile documentation",
+      "profile_features": ["aliased_terms", "singleton_values"],
+      "stored_sha256": "33109d3f87bfed51b74bab5d6435baad1193ee3ad6050bbea1c77195a2e1eab8",
+      "expected_case": "aliased_singletons"
+    },
+    {
+      "fixture_id": "missing-geometry-open-temporal-multi",
+      "path": "synthetic/missing-geometry-open-temporal-multi.json",
+      "evidence_kind": "synthetic_conformance",
+      "counts_toward_real_profile_acceptance": false,
+      "authored_from": "Geoconnex profile edge-case requirements",
+      "profile_features": ["missing_geometry", "open_temporal_intervals", "multiple_datasets", "distribution_variable_product"],
+      "stored_sha256": "0faa65171b435818a506697ff8244cf4b6d97fe15977377725302861690e9040",
+      "expected_case": "multi_open"
+    },
+    {
+      "fixture_id": "unknown-remote-context",
+      "path": "negative/unknown-remote-context.json",
+      "evidence_kind": "synthetic_adversarial",
+      "counts_toward_real_profile_acceptance": false,
+      "profile_features": ["unknown_remote_context"],
+      "stored_sha256": "f8f333dc44be0dbeb4d0befd73350043a2cf8001d255e9017529de81ab9a5243",
+      "expected_case": "unknown_remote_context"
+    },
+    {
+      "fixture_id": "context-import",
+      "path": "negative/context-import.json",
+      "evidence_kind": "synthetic_adversarial",
+      "counts_toward_real_profile_acceptance": false,
+      "profile_features": ["context_import"],
+      "stored_sha256": "d3a8f958e1a95438ff3e27d5354484796f9ed2b3c97e4d3922452171eb8b9ac9",
+      "expected_case": "context_import"
+    },
+    {
+      "fixture_id": "embedded-retrieval",
+      "path": "retrieval/embedded-jsonld.html",
+      "evidence_kind": "synthetic_adversarial",
+      "counts_toward_real_profile_acceptance": false,
+      "profile_features": ["embedded_jsonld", "external_script_ignored", "embedded_precedence"],
+      "stored_sha256": "01ddc4915d8f8493e46d151c7d05a913184732e30b40e5215bfd1d62c3af0de7",
+      "expected_case": "embedded_retrieval"
+    },
+    {
+      "fixture_id": "alternate-retrieval",
+      "path": "retrieval/alternate-jsonld.html",
+      "evidence_kind": "synthetic_adversarial",
+      "counts_toward_real_profile_acceptance": false,
+      "profile_features": ["relative_alternate", "case_insensitive_rel", "media_parameters"],
+      "stored_sha256": "4dc2f57ab83fa9d234f67a810e751a124bd08fbfcec985d30698bcfc927e2a43",
+      "expected_case": "alternate_retrieval"
+    },
+    {
+      "fixture_id": "missing-jsonld-retrieval",
+      "path": "retrieval/no-jsonld.html",
+      "evidence_kind": "synthetic_adversarial",
+      "counts_toward_real_profile_acceptance": false,
+      "profile_features": ["missing_jsonld"],
+      "stored_sha256": "713855adf2dcbb623ef6159ef42c1cf7654a66804d2df02249cb83e05c917018",
+      "expected_case": "missing_jsonld_retrieval"
+    },
+    {
+      "fixture_id": "unsafe-alternate-retrieval",
+      "path": "retrieval/unsafe-alternate.html",
+      "evidence_kind": "synthetic_adversarial",
+      "counts_toward_real_profile_acceptance": false,
+      "profile_features": ["loopback_alternate"],
+      "stored_sha256": "33c86f229aea19182f92c79c73981c3317c6921385a7e35e233b1d273738329c",
+      "expected_case": "unsafe_alternate_retrieval"
+    }
+  ]
+}

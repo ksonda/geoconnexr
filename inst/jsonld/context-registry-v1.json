@@ -1,0 +1,32 @@
+{
+  "registry_version": 1,
+  "contract_version": "0.1.0",
+  "remote_contexts": {
+    "https://schema.org": {
+      "asset": "schemaorg-context-v30.0.json",
+      "sha256": "3555b9ac81047b6f5801736808d3b913ea54a555925874bba880ca215eb50c64"
+    },
+    "https://schema.org/": {
+      "asset": "schemaorg-context-v30.0.json",
+      "sha256": "3555b9ac81047b6f5801736808d3b913ea54a555925874bba880ca215eb50c64"
+    },
+    "http://schema.org": {
+      "asset": "schemaorg-context-v30.0.json",
+      "sha256": "3555b9ac81047b6f5801736808d3b913ea54a555925874bba880ca215eb50c64"
+    },
+    "http://schema.org/": {
+      "asset": "schemaorg-context-v30.0.json",
+      "sha256": "3555b9ac81047b6f5801736808d3b913ea54a555925874bba880ca215eb50c64"
+    }
+  },
+  "known_prefixes": {
+    "schema": "https://schema.org/",
+    "hyf": "https://www.opengis.net/def/schema/hy_features/hyf/",
+    "gsp": "http://www.opengis.net/ont/geosparql#",
+    "geo": "http://www.opengis.net/ont/geosparql#",
+    "sf": "http://www.opengis.net/ont/sf#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "locType": "https://www.opengis.net/def/schema/hy_features/hyf/HY_HydroLocationType/"
+  }
+}

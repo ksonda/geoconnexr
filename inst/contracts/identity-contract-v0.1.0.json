@@ -1,0 +1,94 @@
+{
+  "contract_version": "0.1.0",
+  "hash_algorithm": "SHA-256",
+  "payload_encoding": {
+    "charset": "UTF-8",
+    "lines": [
+      "contract:<contract_version>",
+      "namespace:<namespace>",
+      "character:<UTF-8-byte-length>:<value>"
+    ],
+    "missing_character": "character:NA:",
+    "line_separator": "LF"
+  },
+  "canonicalization": {
+    "identity_iri": [
+      "require an absolute IRI with no Unicode whitespace or control characters",
+      "lowercase ASCII scheme and host",
+      "remove one terminal host dot",
+      "remove ports 80 for http and 443 for https",
+      "for non-HTTP(S) IRIs, preserve the scheme-specific part after lowercasing the scheme",
+      "preserve path, query, and fragment byte semantics"
+    ],
+    "access_url": [
+      "apply identity HTTP(S) authority rules",
+      "remove the fragment",
+      "preserve path and query ordering"
+    ],
+    "label": [
+      "decode as UTF-8",
+      "normalize to Unicode NFC",
+      "trim and collapse ASCII space, tab, CR, and LF to one ASCII space",
+      "apply Unicode default case folding",
+      "normalize to Unicode NFC again"
+    ],
+    "media_type": [
+      "remove parameters beginning with semicolon",
+      "trim ASCII surrounding whitespace",
+      "lowercase"
+    ]
+  },
+  "namespaces": {
+    "dataset": "geoconnexr.dataset-id.v1",
+    "distribution": "geoconnexr.distribution-id.v1",
+    "variable": "geoconnexr.variable-id.v1"
+  },
+  "canonicalization_known_answers": {
+    "identity_iri": [
+      {
+        "input": "URN:uuid:1234",
+        "expected": "urn:uuid:1234"
+      },
+      {
+        "input": "DOI:10.1/abc",
+        "expected": "doi:10.1/abc"
+      },
+      {
+        "input": "HTTPS://Example.NET.:443/catalog#discharge",
+        "expected": "https://example.net/catalog#discharge"
+      }
+    ]
+  },
+  "known_answers": [
+    {
+      "id": "dataset_uri_fragment",
+      "namespace": "geoconnexr.dataset-id.v1",
+      "values": ["uri", "https://example.net/site/alpha", "https://example.net/dataset/catalog#discharge"],
+      "expected_sha256": "4a5dffcd26687dd1d1fdb51843b708b187295e34263091df707f4fbc595890a5"
+    },
+    {
+      "id": "dataset_fallback",
+      "namespace": "geoconnexr.dataset-id.v1",
+      "values": ["fallback", "https://geoconnex.us/ref/gages/1000001", "https://waterdata.usgs.gov", "observed water data at usgs-08332622"],
+      "expected_sha256": "44592077dfd155503ec19a85a29a2e0daedec293bc89eaff35422da16927b61b"
+    },
+    {
+      "id": "distribution",
+      "namespace": "geoconnexr.distribution-id.v1",
+      "values": ["abc-dataset-id", "https://example.net/data.csv", "text/csv"],
+      "expected_sha256": "a3f221c45e3f4f97db4538c2369f846f0153e55d72c1473b337e954b6c49a015"
+    },
+    {
+      "id": "distribution_missing_media",
+      "namespace": "geoconnexr.distribution-id.v1",
+      "values": ["abc-dataset-id", "https://example.net/data.csv", null],
+      "expected_sha256": "f2c2891ff006857c2e4d41b7bc9205b5449fb8e2f8263ff7c04d073d02c2cea4"
+    },
+    {
+      "id": "variable_unicode_fallback",
+      "namespace": "geoconnexr.variable-id.v1",
+      "values": ["https://example.net/org/provider", "café flow"],
+      "expected_sha256": "b7cb96fa4fa9a22595677f496759c771dc1bbe0c9b5533d1a9cf60c516f3c843"
+    }
+  ]
+}

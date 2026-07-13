@@ -1,0 +1,26 @@
+{
+  "@context": {
+    "schema": "https://schema.org/",
+    "hyf": "https://www.opengis.net/def/schema/hy_features/hyf/",
+    "gsp": "http://www.opengis.net/ont/geosparql#",
+    "label": "schema:name",
+    "offeredBy": "schema:provider",
+    "shape": "gsp:hasGeometry",
+    "wkt": "gsp:asWKT",
+    "datasets": "schema:subjectOf",
+    "variables": "schema:variableMeasured",
+    "downloads": "schema:distribution"
+  },
+  "@id": "https://example.net/site/alias",
+  "@type": "hyf:HY_HydroLocation",
+  "label": "Alias Creek",
+  "shape": {"wkt": "POINT (-81 37)"},
+  "offeredBy": {"@id": "https://example.net/org/alias", "label": "Alias Provider"},
+  "datasets": {
+    "@id": "https://example.net/dataset/alias",
+    "@type": "schema:Dataset",
+    "label": "Alias variable",
+    "variables": {"@id": "https://example.net/variable/alias", "label": "Alias variable"},
+    "downloads": {"schema:contentUrl": "https://example.net/data/alias.csv", "schema:encodingFormat": "text/csv"}
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "contract_version": "0.1.0",
+  "cases": {
+    "reference_gage": {
+      "location_rows": 1,
+      "dataset_rows": 1,
+      "site_uri": "https://geoconnex.us/ref/gages/1000001",
+      "mainstem_uri": "https://geoconnex.us/ref/mainstems/1622734",
+      "geometry_wkt": "POINT (-107.2826306 35.9456833)",
+      "diagnostic_codes": ["known_prefix_repaired", "literal_location_type", "missing_distribution", "missing_variable"]
+    },
+    "reference_mainstem": {
+      "location_rows": 0,
+      "dataset_rows": 0,
+      "diagnostic_codes": ["no_location_node"]
+    },
+    "standard_compact": {"location_rows": 1, "dataset_rows": 1},
+    "expanded_graph": {"location_rows": 1, "dataset_rows": 1},
+    "aliased_singletons": {"location_rows": 1, "dataset_rows": 1},
+    "multi_open": {
+      "location_rows": 1,
+      "dataset_rows": 5,
+      "dataset_a_distribution_count": 2,
+      "dataset_a_variable_count": 2,
+      "diagnostic_codes": ["missing_geometry"]
+    },
+    "unknown_remote_context": {"error_class": "gx_error_jsonld_context"},
+    "context_import": {"error_class": "gx_error_jsonld_context"},
+    "embedded_retrieval": {"retrieval_mode": "embedded"},
+    "alternate_retrieval": {"retrieval_mode": "alternate"},
+    "missing_jsonld_retrieval": {"error_class": "gx_error_jsonld_missing"},
+    "unsafe_alternate_retrieval": {"error_class": "gx_error_jsonld_missing"}
+  }
+}

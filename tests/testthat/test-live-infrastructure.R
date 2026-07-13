@@ -63,3 +63,21 @@ test_that("live reference gage negotiates its JSON-LD profile", {
   expect_equal(body[["@id"]], "https://geoconnex.us/ref/gages/1000001")
   expect_true("hyf:referencedPosition" %in% names(body))
 })
+
+test_that("live package JSON-LD path parses the checked reference gage", {
+  live_guard()
+  withr::local_options(geoconnexr.cache_dir = withr::local_tempdir())
+  document <- gx_jsonld(
+    "https://geoconnex.us/ref/gages/1000001",
+    client = gx_client("pid", retries = 0L, max_bytes = 2L * 1024L^2)
+  )
+  location <- gx_parse_location(document)
+  datasets <- gx_parse_datasets(document)
+
+  expect_equal(document$pid_uri, "https://geoconnex.us/ref/gages/1000001")
+  expect_equal(nrow(location), 1L)
+  expect_equal(location$site_uri, document$pid_uri)
+  expect_equal(location$provider_uri, "https://waterdata.usgs.gov")
+  expect_true(nrow(datasets) >= 1L)
+  expect_true(all(nchar(document$content_sha256) == 64L))
+})

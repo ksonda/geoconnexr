@@ -1,0 +1,47 @@
+{
+  "@graph": [
+    {
+      "@id": "https://example.net/site/graph",
+      "@type": [
+        "https://schema.org/Place",
+        "https://www.opengis.net/def/schema/hy_features/hyf/HY_HydrometricFeature",
+        "https://www.opengis.net/def/schema/hy_features/hyf/HY_HydroLocation"
+      ],
+      "https://schema.org/name": [{"@value": "Graph Creek"}],
+      "http://www.opengis.net/ont/geosparql#hasGeometry": [
+        {
+          "http://www.opengis.net/ont/geosparql#asWKT": [
+            {"@value": "POINT (-80 36)"}
+          ]
+        }
+      ],
+      "https://schema.org/subjectOf": [
+        {"@id": "https://example.net/dataset/graph"}
+      ]
+    },
+    {
+      "@id": "https://example.net/dataset/graph",
+      "@type": ["https://schema.org/Dataset"],
+      "https://schema.org/name": [{"@value": "Graph temperature"}],
+      "https://schema.org/provider": [
+        {
+          "@id": "https://example.net/org/graph",
+          "https://schema.org/name": [{"@value": "Graph Provider"}]
+        }
+      ],
+      "https://schema.org/variableMeasured": [
+        {
+          "@id": "http://vocabulary.odm2.org/variablename/temperature",
+          "https://schema.org/name": [{"@value": "Temperature"}],
+          "https://schema.org/unitText": [{"@value": "degC"}]
+        }
+      ],
+      "https://schema.org/distribution": [
+        {
+          "https://schema.org/contentUrl": [{"@id": "https://example.net/data/temperature.csv"}],
+          "https://schema.org/encodingFormat": [{"@value": "text/csv"}]
+        }
+      ]
+    }
+  ]
+}
