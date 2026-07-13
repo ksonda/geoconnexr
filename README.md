@@ -5,6 +5,28 @@
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
+## About this experiment
+
+This repository is an experiment in autonomous software development. I gave
+ChatGPT Codex only an initializing prompt and access to relevant documentation
+and related repositories, then let it research, critique, plan, scaffold, and
+test the package autonomously. This is what it came up with; the result remains
+experimental rather than production-ready.
+
+A plausible initializing prompt is:
+
+> Design a build-ready plan for an R package called `geoconnexr` that helps
+> water-data users discover Geoconnex resources, crosswalk among Geoconnex
+> PIDs, NHDPlus COMIDs, HUCs, gage identifiers, and coordinates, and assemble
+> reproducible watershed data packages. Use the available Geoconnex
+> documentation and related repositories—including `nhdplusTools`,
+> `dataRetrieval`, and `edr4r`—to ground the design and avoid duplicating
+> existing capabilities. Specify the package architecture, public API, data
+> contracts, error handling, provenance, security constraints, testing and CI
+> strategy, and a phased implementation roadmap. Validate live infrastructure
+> assumptions where practical, identify unresolved decisions explicitly, and
+> make the plan detailed enough for a developer or coding agent to implement.
+
 `geoconnexr` is an R-first discovery, identifier-crosswalk, and watershed
 data-packaging client for the Geoconnex ecosystem.
 
