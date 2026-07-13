@@ -23,7 +23,10 @@ and \code{diagnostics}. All are character except the two list-columns
 }
 \description{
 Extracts documented and known production Geoconnex location shapes from
-safely expanded JSON-LD. WKT remains text at this protocol layer.
+safely expanded JSON-LD. A generic \code{schema:Place} is accepted only for
+reviewed state-gage PID namespaces when it carries nonempty GeoSPARQL WKT;
+this emits a warning-level \code{generic_place_geometry} diagnostic. WKT remains
+text at this protocol layer.
 }
 \section{Diagnostics and provenance}{
 

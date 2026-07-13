@@ -35,6 +35,95 @@ test_that("incomplete observed datasets remain visible", {
   expect_contains(attr(out, "diagnostics")$code, "missing_variable")
 })
 
+test_that("provider-diverse observed profiles preserve their production shapes", {
+  state_cases <- list(
+    list(
+      file = "nevada-ndwr-222s12e6701dd1.min.json",
+      site_uri = "https://geoconnex.us/ndwr/gages/222S12E6701DD1",
+      geometry_wkt = "POINT (-114.43853177599999 36.91791541500004)"
+    ),
+    list(
+      file = "montana-mtdnrc-sr002.min.json",
+      site_uri = "https://geoconnex.us/mtdnrc/gages/SR002",
+      geometry_wkt = "POINT (-112.34333299999997 47.50777780000004)"
+    )
+  )
+  for (case in state_cases) {
+    text <- gx_profile_fixture_text("observed", case$file)
+    location <- gx_parse_location(text)
+    expect_equal(nrow(location), 1L, info = case$file)
+    expect_equal(location$site_uri, case$site_uri, info = case$file)
+    expect_equal(location$geometry_wkt, case$geometry_wkt, info = case$file)
+    expect_true(is.na(location$name), info = case$file)
+    expect_true(is.na(location$provider_name), info = case$file)
+    expect_true(
+      "generic_place_geometry" %in% attr(location, "diagnostics")$code,
+      info = case$file
+    )
+    diagnostic <- attr(location, "diagnostics")
+    expect_equal(
+      diagnostic$severity[diagnostic$code == "generic_place_geometry"],
+      "warning",
+      info = case$file
+    )
+    expect_error(
+      gx_parse_location(text, strict = TRUE),
+      class = "gx_error_parser_strict"
+    )
+    expect_equal(nrow(gx_parse_datasets(text)), 0L, info = case$file)
+  }
+
+  virginia <- gx_profile_fixture_text("observed", "virginia-wqp-wmpo001.min.json")
+  virginia_location <- gx_parse_location(virginia)
+  virginia_datasets <- gx_parse_datasets(virginia)
+  expect_equal(virginia_location$provider_name, "VIRGINIA DEPARTMENT OF ENVIRONMENTAL QUALITY")
+  expect_equal(nrow(virginia_datasets), 2L)
+  expect_true(all(!virginia_datasets$fetchable))
+  expect_contains(attr(virginia_datasets, "diagnostics")$code, "unsafe_distribution_url")
+
+  snotel <- gx_profile_fixture_text("observed", "usda-nrcs-snotel-301.min.json")
+  snotel_location <- gx_parse_location(snotel)
+  snotel_datasets <- gx_parse_datasets(snotel)
+  expect_equal(snotel_location$name, "Adin Mtn")
+  expect_equal(nrow(snotel_datasets), 2L)
+  expect_true(all(grepl("Natural Resources Conservation Service", snotel_datasets$provider_name)))
+  expect_contains(attr(snotel_datasets, "diagnostics")$code, "missing_distribution")
+  expect_contains(attr(snotel_datasets, "diagnostics")$code, "variable_identity_incomplete")
+})
+
+test_that("generic Place fallback requires reviewed gage identity and actual WKT", {
+  context <- list(
+    schema = "https://schema.org/",
+    gsp = "http://www.opengis.net/ont/geosparql#"
+  )
+  wkt_geometry <- list(
+    `@type` = "http://www.opengis.net/ont/sf#Point",
+    `gsp:asWKT` = list(
+      `@type` = "http://www.opengis.net/ont/geosparql#wktLiteral",
+      `@value` = "POINT (0 0)"
+    )
+  )
+  arbitrary_place <- list(
+    `@context` = context,
+    `@id` = "https://example.com/cities/one",
+    `@type` = "schema:Place",
+    `gsp:hasGeometry` = wkt_geometry
+  )
+  unreviewed_namespace <- arbitrary_place
+  unreviewed_namespace[["@id"]] <- "https://geoconnex.us/example/gages/one"
+  geometry_shell <- arbitrary_place
+  geometry_shell[["@id"]] <- "https://geoconnex.us/ndwr/gages/no-wkt"
+  geometry_shell[["gsp:hasGeometry"]] <- list(
+    `@type` = "http://www.opengis.net/ont/sf#Point"
+  )
+
+  for (document in list(arbitrary_place, unreviewed_namespace, geometry_shell)) {
+    location <- gx_parse_location(document)
+    expect_equal(nrow(location), 0L)
+    expect_contains(attr(location, "diagnostics")$code, "no_location_node")
+  }
+})
+
 test_that("compact, expanded graph, and aliased profiles converge", {
   cases <- c("standard-compact.json", "expanded-at-graph.json", "aliased-singletons.json")
   for (case in cases) {
@@ -201,6 +290,22 @@ test_that("fixture manifest pins every profile, negative, and retrieval fixture"
     expect_equal(nrow(gx_parse_location(text)), case$location_rows, info = entry$fixture_id)
     expect_equal(nrow(gx_parse_datasets(text)), case$dataset_rows, info = entry$fixture_id)
   }
+
+  observed <- entries[vapply(entries, function(entry) {
+    isTRUE(entry$counts_toward_real_profile_acceptance)
+  }, logical(1))]
+  publisher_hosts <- unique(vapply(
+    observed,
+    function(entry) entry$observed$publisher_host,
+    character(1)
+  ))
+  semantic_providers <- unique(vapply(observed, function(entry) {
+    provider <- entry$observed$semantic_provider
+    if (is.null(provider)) NA_character_ else provider
+  }, character(1)))
+  expect_gte(length(observed), 5L)
+  expect_gte(length(publisher_hosts), 3L)
+  expect_gte(sum(!is.na(semantic_providers)), 3L)
 })
 
 test_that("identity contract has portable golden hashes and Unicode normalization", {

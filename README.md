@@ -96,11 +96,11 @@ structured diagnostics instead of silently dropping tolerated production
 quirks. Dataset fetch handlers and snapshot writing remain planned interfaces
 and are labeled as such in the bundled implementation metadata.
 
-JSON-LD and parser contracts remain experimental. The fixture corpus currently
-contains two observed, minimized reference-service pages plus synthetic
-conformance/adversarial cases. The P0 gate requiring five real pages from three
-providers is still open; synthetic fixtures are explicitly excluded from that
-count.
+JSON-LD and parser contracts remain experimental. The fixture corpus now
+contains six observed, minimized pages from four landing hosts and five
+semantic providers, plus synthetic conformance/adversarial cases. This closes
+the P0 five-real-pages/three-providers evidence gate with one-page margin;
+synthetic fixtures remain explicitly excluded from that count.
 
 ## Design commitments
 

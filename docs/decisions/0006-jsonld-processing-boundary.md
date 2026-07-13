@@ -42,6 +42,7 @@ profiles can also amplify into large expanded graphs or dataset cross-products.
 - Boundary error classes and messages remain stable, but their conditions do
   not carry a debugging backtrace; internal contract failures still do.
 - The public parser tables and identity contract remain experimental during P0.
-  The corpus has only two observed pages from one publisher host; the
-  five-real-pages/three-providers gate must close before the profile contract is
-  declared complete or frozen.
+  The evidence corpus now has six observed pages from four landing hosts and
+  five semantic providers, closing the five-real-pages/three-providers gate.
+  Contract freezing still waits for the remaining P0 vertical-slice gates and
+  the M10 build-to-parse round-trip suite.

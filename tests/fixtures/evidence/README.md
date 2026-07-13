@@ -8,5 +8,7 @@ checks; they should not make ordinary offline tests depend on the network.
 No response body or large geometry is committed here. Protocol fixtures should
 be minimized and sanitized from separately captured responses, with retrieval
 time, request, media type, final URL, content hash, and original byte count in a
-sidecar. The P0 five-profile JSON-LD matrix still needs four provider-diverse
-captures in addition to the checked reference-gage profile.
+sidecar. The versioned JSON-LD manifest under `../jsonld/` now records six
+observed, minimized pages from four landing hosts and five semantic providers,
+so the P0 five-page/three-provider evidence gate is closed. Synthetic fixtures
+remain excluded from that count.

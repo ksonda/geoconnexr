@@ -14,6 +14,35 @@
       "dataset_rows": 0,
       "diagnostic_codes": ["no_location_node"]
     },
+    "virginia_wqp": {
+      "location_rows": 1,
+      "dataset_rows": 2,
+      "site_uri": "https://geoconnex.us/iow/wqp/21VASWCB-WMPO001",
+      "provider_name": "VIRGINIA DEPARTMENT OF ENVIRONMENTAL QUALITY",
+      "geometry_wkt": "POINT (-76.29 37.6175)"
+    },
+    "nevada_ndwr": {
+      "location_rows": 1,
+      "dataset_rows": 0,
+      "site_uri": "https://geoconnex.us/ndwr/gages/222S12E6701DD1",
+      "geometry_wkt": "POINT (-114.43853177599999 36.91791541500004)",
+      "diagnostic_codes": ["generic_place_geometry"]
+    },
+    "montana_mtdnrc": {
+      "location_rows": 1,
+      "dataset_rows": 0,
+      "site_uri": "https://geoconnex.us/mtdnrc/gages/SR002",
+      "geometry_wkt": "POINT (-112.34333299999997 47.50777780000004)",
+      "diagnostic_codes": ["generic_place_geometry"]
+    },
+    "usda_nrcs_snotel": {
+      "location_rows": 1,
+      "dataset_rows": 2,
+      "site_uri": "https://geoconnex.us/wwdh/snotel/301",
+      "provider_name": "United States Department of Agriculture's (USDA) Natural Resources Conservation Service (NRCS)",
+      "geometry_wkt": "POINT (-120.79192 41.23583)",
+      "diagnostic_codes": ["literal_location_type", "missing_distribution", "variable_identity_incomplete"]
+    },
     "standard_compact": {"location_rows": 1, "dataset_rows": 1},
     "expanded_graph": {"location_rows": 1, "dataset_rows": 1},
     "aliased_singletons": {"location_rows": 1, "dataset_rows": 1},

@@ -296,8 +296,29 @@ gx_location_candidates <- function(nodes) {
     has_position <- length(gx_prop(node, paste0(.gx_hyf, "referencedPosition"))) > 0L
     is_place <- any(types %in% gx_schema_terms("Place"))
     has_datasets <- length(gx_prop(node, gx_schema_terms("subjectOf"))) > 0L
-    is_hydrometric || has_position || (is_place && has_datasets)
+    is_hydrometric || has_position || (is_place && has_datasets) ||
+      gx_generic_state_gage_place(node, types)
   }, logical(1))
+}
+
+gx_has_wkt_geometry <- function(node) {
+  geometries <- gx_prop(node, paste0(.gx_gsp, "hasGeometry"))
+  wkts <- unlist(lapply(geometries, function(geometry) {
+    gx_scalar_texts(gx_prop(geometry, paste0(.gx_gsp, "asWKT")))
+  }), use.names = FALSE)
+  any(!is.na(wkts) & nzchar(trimws(wkts)))
+}
+
+gx_generic_state_gage_place <- function(node, types = gx_node_types(node)) {
+  id <- node[["@id"]]
+  is.character(id) && length(id) == 1L && !is.na(id) &&
+    grepl(
+      "^https://geoconnex[.]us/(cdss|mtdnrc|ndwr|nednr|wyseo)/gages/[^/?#]+$",
+      id
+    ) &&
+    any(types %in% gx_schema_terms("Place")) &&
+    all(types %in% gx_schema_terms("Place")) &&
+    gx_has_wkt_geometry(node)
 }
 
 gx_provider_fields <- function(node) {
@@ -372,9 +393,19 @@ gx_location_row <- function(node, input, path) {
     gx_provider_diagnostics(node, path)
   )
   types <- gx_node_types(node)
+  hydrometric_types <- paste0(.gx_hyf, c("HY_HydrometricFeature", "HY_HydroLocation"))
+  if (gx_generic_state_gage_place(node, types)) {
+    diagnostics <- gx_bind_diagnostics(
+      diagnostics,
+      gx_diagnostic(
+        "warning", "generic_place_geometry", path,
+        "Accepted a generic schema:Place in a reviewed state-gage PID namespace because it carries GeoSPARQL WKT."
+      )
+    )
+  }
   generic <- c(
     gx_schema_terms("Place"),
-    paste0(.gx_hyf, c("HY_HydrometricFeature", "HY_HydroLocation"))
+    hydrometric_types
   )
   profile_types <- setdiff(types, generic)
   preferred_types <- profile_types[startsWith(profile_types, .gx_loctype)]
@@ -550,7 +581,10 @@ gx_empty_locations <- function(diagnostics = gx_empty_diagnostics()) {
 #' Parse Geoconnex monitoring-location profiles
 #'
 #' Extracts documented and known production Geoconnex location shapes from
-#' safely expanded JSON-LD. WKT remains text at this protocol layer.
+#' safely expanded JSON-LD. A generic `schema:Place` is accepted only for
+#' reviewed state-gage PID namespaces when it carries nonempty GeoSPARQL WKT;
+#' this emits a warning-level `generic_place_geometry` diagnostic. WKT remains
+#' text at this protocol layer.
 #'
 #' @param x A [gx_jsonld()] object, parsed JSON-LD list, JSON string, or raw
 #'   JSON bytes.

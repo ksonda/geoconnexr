@@ -34,9 +34,12 @@
   compact, expanded, aliased, and current reference-gage profiles, including
   structured strict-mode diagnostics, open temporal intervals, deterministic
   dataset/distribution/variable IDs, and amplification budgets.
-- Added a provenance- and hash-pinned JSON-LD fixture manifest. Two observed
-  reference-service profiles are recorded; the five-real-pages/three-providers
-  P0 gate remains explicitly open.
+- Added a provenance- and hash-pinned JSON-LD fixture manifest. Six observed
+  profiles from four landing hosts and five semantic providers now close the
+  five-real-pages/three-providers P0 evidence gate with one-page margin.
+- Added tolerant parsing for sparse state-service profiles that expose a
+  generic `schema:Place` plus GeoSPARQL geometry, with an explicit diagnostic
+  instead of inferring semantics from unmapped source properties.
 - Hardened cache privacy and parser amplification boundaries: query-bearing and
   private responses are not persisted, URL metadata is fail-closed redacted,
   and atomic members plus bundled-context replacement costs are preflighted.
