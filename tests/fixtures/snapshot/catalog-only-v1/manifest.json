@@ -48,9 +48,9 @@
       "final_url": "https://reference.geoconnex.us/collections/hu12/items",
       "response_status": 200,
       "response_media_type": "application/geo+json",
-      "encoded_bytes": 43,
-      "decoded_bytes": 43,
-      "content_hash": "a12d359c8df34a76b41471b4c53072ee16ecb2954982c9293209bb4cb620f672",
+      "encoded_bytes": 42,
+      "decoded_bytes": 42,
+      "content_hash": "c0641f9355d006d739d8cc008e6ea081518bd214ed1f7d579f977793abf994b6",
       "etag": null,
       "last_modified": null,
       "retrieved_at": "2026-07-14T00:00:00Z",
@@ -63,8 +63,8 @@
     {
       "path": "catalog/datasets.csv",
       "media_type": "text/csv",
-      "bytes": 43,
-      "sha256": "a12d359c8df34a76b41471b4c53072ee16ecb2954982c9293209bb4cb620f672",
+      "bytes": 42,
+      "sha256": "c0641f9355d006d739d8cc008e6ea081518bd214ed1f7d579f977793abf994b6",
       "required": true,
       "roles": [
         "catalog"
@@ -75,8 +75,8 @@
     {
       "path": "requests.csv",
       "media_type": "text/csv",
-      "bytes": 66,
-      "sha256": "2b7c76254439339b88d9c7b070273f785d11b8feec459f4533508952e955ebc3",
+      "bytes": 65,
+      "sha256": "b652edd674849912a1ab7fcacd08566cd0dbd7cb03c65fccbae7d7639a82fbd4",
       "required": true,
       "roles": [
         "request-ledger-export"

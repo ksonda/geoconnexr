@@ -216,7 +216,7 @@ test_that("identifier snapshots verify exact bytes into deterministic evidence",
   )
   expected_paths <- c("catalog/datasets.csv", "requests.csv")
   expect_identical(output$resources$path, expected_paths)
-  expect_equal(output$resources$expected_bytes, c(43, 66))
+  expect_equal(output$resources$expected_bytes, c(42, 65))
   expect_identical(
     output$resources$expected_sha256,
     unname(vapply(
@@ -231,7 +231,7 @@ test_that("identifier snapshots verify exact bytes into deterministic evidence",
     list("catalog", "request-ledger-export")
   )
   expect_identical(output$resources$present, c(TRUE, TRUE))
-  expect_equal(output$resources$actual_bytes, c(43, 66))
+  expect_equal(output$resources$actual_bytes, c(42, 65))
   expect_identical(
     output$resources$actual_sha256,
     output$resources$expected_sha256
