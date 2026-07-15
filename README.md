@@ -49,10 +49,11 @@ pagination. Offline M6a/M6b boundaries now canonicalize one custom polygonal
 by recomputing geometry and digest integrity. Internal M6c and M9a/M9b
 boundaries now validate a strict offline catalog value object and can create
 then verify a deterministic, redacted catalog-only snapshot at a new local
-destination. These are packaging substrates, not exported discovery, package,
-snapshot, loading, or replay APIs. Public graph discovery, catalog
-orchestration, and provider data retrieval remain gated on fixture-backed
-production evidence.
+destination. Internal M7a adds deterministic, selection-only fetch plans bound
+to strict portable-classifier and R-implementation metadata assets. These are
+offline substrates, not exported discovery, fetch, package, snapshot, loading,
+or replay APIs. Public graph discovery, catalog orchestration, and provider data
+retrieval remain gated on fixture-backed production evidence.
 
 ## Intended workflow
 
@@ -177,6 +178,19 @@ writer remains unexported and its manifest is explicitly non-replayable. See
 [ADR 0018](docs/decisions/0018-internal-catalog-value-object.md) and
 [ADR 0019](docs/decisions/0019-catalog-only-snapshot-writer.md).
 
+The internal M7a plan groups the catalog's distribution-by-variable rows into
+one deterministic distribution row plus ordered parameter rows per distribution
+identity. It reclassifies every admitted URL against exact-byte-hashed portable
+and R implementation registries, checks target safety offline without DNS,
+intersects requested and catalog time ranges, and applies a stable
+provider/site/distribution order before `max_datasets`. The plan contains an
+exact empty request list: all implementations are planned, all handlers are
+non-replayable, and `execution_ready` is false. Construction probes no package,
+calls no handler, and performs no DNS, network, cache, or file write. Request
+construction, package preflight, execution, registration, and serialization
+remain M7b/M7c work. See
+[ADR 0020](docs/decisions/0020-internal-fetch-plan-selection.md).
+
 `gx_resolve()`, `gx_jsonld()`, and the `gx_ref_*()` functions make bounded
 network requests, account for every physical retry, and validate DNS and every
 redirect target before transport. A package-owned monotonic per-host throttle
@@ -204,7 +218,8 @@ same-endpoint pagination links. Collection-wide requests require an explicit
 cumulative-byte ceilings. Single-feature lookup records its ordered item,
 validated-filter, and JSON-LD fallback attempts; JSON-LD fallback results are
 visibly marked incomplete. Dataset fetch handlers and public snapshot writing
-remain planned interfaces; the internal M9b writer is limited to validated
+remain planned interfaces; M7a selects distributions without constructing or
+executing requests, and the internal M9b writer is limited to validated
 catalog-only resources and is labeled non-replayable in its manifest.
 
 The first crosswalk validates the reference service's advertised

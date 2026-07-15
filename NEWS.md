@@ -45,6 +45,13 @@
   fingerprints; early aggregate accounting and bounded count arithmetic close
   resource and overflow escapes. Nonempty reference layers, live
   discovery/merge policy, and public `gx_catalog()` remain gated.
+- Added the unexported M7a deterministic selection-only fetch plan. A strict
+  dual-asset loader binds portable classifiers to R implementation metadata;
+  plans collapse catalog variables into one row per distribution plus ordered
+  parameter rows, apply offline URL safety, time intersection, stable ordering,
+  and count/byte budgets, and remain explicitly non-executable. Request lists
+  are empty, handler implementations are planned and non-replayable, and the
+  boundary performs no package probing, DNS, network, cache, or file writes.
 - Added the unexported M9b catalog-only snapshot writer. It revalidates a
   catalog, creates deterministic redacted UTF-8 CSV views in a sibling staging
   tree, writes a manifest-v1 document last, verifies the closed tree through

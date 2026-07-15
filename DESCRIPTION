@@ -17,9 +17,11 @@ Description: Tools for discovering water-data sites and datasets through the
     integrity-checked hydration boundaries, and an internal closed-tree
     verifier checks manifest-relative snapshot integrity offline. A bounded
     internal catalog value object and creation-only catalog snapshot writer
-    provide a deterministic offline packaging substrate. Graph discovery,
-    public catalog orchestration, and provider-data packaging remain under
-    development.
+    provide a deterministic offline packaging substrate, and an internal
+    selection-only fetch plan binds catalog distributions to strict handler
+    metadata without constructing requests or executing providers. Graph
+    discovery, public catalog orchestration, and provider-data packaging remain
+    under development.
 License: MIT + file LICENSE
 URL: https://github.com/ksonda/geoconnexr
 BugReports: https://github.com/ksonda/geoconnexr/issues
