@@ -31,14 +31,14 @@ gx_resolve_row <- function(pid_uri, client, follow, max_redirects, budget = NULL
   accept <- "application/ld+json, text/html;q=0.9, */*;q=0.1"
 
   repeat {
-    gx_jsonld_budget_begin(budget)
     response <- tryCatch(
       gx_http_request(
         client,
         method = method,
         url = current,
         headers = list(Accept = accept),
-        check_status = FALSE
+        check_status = FALSE,
+        .attempt_control = gx_jsonld_attempt_control(budget)
       ),
       error = function(cnd) cnd
     )
@@ -49,7 +49,6 @@ gx_resolve_row <- function(pid_uri, client, follow, max_redirects, budget = NULL
       problem_code <- gx_resolution_problem(response)
       break
     }
-    gx_jsonld_budget_record(budget, response)
     if (is.na(initial_status)) {
       initial_status <- response$status
     }
@@ -82,7 +81,7 @@ gx_resolve_row <- function(pid_uri, client, follow, max_redirects, budget = NULL
       break
     }
     safety <- tryCatch(
-      gx_assert_safe_url(target, resolve_dns = !client$offline),
+      gx_assert_safe_url(target, resolve_dns = FALSE),
       error = function(cnd) cnd
     )
     if (inherits(safety, "error")) {
@@ -154,7 +153,7 @@ gx_resolve_impl <- function(uri, follow = TRUE, client = gx_client("pid"), budge
   if (!length(uri)) {
     return(gx_empty_resolution())
   }
-  invisible(lapply(uri, gx_assert_safe_url, resolve_dns = !client$offline))
+  invisible(lapply(uri, gx_assert_safe_url, resolve_dns = FALSE))
 
   max_redirects <- getOption("geoconnexr.max_redirects", 10L)
   max_redirects <- gx_scalar_number(

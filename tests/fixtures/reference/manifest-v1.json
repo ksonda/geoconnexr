@@ -1,0 +1,68 @@
+{
+  "manifest_version": 1,
+  "contract_version": "0.1.0",
+  "checked_at": "2026-07-13T20:00:00Z",
+  "note": "Hand-minimized schemas derived from bounded production checks. They preserve collection, queryable-type, and x-ogc-role shapes; they are not immutable snapshots of the live inventory.",
+  "fixtures": [
+    {
+      "fixture_id": "reference-collections",
+      "path": "collections.min.json",
+      "evidence_kind": "observed_minimized_schema",
+      "source_url": "https://reference.geoconnex.us/collections?f=json",
+      "request": {"method": "GET", "accept": "application/json"},
+      "stored_sha256": "23e874c7efe1647d47693afe7328357f9a31377da0f379f9a893d0f6dbeeb9f6",
+      "transformations": ["retained five M3 acceptance collections", "removed mutable extents and unrelated links", "replaced descriptions with fixture labels"],
+      "mutable": true
+    },
+    {
+      "fixture_id": "queryables-gages",
+      "path": "queryables-gages.min.json",
+      "evidence_kind": "observed_minimized_schema",
+      "source_url": "https://reference.geoconnex.us/collections/gages/queryables?f=json",
+      "request": {"method": "GET", "accept": "application/schema+json, application/json;q=0.9"},
+      "stored_sha256": "ab9d2c2293954f13400fdb4d0ed9141e54785bd50907b85fe92da4f3cf5f88b0",
+      "transformations": ["retained representative filter properties, JSON types, and OGC roles"],
+      "mutable": true
+    },
+    {
+      "fixture_id": "queryables-mainstems",
+      "path": "queryables-mainstems.min.json",
+      "evidence_kind": "observed_minimized_schema",
+      "source_url": "https://reference.geoconnex.us/collections/mainstems/queryables?f=json",
+      "request": {"method": "GET", "accept": "application/schema+json, application/json;q=0.9"},
+      "stored_sha256": "e5d6b321470d360bb37b6a4d7a82ddc8a273f0e16d307346b48e6c7d45ce27b8",
+      "transformations": ["retained representative filter properties, JSON types, and OGC roles"],
+      "mutable": true
+    },
+    {
+      "fixture_id": "queryables-mainstems-v3",
+      "path": "queryables-mainstems-v3.min.json",
+      "evidence_kind": "observed_minimized_schema",
+      "source_url": "https://reference.geoconnex.us/collections/mainstems_v3/queryables?f=json",
+      "request": {"method": "GET", "accept": "application/schema+json, application/json;q=0.9"},
+      "stored_sha256": "2ec3213ad8c8ded86898b30b61d892a8f21f8242c212b18644c7fcfcc2872ad1",
+      "transformations": ["retained representative filter properties, JSON types, and OGC roles"],
+      "mutable": true
+    },
+    {
+      "fixture_id": "queryables-hu12",
+      "path": "queryables-hu12.min.json",
+      "evidence_kind": "observed_minimized_schema",
+      "source_url": "https://reference.geoconnex.us/collections/hu12/queryables?f=json",
+      "request": {"method": "GET", "accept": "application/schema+json, application/json;q=0.9"},
+      "stored_sha256": "3f29426fed2db9d9229288576cd93bfa7a8d5222d2ad0f25988ff8061329766a",
+      "transformations": ["retained representative filter properties, JSON types, and OGC roles"],
+      "mutable": true
+    },
+    {
+      "fixture_id": "queryables-counties",
+      "path": "queryables-counties.min.json",
+      "evidence_kind": "observed_minimized_schema",
+      "source_url": "https://reference.geoconnex.us/collections/counties/queryables?f=json",
+      "request": {"method": "GET", "accept": "application/schema+json, application/json;q=0.9"},
+      "stored_sha256": "adcdb51f7e1140199f386127786e77d524b64af8992c9ac0b9876957460359d6",
+      "transformations": ["retained representative filter properties, JSON types, and OGC roles"],
+      "mutable": true
+    }
+  ]
+}

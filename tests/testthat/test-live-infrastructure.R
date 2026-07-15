@@ -39,15 +39,49 @@ test_that("live bounded mainstem query returns the checked gage", {
       offset = 0
     )
   )
-  response <- live_request("https://graph.geoconnex.us/") |>
-    httr2::req_method("POST") |>
-    httr2::req_headers(Accept = "application/sparql-results+json") |>
-    httr2::req_body_raw(charToRaw(query), type = "application/sparql-query") |>
-    httr2::req_perform()
-  expect_equal(httr2::resp_status(response), 200L)
-  body <- httr2::resp_body_json(response, simplifyVector = FALSE)
-  sites <- vapply(body$results$bindings, function(x) x$site$value, character(1))
+  result <- geoconnexr:::gx_graph_execute_once(
+    query,
+    expected = "select",
+    client = gx_client(
+      "graph", retries = 0L, max_bytes = 1024L^2, cache = FALSE
+    ),
+    max_rows = 10L,
+    max_variables = 8L,
+    max_bound_terms = 80L,
+    max_links = 2L,
+    max_requests = 1L,
+    max_total_bytes = 1024L^2,
+    max_members = 1000L,
+    max_atomic_bytes = 1024L^2,
+    max_depth = 16L
+  )
+  sites <- result$bindings$value[result$bindings$variable == "site"]
   expect_contains(sites, "https://geoconnex.us/ref/gages/1000001")
+})
+
+test_that("live bounded graph ASK recognizes the checked gage", {
+  live_guard()
+  result <- geoconnexr:::gx_graph_execute_once(
+    paste(
+      "ASK WHERE {",
+      "<https://geoconnex.us/ref/gages/1000001> ?predicate ?object .",
+      "}"
+    ),
+    expected = "ask",
+    client = gx_client(
+      "graph", retries = 0L, max_bytes = 512L * 1024L, cache = FALSE
+    ),
+    max_rows = 0L,
+    max_variables = 0L,
+    max_bound_terms = 0L,
+    max_links = 2L,
+    max_requests = 1L,
+    max_total_bytes = 512L * 1024L,
+    max_members = 100L,
+    max_atomic_bytes = 512L * 1024L,
+    max_depth = 12L
+  )
+  expect_true(result$value)
 })
 
 test_that("live reference gage negotiates its JSON-LD profile", {
@@ -124,4 +158,74 @@ test_that("live provider-diverse JSON-LD profiles remain compatible", {
       )
     }
   }
+})
+
+test_that("live native reference client preserves identity roles and bounded filters", {
+  live_guard()
+  withr::local_options(geoconnexr.cache_dir = withr::local_tempdir())
+  client <- gx_client(
+    "reference", retries = 0L, max_bytes = 1024L^2,
+    cache = FALSE
+  )
+
+  collections <- gx_ref_collections(refresh = TRUE, client = client)
+  expect_true(all(c(
+    "gages", "mainstems", "mainstems_v3", "hu12", "counties"
+  ) %in% collections$collection_id))
+
+  queryables <- gx_ref_queryables("hu12", client = client)
+  roles <- vapply(queryables$schema, function(x) {
+    as.character(x[["x-ogc-role"]] %||% NA_character_)
+  }, character(1))
+  expect_identical(queryables$name[!is.na(roles) & roles == "id"], "huc12")
+
+  mainstem <- gx_ref_features(
+    "mainstems", query = list(id = "29559"), limit = 2L,
+    client = client
+  )
+  expect_equal(nrow(mainstem), 1L)
+  expect_identical(mainstem$feature_id, "29559")
+  expect_s3_class(mainstem, "sf")
+})
+
+test_that("live bounded gage crosswalk preserves the checked identity", {
+  live_guard()
+  withr::local_options(geoconnexr.cache_dir = withr::local_tempdir())
+  client <- gx_client(
+    "reference", retries = 0L, max_bytes = 1024L^2,
+    cache = FALSE
+  )
+
+  out <- gx_gage_to_pid("USGS-08332622", client = client)
+
+  expect_identical(out$status, "matched")
+  expect_identical(out$gage_id, "1000001")
+  expect_identical(out$gage_uri, "https://geoconnex.us/ref/gages/1000001")
+  expect_identical(out$mainstem_uri, "https://geoconnex.us/ref/mainstems/1622734")
+  expect_identical(out$comid, "17789327")
+  expect_true(attr(out, "gx_crosswalk")$complete)
+})
+
+test_that("live pinned mainstem asset exposes the checked bounded redirect", {
+  live_guard()
+  spec <- gx_mainstem_lookup_spec("v3.2")
+  path <- tempfile(fileext = ".redirect-body")
+  on.exit(if (file.exists(path)) unlink(path, force = TRUE), add = TRUE)
+  client <- gx_client(
+    "pid", retries = 0L, max_bytes = 1024L^2, cache = FALSE
+  )
+
+  response <- gx_http_download_file(
+    client,
+    spec$source_url,
+    path,
+    max_bytes = 1024L^2,
+    check_status = FALSE
+  )
+
+  expect_identical(response$status, 302L)
+  expect_identical(response$bytes, 0)
+  location <- gx_header(response$headers, "location")
+  expect_true(nzchar(location))
+  expect_true(tolower(httr2::url_parse(location)$hostname) %in% spec$allowed_hosts)
 })

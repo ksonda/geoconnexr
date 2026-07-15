@@ -2,20 +2,33 @@
 % Please edit documentation in R/aoi.R
 \name{gx_aoi}
 \alias{gx_aoi}
-\title{Define an identifier-based area of interest}
+\title{Define an area of interest}
 \usage{
-gx_aoi(x, type = c("auto", "huc", "county", "state"))
+gx_aoi(x, type = "auto")
 }
 \arguments{
-\item{x}{One character identifier.}
+\item{x}{One character identifier, or one polygonal \code{sf}/\code{sfc} geometry.}
 
-\item{type}{One of \code{"auto"}, \code{"huc"}, \code{"county"}, or \code{"state"}.}
+\item{type}{Exactly one of \code{"auto"}, \code{"huc"}, \code{"county"}, \code{"state"}, or
+\code{"sf"}. Partial matching is not supported.}
 }
 \value{
-An object of class \code{gx_aoi}.
+An object of class \code{gx_aoi} containing a validated replay recipe.
 }
 \description{
-The P0 implementation supports HUCs, five-digit county FIPS codes, and
-two-letter state abbreviations. Spatial and upstream-basin inputs will be
-added after their recipe contracts pass the architecture spike.
+Identifier AOIs accept HUCs, five-digit county FIPS codes, and recognized
+two-letter state or territory abbreviations. Spatial AOIs accept exactly one
+valid, non-empty, two-dimensional \code{POLYGON} or \code{MULTIPOLYGON} in an
+\link[sf:sf]{sf} or \link[sf:sfc]{sfc} object with an explicit CRS.
+}
+\details{
+Spatial inputs are transformed to OGC CRS84 with PROJ networking disabled,
+rounded to a declared nine-decimal-degree grid with a deterministic
+half-grid tie rule, bounded to 100,000 coordinate positions and 8 MiB per
+canonical representation, normalized to GeoJSON ring winding plus
+deterministic ring start and hole/member order, and recorded as canonical
+GeoJSON with a SHA-256 of portable little-endian WKB. Invalid or
+grid-collapsed geometry is rejected rather than repaired. Antimeridian rings
+must be explicitly pre-cut. This function performs no network or catalog
+work; the recipe's pipeline fields describe the intended replay boundary.
 }

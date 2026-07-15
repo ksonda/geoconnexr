@@ -46,3 +46,10 @@ profiles can also amplify into large expanded graphs or dataset cross-products.
   five semantic providers, closing the five-real-pages/three-providers gate.
   Contract freezing still waits for the remaining P0 vertical-slice gates and
   the M10 build-to-parse round-trip suite.
+
+## Follow-up
+
+ADR 0010 closes the temporary retry-accounting gate in this decision. JSON-LD
+retries are enabled again, and every physical attempt now consumes the same
+shared request and cumulative-byte budgets as PID resolution, redirects,
+landing-page retrieval, and alternate discovery.

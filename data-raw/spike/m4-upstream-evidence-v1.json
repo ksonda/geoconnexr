@@ -1,0 +1,123 @@
+{
+  "evidence_version": 1,
+  "checked_at": "2026-07-13T22:00:00Z",
+  "purpose": "Durable source pins for the M4 mapping correction and first reference-backed gage crosswalk.",
+  "sources": [
+    {
+      "id": "upstream-mainstem-adapter",
+      "repository": "https://github.com/DOI-USGS/nhdplusTools",
+      "commit": "d025d84bd05704576481a5cd35614e8b4f293dfc",
+      "path": "R/mainstems.R",
+      "url": "https://github.com/DOI-USGS/nhdplusTools/blob/d025d84bd05704576481a5cd35614e8b4f293dfc/R/mainstems.R",
+      "observation": "add_mainstems() joins NHDPlus identifiers through a downloaded ref_rivers lookup rather than by interpolating a VAA attribute.",
+      "mutable": false
+    },
+    {
+      "id": "ref-rivers-v3.2-generator",
+      "repository": "https://github.com/internetofwater/ref_rivers",
+      "commit": "fd42072b1e9bf9de33cd047052b99508753c7fea",
+      "path": "R/write_output.R",
+      "url": "https://github.com/internetofwater/ref_rivers/blob/fd42072b1e9bf9de33cd047052b99508753c7fea/R/write_output.R",
+      "observation": "The release generator filters out superseded mainstems before writing the NHDPlusV2 lookup and checks that COMIDs are not duplicated.",
+      "mutable": false
+    },
+    {
+      "id": "ref-rivers-mainstem-lookup",
+      "release": "v3.2",
+      "tag_commit": "fd42072b1e9bf9de33cd047052b99508753c7fea",
+      "asset_id": "378822640",
+      "url": "https://github.com/internetofwater/ref_rivers/releases/tag/v3.2",
+      "asset": "nhdpv2_lookup.csv",
+      "asset_url": "https://github.com/internetofwater/ref_rivers/releases/download/v3.2/nhdpv2_lookup.csv",
+      "asset_bytes": 120422425,
+      "asset_sha256": "d73898e3eabbdc4aef493e2cb47d4bddcf4762872ca3971c74e1dbe0a4b73acb",
+      "columns": [
+        "uri",
+        "comid"
+      ],
+      "data_rows": 2357730,
+      "unique_comids": 2357730,
+      "duplicate_comids": 0,
+      "unique_mainstem_uris": 852190,
+      "forward_cardinality": "zero_or_one",
+      "active_state": "non_superseded_at_release",
+      "currentness_policy": "not_checked",
+      "license": "CC0-1.0",
+      "known_answers": [
+        {
+          "comid": "17789327",
+          "mainstem_uri": "https://geoconnex.us/ref/mainstems/1622734"
+        },
+        {
+          "comid": "13637491",
+          "mainstem_uri": "https://geoconnex.us/ref/mainstems/323742"
+        }
+      ],
+      "known_absent": [
+        "999999999"
+      ],
+      "audit_method": "Downloaded the release asset without content decoding; checked exact byte count and SHA-256; parsed the exact uri,comid schema; counted data rows, distinct COMIDs, duplicate COMIDs, and distinct URIs; then checked the two positive rows and one absent COMID.",
+      "mutable": false
+    },
+    {
+      "id": "vaa-levelpath-audit",
+      "package": "nhdplusTools",
+      "package_version": "1.4.2",
+      "function_call": "get_vaa(c('levelpathi', 'reachcode'), download = FALSE)",
+      "artifact": "nhdplusVAA.fst",
+      "artifact_url": "https://www.hydroshare.org/resource/6092c8a62fac45be97a09bfd0b0bf726/data/contents/nhdplusVAA.fst",
+      "artifact_bytes": 214381247,
+      "artifact_sha256": "6a582ee571d93d74a9587186b1145d928e40d9eb06fc869ad88e547117aba376",
+      "audit_method": "Selected COMIDs 17789327 and 13637491 from the locally cached artifact after verifying its exact byte count and SHA-256.",
+      "upstream_url_mutable": true
+    },
+    {
+      "id": "reference-gage-queryables",
+      "url": "https://reference.geoconnex.us/collections/gages/queryables?f=json",
+      "request": {
+        "method": "GET",
+        "accept": "application/schema+json, application/json;q=0.9"
+      },
+      "mutable": true
+    },
+    {
+      "id": "reference-gage-known-answer",
+      "url": "https://reference.geoconnex.us/collections/gages/items?f=json&provider_id=USGS-08332622&limit=2",
+      "request": {
+        "method": "GET",
+        "accept": "application/geo+json, application/json;q=0.9"
+      },
+      "mutable": true
+    }
+  ],
+  "observations": [
+    {
+      "source_id": "vaa-levelpath-audit",
+      "requested_comid": "17789327",
+      "vaa_levelpathi": "680021307",
+      "reference_mainstem_uri": "https://geoconnex.us/ref/mainstems/1622734",
+      "mapping_source_id": "ref-rivers-mainstem-lookup",
+      "conclusion": "VAA levelpathi and Geoconnex mainstem identifiers are different namespaces.",
+      "mutable": false
+    },
+    {
+      "source_id": "vaa-levelpath-audit",
+      "requested_comid": "13637491",
+      "vaa_levelpathi": "510002581",
+      "reference_mainstem_uri": "https://geoconnex.us/ref/mainstems/323742",
+      "mapping_source_id": "ref-rivers-mainstem-lookup",
+      "conclusion": "A second checked mapping confirms that levelpathi cannot be interpolated into a Geoconnex PID.",
+      "mutable": false
+    },
+    {
+      "source_id": "reference-gage-known-answer",
+      "provider_id": "USGS-08332622",
+      "gage_id": "1000001",
+      "gage_uri": "https://geoconnex.us/ref/gages/1000001",
+      "comid": "17789327",
+      "mainstem_uri": "https://geoconnex.us/ref/mainstems/1622734",
+      "mutable": true
+    }
+  ],
+  "live_observations_mutable": true
+}

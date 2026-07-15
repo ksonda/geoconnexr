@@ -97,7 +97,7 @@ The spec calls conversions multiplicative but includes Fahrenheit↔Celsius. Tem
 
 - `edr4r` is lowercase, current CRAN 0.1.1, and hosted at `ksonda/edr4r`; the old Q3 is resolved.
 - Current `dataRetrieval` documentation is moving users from `readNWIS*` to `read_waterdata_*`; the new APIs should be primary and legacy handlers explicit compatibility paths.
-- `huc12pp` is currently advertised by NLDI; prefer a returned mainstem value before COMID/VAA fallback.
+- `huc12pp` is currently advertised by NLDI; fixture-pin its response contract, then resolve any returned COMID through the checksum-pinned mainstem lookup. Never derive a PID from VAA `levelpathi`.
 - Re-exporting a Suggests-only `nhdplusTools` API is not a sound namespace contract. Use guarded wrappers.
 - Mandatory code paths omitted dependencies for cache, YAML, HTML, hashing, CSV, Arrow, Quarto, and validation.
 - `limit = Inf` defaults contradict the stated graph-politeness rules.

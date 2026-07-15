@@ -41,10 +41,10 @@
       "additionalProperties": false,
       "properties": {
         "enabled": {"type": "boolean"},
-        "max_datasets": {"type": "integer", "minimum": 0},
-        "max_requests": {"type": "integer", "minimum": 0},
-        "max_encoded_bytes": {"type": "integer", "minimum": 0},
-        "max_decoded_bytes": {"type": "integer", "minimum": 0},
+        "max_datasets": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+        "max_requests": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+        "max_encoded_bytes": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+        "max_decoded_bytes": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
         "handler_order": {"$ref": "#/$defs/string_array"}
       }
     },
@@ -101,41 +101,61 @@
     "aoi": {
       "oneOf": [
         {"$ref": "#/$defs/id_aoi"},
-        {"$ref": "#/$defs/geometry_aoi"},
-        {"$ref": "#/$defs/point_upstream_aoi"}
+        {"$ref": "#/$defs/geometry_aoi"}
       ]
     },
     "id_aoi": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["kind", "identifier"],
-      "properties": {
-        "kind": {"enum": ["huc", "county", "state", "mainstem_basin"]},
-        "identifier": {"type": "string", "minLength": 1},
-        "canonical_uri": {"type": "string", "format": "uri"}
-      }
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "identifier"],
+          "properties": {
+            "kind": {"const": "huc"},
+            "identifier": {
+              "type": "string",
+              "pattern": "^([0-9]{2}|[0-9]{4}|[0-9]{6}|[0-9]{8}|[0-9]{10}|[0-9]{12})$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "identifier"],
+          "properties": {
+            "kind": {"const": "county"},
+            "identifier": {"type": "string", "pattern": "^[0-9]{5}$"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "identifier"],
+          "properties": {
+            "kind": {"const": "state"},
+            "identifier": {
+              "enum": [
+                "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+                "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+                "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+                "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+                "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
+                "DC", "AS", "GU", "MP", "PR", "UM", "VI"
+              ]
+            }
+          }
+        }
+      ]
     },
     "geometry_aoi": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["kind", "canonical_geojson", "crs"],
+      "required": ["kind", "canonical_geojson", "crs", "wkb_sha256"],
       "properties": {
         "kind": {"const": "sf"},
         "canonical_geojson": {"$ref": "#/$defs/geojson_geometry"},
-        "crs": {"type": "string", "minLength": 1},
+        "crs": {"const": "OGC:CRS84"},
         "wkb_sha256": {"$ref": "#/$defs/sha256"}
-      }
-    },
-    "point_upstream_aoi": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["kind", "longitude", "latitude", "crs"],
-      "properties": {
-        "kind": {"const": "point_upstream"},
-        "longitude": {"type": "number", "minimum": -180, "maximum": 180},
-        "latitude": {"type": "number", "minimum": -90, "maximum": 90},
-        "crs": {"type": "string", "minLength": 1},
-        "comid": {"type": "string", "pattern": "^[0-9]+$"}
       }
     },
     "geojson_geometry": {
@@ -145,21 +165,52 @@
           "additionalProperties": false,
           "required": ["type", "coordinates"],
           "properties": {
-            "type": {"enum": ["Point", "MultiPoint", "LineString", "MultiLineString", "Polygon", "MultiPolygon"]},
-            "coordinates": {"type": "array"}
+            "type": {"const": "Polygon"},
+            "coordinates": {"$ref": "#/$defs/polygon_coordinates"}
           }
         },
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["type", "geometries"],
+          "required": ["type", "coordinates"],
           "properties": {
-            "type": {"const": "GeometryCollection"},
-            "geometries": {"type": "array", "items": {"$ref": "#/$defs/geojson_geometry"}}
+            "type": {"const": "MultiPolygon"},
+            "coordinates": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 100000,
+              "items": {"$ref": "#/$defs/polygon_coordinates"}
+            }
           }
         }
       ]
     },
-    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+    "polygon_coordinates": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100000,
+      "items": {
+        "type": "array",
+        "minItems": 4,
+        "maxItems": 100000,
+        "items": {"$ref": "#/$defs/position"}
+      }
+    },
+    "position": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {"type": "number", "minimum": -180, "maximum": 180},
+        {"type": "number", "minimum": -90, "maximum": 90}
+      ],
+      "items": false
+    },
+    "sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[a-f0-9]{64}$"
+    }
   }
 }

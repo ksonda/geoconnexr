@@ -590,37 +590,57 @@ gx_media_type <- function(headers) {
   trimws(strsplit(value, ";", fixed = TRUE)[[1]][[1]])
 }
 
-gx_jsonld_request_row <- function(response) {
+gx_jsonld_empty_requests <- function() {
   tibble::tibble(
-    request_id = response$request$request_id,
-    method = response$request$method,
-    url = gx_redact_url(response$request$url),
-    status = response$status,
-    media_type = gx_media_type(response$headers),
-    bytes = as.integer(response$bytes),
-    body_sha256 = response$body_sha256,
-    retrieved_at = response$retrieved_at,
-    cache_origin = response$cache_origin
+    request_id = character(), method = character(), url = character(),
+    status = integer(), media_type = character(), bytes = integer(),
+    body_sha256 = character(), retrieved_at = as.POSIXct(character(), tz = "UTC"),
+    cache_origin = character()
   )
 }
 
-gx_jsonld_budget_begin <- function(budget) {
-  if (is.null(budget)) return(invisible(NULL))
-  budget$requests <- budget$requests + 1L
-  if (budget$requests > budget$max_requests) {
-    gx_abort("JSON-LD retrieval exceeded its request budget.", "gx_error_jsonld_budget")
-  }
-  invisible(NULL)
-}
-
-gx_jsonld_budget_record <- function(budget, response) {
-  if (is.null(budget)) return(invisible(NULL))
-  budget$bytes <- budget$bytes + response$bytes
-  budget$ledger <- rbind(budget$ledger, gx_jsonld_request_row(response))
-  if (budget$bytes > budget$max_bytes) {
-    gx_abort("JSON-LD retrieval exceeded its cumulative byte budget.", "gx_error_jsonld_budget")
-  }
-  invisible(NULL)
+gx_jsonld_attempt_control <- function(budget) {
+  if (is.null(budget)) return(NULL)
+  list(
+    before = function(request, physical) {
+      if (nrow(budget$ledger) >= budget$max_requests) {
+        gx_abort(
+          "JSON-LD retrieval exceeded its request-attempt budget.",
+          "gx_error_jsonld_budget",
+          budget_kind = "requests",
+          requests = budget$ledger
+        )
+      }
+      remaining <- budget$max_bytes -
+        sum(as.double(budget$ledger$bytes), na.rm = TRUE)
+      if (!is.finite(remaining) || remaining < 1) {
+        gx_abort(
+          "JSON-LD retrieval exceeded its cumulative byte budget.",
+          "gx_error_jsonld_budget",
+          budget_kind = "bytes",
+          requests = budget$ledger
+        )
+      }
+      as.integer(min(as.double(request$max_bytes), floor(remaining)))
+    },
+    after = function(attempt) {
+      budget$ledger <- rbind(
+        budget$ledger,
+        gx_http_attempt_request_row(attempt)
+      )
+      budget$requests <- nrow(budget$ledger)
+      budget$bytes <- sum(as.double(budget$ledger$bytes), na.rm = TRUE)
+      if (budget$bytes > budget$max_bytes) {
+        gx_abort(
+          "JSON-LD retrieval exceeded its cumulative byte budget.",
+          "gx_error_jsonld_budget",
+          budget_kind = "bytes",
+          requests = budget$ledger
+        )
+      }
+      invisible(NULL)
+    }
+  )
 }
 
 gx_jsonld_follow_get <- function(url, client, accept, budget) {
@@ -636,29 +656,32 @@ gx_jsonld_follow_get <- function(url, client, accept, budget) {
     integer = TRUE
   )
   repeat {
-    gx_jsonld_budget_begin(budget)
     response <- tryCatch(
       gx_http_request(
         client,
         method = "GET",
         url = current,
         headers = list(Accept = accept),
-        check_status = FALSE
+        check_status = FALSE,
+        .attempt_control = gx_jsonld_attempt_control(budget)
       ),
       error = function(cnd) {
         if (inherits(cnd, "gx_error_jsonld")) stop(cnd)
         gx_abort(
           "JSON-LD representation transport failed; underlying details were withheld.",
-          "gx_error_jsonld_transport"
+          "gx_error_jsonld_transport",
+          requests = if (is.null(budget)) gx_jsonld_empty_requests() else budget$ledger,
+          attempts = cnd$attempts %||% gx_http_empty_attempts()
         )
       }
     )
-    gx_jsonld_budget_record(budget, response)
     if (response$status < 300L || response$status >= 400L) {
       if (response$status < 200L || response$status >= 300L) {
         gx_abort(
           "JSON-LD retrieval failed with HTTP status {response$status}.",
-          "gx_error_jsonld_http"
+          "gx_error_jsonld_http",
+          status = response$status,
+          requests = if (is.null(budget)) gx_jsonld_empty_requests() else budget$ledger
         )
       }
       return(list(response = response, chain = chain))
@@ -672,7 +695,7 @@ gx_jsonld_follow_get <- function(url, client, accept, budget) {
       gx_abort("JSON-LD redirect Location is invalid.", "gx_error_jsonld_redirect")
     }
     safe <- tryCatch({
-      gx_assert_safe_url(target, resolve_dns = !client$offline)
+      gx_assert_safe_url(target, resolve_dns = FALSE)
       TRUE
     }, error = function(cnd) FALSE)
     if (!safe) {
@@ -763,7 +786,7 @@ gx_html_jsonld <- function(body, base_url, client, budget) {
     resolved <- tryCatch(httr2::url_modify_relative(base_url, candidate), error = function(cnd) NA_character_)
     safe <- tryCatch({
       if (is.na(resolved)) stop("invalid")
-      gx_assert_safe_url(resolved, resolve_dns = !client$offline)
+      gx_assert_safe_url(resolved, resolve_dns = FALSE)
       TRUE
     }, error = function(cnd) FALSE)
     if (safe) {
@@ -866,20 +889,22 @@ gx_jsonld_decode_response <- function(response, client, budget, allow_html = TRU
 #'   `content_bytes`, and `response_sha256` describe the selected source.
 #' - `document`, `source_document`, and `expanded` contain the selected form,
 #'   parsed source JSON-LD, and standards-expanded JSON-LD, respectively.
-#' - `resolution` is the [gx_resolve()] row, `requests` is a physical-request
+#' - `resolution` is the [gx_resolve()] row, `requests` is a request-attempt
 #'   ledger with redacted URLs, and `diagnostics` has fixed columns `severity`,
 #'   `code`, `path`, `message`, and `recoverable`.
 #'
 #' @section Processing boundary:
 #' Parsers receive already-bounded bytes and cannot make network requests.
 #' HTML is parsed with `NONET`; only inline scripts and one safe advertised
-#' alternate are considered. M2 disables transport retries so every physical
-#' request fits the same ledger and cumulative budget. The `as` argument changes
-#' only `document`, not validation or expansion.
+#' alternate is considered. Package-owned retries record every physical attempt
+#' in the same ledger and cumulative budget used by PID resolution, landing
+#' retrieval, and alternate discovery. The `as` argument changes only
+#' `document`, not validation or expansion.
 #'
 #' @section Safety limits:
-#' Options provide fail-closed ceilings. Defaults are 16 requests; twice the
-#' client's per-response limit in cumulative response bytes; 2 MiB of local
+#' Options provide fail-closed ceilings. Defaults are 16 request attempts or
+#' cache retrievals; twice the client's per-response limit in cumulative
+#' response bytes; 2 MiB of local
 #' JSON; depth 64; 10,000 serialized members; 512 KiB of contexts; 16 MiB of
 #' expanded JSON; and 64 HTML candidates. Profile parsing additionally limits
 #' one identity to 64 defining fragments and dataset output to 10,000 rows.
@@ -900,7 +925,6 @@ gx_jsonld <- function(uri, as = c("expanded", "raw", "text"), client = gx_client
     gx_abort("{.arg client} must be a PID client created by {.fn gx_client}.", "gx_error_client")
   }
   transport_client <- client
-  transport_client$retries <- 0L
   budget <- new.env(parent = emptyenv())
   budget$requests <- 0L
   budget$bytes <- 0
@@ -918,16 +942,17 @@ gx_jsonld <- function(uri, as = c("expanded", "raw", "text"), client = gx_client
     maximum = .Machine$integer.max,
     integer = TRUE
   )
-  budget$ledger <- tibble::tibble(
-    request_id = character(), method = character(), url = character(), status = integer(),
-    media_type = character(), bytes = integer(), body_sha256 = character(),
-    retrieved_at = as.POSIXct(character(), tz = "UTC"), cache_origin = character()
-  )
+  budget$ledger <- gx_jsonld_empty_requests()
+  tryCatch({
   resolution <- gx_resolve_impl(uri, client = transport_client, budget = budget)
   if (nrow(resolution) != 1L || !is.na(resolution$problem_code[[1]]) ||
       is.na(resolution$landing_url[[1]])) {
     code <- resolution$problem_code[[1]] %||% "unknown"
-    gx_abort("PID resolution failed before JSON-LD retrieval ({code}).", "gx_error_jsonld_resolution")
+    gx_abort(
+      "PID resolution failed before JSON-LD retrieval ({code}).",
+      "gx_error_jsonld_resolution",
+      requests = budget$ledger
+    )
   }
 
   fetched <- gx_jsonld_follow_get(
@@ -938,12 +963,7 @@ gx_jsonld <- function(uri, as = c("expanded", "raw", "text"), client = gx_client
   )
   decoded <- gx_jsonld_decode_response(fetched$response, transport_client, budget)
   prepared <- gx_prepare_jsonld(decoded$value, base = decoded$response$url)
-  retry_diagnostic <- if (client$retries > 0L) {
-    gx_diagnostic("info", "retries_disabled", "", "JSON-LD retrieval disabled transport retries so every physical attempt remains inside the request budget.")
-  } else {
-    NULL
-  }
-  diagnostics <- gx_bind_diagnostics(decoded$diagnostics, prepared$diagnostics, retry_diagnostic)
+  diagnostics <- gx_bind_diagnostics(decoded$diagnostics, prepared$diagnostics)
   document <- switch(as, expanded = prepared$expanded, raw = decoded$value, text = decoded$text)
   structure(
     list(
@@ -967,6 +987,10 @@ gx_jsonld <- function(uri, as = c("expanded", "raw", "text"), client = gx_client
     ),
     class = "gx_jsonld"
   )
+  }, error = function(cnd) {
+    if (inherits(cnd, "gx_error")) cnd$requests <- budget$ledger
+    stop(cnd)
+  })
 }
 
 #' @export

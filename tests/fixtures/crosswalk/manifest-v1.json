@@ -1,0 +1,76 @@
+{
+  "manifest_version": 1,
+  "contract_version": "0.1.0",
+  "checked_at": "2026-07-13T22:00:00Z",
+  "note": "Hand-minimized bounded production evidence for the experimental M4 crosswalks plus one explicitly synthetic ambiguity fixture; live results remain mutable.",
+  "fixtures": [
+    {
+      "fixture_id": "crosswalk-queryables-gages",
+      "path": "queryables-gages.min.json",
+      "evidence_kind": "observed_minimized_schema",
+      "source_url": "https://reference.geoconnex.us/collections/gages/queryables?f=json",
+      "request": {
+        "method": "GET",
+        "accept": "application/schema+json, application/json;q=0.9"
+      },
+      "stored_sha256": "9b0a4822ad352654d0ae3a524270bfb414a4d85008ae3d950f61340168fee5b1",
+      "transformations": [
+        "retained identity, provider, PID, COMID, mainstem, and primary-geometry queryables",
+        "removed unrelated descriptive and hydrologic properties"
+      ],
+      "license": "not_asserted",
+      "reuse_basis": "hand-minimized factual service observation used only for package conformance testing",
+      "mutable": true
+    },
+    {
+      "fixture_id": "crosswalk-gage-usgs-08332622",
+      "path": "gage-usgs-08332622.min.geojson",
+      "evidence_kind": "observed_minimized_feature",
+      "source_url": "https://reference.geoconnex.us/collections/gages/items?f=json&provider_id=USGS-08332622&limit=2",
+      "request": {
+        "method": "GET",
+        "accept": "application/geo+json, application/json;q=0.9"
+      },
+      "stored_sha256": "61c1cbbf8f99a6040977e47933d7458db3c4741d46ef73a9ec4a4e0db92df705",
+      "transformations": [
+        "retained the checked provider, gage, PID, COMID, mainstem, and point geometry",
+        "removed unrelated gage properties and response links"
+      ],
+      "license": "not_asserted",
+      "reuse_basis": "hand-minimized factual service observation used only for package conformance testing",
+      "mutable": true
+    },
+    {
+      "fixture_id": "crosswalk-nhdpv2-lookup-v3.2-sample",
+      "path": "nhdpv2-lookup-v3.2.sample.csv",
+      "evidence_kind": "observed_minimized_mapping_rows",
+      "source_url": "https://github.com/internetofwater/ref_rivers/releases/download/v3.2/nhdpv2_lookup.csv",
+      "request": {
+        "method": "GET",
+        "accept": "text/csv, application/octet-stream;q=0.9"
+      },
+      "stored_sha256": "c8c55084a0e592556f92be321e3d3a14336beea0053d39bb4e03e489dfe84d89",
+      "transformations": [
+        "retained six observed rows including both pinned COMID known answers",
+        "does not claim complete inverse mainstem groups"
+      ],
+      "license": "CC0-1.0",
+      "reuse_basis": "minimized excerpt of the CC0 ref_rivers v3.2 release asset",
+      "mutable": false
+    },
+    {
+      "fixture_id": "crosswalk-nhdpv2-lookup-ambiguous",
+      "path": "nhdpv2-lookup-ambiguous.synthetic.csv",
+      "evidence_kind": "synthetic_adversarial_mapping",
+      "source_url": "https://example.invalid/synthetic-only",
+      "request": null,
+      "stored_sha256": "5b6e6b6cf8148ebba7bbb930983981c619080d4470fb3192e1c4a69d98909157",
+      "transformations": [
+        "synthetic future-adapter ambiguity with two distinct mainstem URIs for one COMID"
+      ],
+      "license": "MIT",
+      "reuse_basis": "original synthetic package test data",
+      "mutable": false
+    }
+  ]
+}

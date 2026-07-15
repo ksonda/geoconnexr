@@ -12,9 +12,10 @@ gx_render_query(template, params)
 \item{params}{A named list containing exactly the template parameters.}
 }
 \value{
-A length-one character SPARQL query.
+A length-one UTF-8 SPARQL query retaining the template's final LF.
 }
 \description{
-Parameters are encoded according to the bundled manifest. Raw string
-interpolation is deliberately unsupported.
+Parameters are encoded according to the exact-byte-pinned bundled manifest.
+Raw string interpolation is deliberately unsupported. Rendering is local:
+this function does not execute, paginate, or chunk a query.
 }

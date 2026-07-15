@@ -1,0 +1,108 @@
+{
+  "contract_version": "1.0.0",
+  "manifest_version": "1.0.0",
+  "package": {
+    "name": "geoconnexr",
+    "version": "0.0.0.9000"
+  },
+  "created_at": "2026-07-14T00:00:00Z",
+  "recipe": {
+    "contract_version": "1.0.0",
+    "aoi": {
+      "kind": "huc",
+      "identifier": "02070010"
+    },
+    "pipeline": {
+      "start_stage": "aoi",
+      "end_stage": "catalog"
+    }
+  },
+  "replay": {
+    "replayable": false,
+    "non_replayable_reasons": [
+      "m9a_verification_only"
+    ],
+    "handler_versions": []
+  },
+  "endpoints": {
+    "reference": "https://reference.geoconnex.us"
+  },
+  "hydrologic_vintage": {
+    "reference_collection": "mainstems_v3",
+    "vintage": "v3.2",
+    "migration_policy": "not_checked"
+  },
+  "asset_hashes": {
+    "queries": "e3def3808d5e09fb50982190eee2b2c7d40283bf17d8cf683e05d5b8f794ae0d",
+    "handler_registry": "58375adb8b9d48861ab42f810de82090ebc146c5d5f4d189a041559dff20bf27",
+    "vocabulary": "07a8bec2d219a52aa67d838f2ab036f69475299a7d721d90f269b0b75fc1f3e0"
+  },
+  "requests": [
+    {
+      "request_id": "fixture-request-1",
+      "stage": "catalog",
+      "method": "GET",
+      "canonical_url_redacted": "https://reference.geoconnex.us/collections/hu12/items",
+      "request_hash": "bfe4284316570cf4690f969808e463cd4bc7e99353fd1e98f1ddf6af07d2924b",
+      "body_hash": null,
+      "final_url": "https://reference.geoconnex.us/collections/hu12/items",
+      "response_status": 200,
+      "response_media_type": "application/geo+json",
+      "encoded_bytes": 43,
+      "decoded_bytes": 43,
+      "content_hash": "a12d359c8df34a76b41471b4c53072ee16ecb2954982c9293209bb4cb620f672",
+      "etag": null,
+      "last_modified": null,
+      "retrieved_at": "2026-07-14T00:00:00Z",
+      "elapsed_ms": 1,
+      "cache_origin": "network",
+      "error_code": null
+    }
+  ],
+  "resources": [
+    {
+      "path": "catalog/datasets.csv",
+      "media_type": "text/csv",
+      "bytes": 43,
+      "sha256": "a12d359c8df34a76b41471b4c53072ee16ecb2954982c9293209bb4cb620f672",
+      "required": true,
+      "roles": [
+        "catalog"
+      ],
+      "source_uri": "https://reference.geoconnex.us/collections/hu12/items",
+      "license_uri": null
+    },
+    {
+      "path": "requests.csv",
+      "media_type": "text/csv",
+      "bytes": 66,
+      "sha256": "2b7c76254439339b88d9c7b070273f785d11b8feec459f4533508952e955ebc3",
+      "required": true,
+      "roles": [
+        "request-ledger-export"
+      ],
+      "source_uri": null,
+      "license_uri": null
+    }
+  ],
+  "completeness": [
+    {
+      "stage": "catalog",
+      "status": "complete",
+      "truncated": false
+    }
+  ],
+  "source_licenses": [
+    {
+      "source_uri": "https://reference.geoconnex.us/collections/hu12/items",
+      "license_uri": null,
+      "status": "unknown"
+    }
+  ],
+  "session": {
+    "r_version": "4.5.2",
+    "platform": "fixture",
+    "locale": "C",
+    "packages": []
+  }
+}
