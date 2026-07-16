@@ -1,0 +1,31 @@
+{
+  "fixture_version": "1.0.0",
+  "purpose": "Synthetic caller-supplied response candidates for offline direct-CSV envelope validation.",
+  "provenance": "No transport occurred; body bytes are opaque and establish no provider or CSV-semantic provenance.",
+  "cases": [
+    {
+      "case_id": "accepted_text_csv_identity",
+      "description": "Status 200, one CSV media header, explicit identity encoding, exact Content-Length, and the canonical query-bearing M7d target.",
+      "logical_request_order": 1,
+      "status": 200,
+      "headers": [
+        {"name": "Content-Type", "value": "text/csv; charset=UTF-8"},
+        {"name": "Content-Encoding", "value": "identity"},
+        {"name": "Content-Length", "value": "24"},
+        {"name": "X-Fixture-Ignored", "value": "discarded"}
+      ],
+      "body_path": "body-accepted-v1.csv",
+      "url": "https://data.example.org:443/observations.csv?station=00123&token=fixture-token#candidate-fragment",
+      "expectation": {
+        "accepted": true,
+        "media_type": "text/csv",
+        "content_encoding": "identity",
+        "content_length_present": true,
+        "encoded_bytes": 24,
+        "decoded_bytes": 24,
+        "validation_status": "validated_caller_supplied",
+        "note": "The ignored header, full URL, and fragment are absent from M7e-owned facts; the bounded raw body is retained intentionally."
+      }
+    }
+  ]
+}

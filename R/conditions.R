@@ -11,6 +11,7 @@ gx_abort <- function(message, class = "gx_error", ..., call = rlang::caller_env(
     any(startsWith(class, "gx_error_fetch_preflight")) ||
     any(startsWith(class, "gx_error_csv_get_intents")) ||
     any(startsWith(class, "gx_error_csv_request_plan")) ||
+    any(startsWith(class, "gx_error_csv_response_validation")) ||
     any(startsWith(class, "gx_error_aoi_recipe")) ||
     any(startsWith(class, "gx_error_catalog")) ||
     any(startsWith(class, "gx_error_snapshot")) ||

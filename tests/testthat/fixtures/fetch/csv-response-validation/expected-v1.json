@@ -1,0 +1,31 @@
+{
+  "contract_version": "0.1.0",
+  "validation": {
+    "validation_id": "a900e2a135641fc50df246ef5d0a8575ec12359ee227330b9ad37a511dd6d2ee",
+    "logical_request_id": "0a520972796e6f0559aca2765a741bb6ebe02504975b33e605447920c9493d4f",
+    "intent_id": "4f0d08c509dca7653216dbefe6ebbdd9611dd925723614d65e40ed0319b1afcc",
+    "reservation_id": "dc887bce38b526fc7a7c213cd040e95b531c38da02a70f6a1d40f84c58cbb900",
+    "distribution_id": "fc982de9dfbcaf8b620769bbf759d6f7f3f77e2d0f1e7116668058a57b222461",
+    "status": 200,
+    "media_type": "text/csv",
+    "content_encoding": "identity",
+    "content_length_present": true,
+    "content_length": 24,
+    "encoded_bytes": 24,
+    "decoded_bytes": 24,
+    "body_sha256": "e1e4bae6de933a5219206b4c76b19eda0d00c59930d334a2df5d7b3402af651f",
+    "validation_status": "validated_caller_supplied"
+  },
+  "metadata": {
+    "host_specific": false,
+    "replayable": false,
+    "execution_ready": false,
+    "transport_authorized": false,
+    "response_candidate_validated": true,
+    "provider_response_observed": false,
+    "budgets_consumed": false,
+    "parser_executed": false,
+    "observation_origin": "caller_supplied",
+    "non_replayable_reasons": ["arbitrary_provider_client_unimplemented", "attempt_identity_unbound", "attempt_ledger_unbound", "csv_parser_enforcement_unimplemented", "csv_parser_semantics_unbound", "handler_implementations_planned", "non_csv_request_plans_absent", "provider_transport_unauthorized", "response_origin_unbound", "result_schema_unbound", "runtime_package_preflight_required", "serialization_unbound", "timeout_policy_unbound", "transport_adapter_unimplemented"]
+  }
+}

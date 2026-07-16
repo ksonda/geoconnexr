@@ -1,0 +1,39 @@
+{
+  "manifest_version": "1.0.0",
+  "contract": "gx_csv_validated_response",
+  "contract_version": "0.1.0",
+  "source_dependencies": [
+    {
+      "path": "../csv-request-plan/manifest-v1.json",
+      "bytes": 939,
+      "sha256": "dd1a7b5bad781a428e259aba7606de28c849936ae3c192ea647b565dd05985a8"
+    },
+    {
+      "path": "../csv-request-plan/expected-v1.json",
+      "bytes": 6457,
+      "sha256": "082f6b409d8287c679b315a32b59f2fe075b64d29a07e2ee5e008d096c12eb4f"
+    }
+  ],
+  "files": [
+    {
+      "path": "body-accepted-v1.csv",
+      "bytes": 24,
+      "sha256": "e1e4bae6de933a5219206b4c76b19eda0d00c59930d334a2df5d7b3402af651f"
+    },
+    {
+      "path": "cases-v1.json",
+      "bytes": 1396,
+      "sha256": "4301fefa69850844f94ac4f3d29a28eb55b9173fa5879375c4abb46bd96a39e7"
+    },
+    {
+      "path": "expected-v1.json",
+      "bytes": 1649,
+      "sha256": "8ddd1fdaa5a72d3866d2ae0e6ffff14c294d5bd54692d415f1fee7597436944c"
+    }
+  ],
+  "notes": [
+    "All response inputs are synthetic and prove neither provider transport provenance nor CSV semantics.",
+    "The exact raw body is intentionally retained under the M7d byte ceiling; arbitrary headers and the full query-bearing URL are not retained by M7e-owned fields.",
+    "The recursive M7d fixture pins preserve the M7d-to-M7c known-answer dependency chain without copying upstream fixtures."
+  ]
+}

@@ -311,3 +311,9 @@ serialization contract, or replay authority.
   identity/ledger, and serialization remain mandatory later gates.
 - Other handlers still require fixture-backed provider-specific request plans;
   their M7d reservations preserve capacity but do not implement them.
+
+M7e is defined separately by
+[ADR 0024](0024-offline-direct-csv-response-validation.md). It validates one
+bounded caller-supplied response candidate against one logical request without
+mutating M7d, proving provider or attempt provenance, consuming budgets,
+authorizing transport, or parsing CSV.

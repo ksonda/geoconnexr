@@ -28,6 +28,9 @@ Description: Tools for discovering water-data sites and datasets through the
     internal boundary allocates explicit global physical-attempt and byte
     reservations, holds non-CSV shares, and emits bounded non-executable
     direct-CSV logical request plans without transport or parser execution.
+    An offline response boundary validates one bounded caller-supplied
+    direct-CSV response candidate while explicitly withholding provider
+    provenance, budget consumption, parsing, transport, and execution claims.
     Graph discovery, public catalog orchestration, and provider-data packaging
     remain under development.
 License: MIT + file LICENSE

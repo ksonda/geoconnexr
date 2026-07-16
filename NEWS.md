@@ -80,6 +80,18 @@
   constraints, and shape limits, but implements no DNS, transport, response
   validator, result schema, parser semantics, attempt ledger, timeout policy,
   serialization, replay, or public API.
+- Added the unexported M7e `gx_csv_validated_response` S3 contract 0.1.0. It
+  preserves M7d byte-for-byte and validates one exact caller-supplied in-memory
+  response candidate against one direct-CSV logical request. Status 200,
+  singleton bounded critical headers, admitted CSV media, identity encoding,
+  optional exact Content-Length, exact canonical no-redirect target, and all
+  three response-byte ceilings fail closed. The object retains the exact
+  bounded raw body and its SHA-256 while discarding arbitrary headers and the
+  full URL. Validation identity is domain-separated and query-bound, but
+  metadata explicitly says that no provider response was observed, no budget
+  was consumed, no parser ran, and transport, execution, replay, runtime
+  preflight, attempt/ledger alignment, result semantics, and serialization
+  remain blocked.
 - Added the unexported M9b catalog-only snapshot writer. It revalidates a
   catalog, creates deterministic redacted UTF-8 CSV views in a sibling staging
   tree, writes a manifest-v1 document last, verifies the closed tree through
