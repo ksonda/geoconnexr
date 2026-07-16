@@ -50,10 +50,13 @@ by recomputing geometry and digest integrity. Internal M6c and M9a/M9b
 boundaries now validate a strict offline catalog value object and can create
 then verify a deterministic, redacted catalog-only snapshot at a new local
 destination. Internal M7a adds deterministic, selection-only fetch plans bound
-to strict portable-classifier and R-implementation metadata assets. These are
-offline substrates, not exported discovery, fetch, package, snapshot, loading,
-or replay APIs. Public graph discovery, catalog orchestration, and provider data
-retrieval remain gated on fixture-backed production evidence.
+to strict portable-classifier and R-implementation metadata assets; M7b adds a
+separate host-specific advisory check using bounded direct reads of selected
+optional-package metadata without loading their namespaces. These are internal
+substrates, not exported discovery, fetch, package, snapshot, loading, or replay
+APIs. Public graph
+discovery, catalog orchestration, and provider data retrieval remain gated on
+fixture-backed production evidence.
 
 ## Intended workflow
 
@@ -187,9 +190,19 @@ provider/site/distribution order before `max_datasets`. The plan contains an
 exact empty request list: all implementations are planned, all handlers are
 non-replayable, and `execution_ready` is false. Construction probes no package,
 calls no handler, and performs no DNS, network, cache, or file write. Request
-construction, package preflight, execution, registration, and serialization
-remain M7b/M7c work. See
-[ADR 0020](docs/decisions/0020-internal-fetch-plan-selection.md).
+construction, execution, registration, and serialization remain later M7 work.
+
+The separate M7b package-capability report embeds and revalidates that plan,
+then uses the built-in probe to read a bounded installed `DESCRIPTION` directly
+for each unique allowlisted package needed by a selected distribution. It
+ignores `Meta/package.rds`, does not load namespaces, and does not inspect or
+call package symbols. Missing and old versions become explicit skip statuses,
+while present unpinned or version-satisfying packages remain
+`blocked_implementation_planned`: package metadata never means a handler is
+ready. The report is host-specific, advisory, non-replayable, and never
+execution-ready; future execution must recheck immediately before invocation.
+See [ADR 0020](docs/decisions/0020-internal-fetch-plan-selection.md) and
+[ADR 0021](docs/decisions/0021-host-package-capability-preflight.md).
 
 `gx_resolve()`, `gx_jsonld()`, and the `gx_ref_*()` functions make bounded
 network requests, account for every physical retry, and validate DNS and every
@@ -218,9 +231,10 @@ same-endpoint pagination links. Collection-wide requests require an explicit
 cumulative-byte ceilings. Single-feature lookup records its ordered item,
 validated-filter, and JSON-LD fallback attempts; JSON-LD fallback results are
 visibly marked incomplete. Dataset fetch handlers and public snapshot writing
-remain planned interfaces; M7a selects distributions without constructing or
-executing requests, and the internal M9b writer is limited to validated
-catalog-only resources and is labeled non-replayable in its manifest.
+remain planned interfaces: M7a selects distributions without constructing or
+executing requests, and M7b only inspects host package metadata. The internal
+M9b writer is limited to validated catalog-only resources and is labeled
+non-replayable in its manifest.
 
 The first crosswalk validates the reference service's advertised
 `provider_id`, gage identity, and PID before returning a match. Repeated inputs

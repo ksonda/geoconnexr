@@ -52,6 +52,13 @@
   and count/byte budgets, and remain explicitly non-executable. Request lists
   are empty, handler implementations are planned and non-replayable, and the
   boundary performs no package probing, DNS, network, cache, or file writes.
+- Added the unexported M7b host package-capability preflight. It revalidates and
+  preserves the M7a plan, probes only selected handlers' unique allowlisted
+  packages through bounded direct `DESCRIPTION` reads without loading
+  namespaces or deserializing `Meta/package.rds`, and reports missing, too-old,
+  satisfying, or unpinned requirements as host-specific advisory state. Even
+  satisfied requirements remain blocked on planned implementations; requests
+  stay empty and the report is non-replayable and never execution-ready.
 - Added the unexported M9b catalog-only snapshot writer. It revalidates a
   catalog, creates deterministic redacted UTF-8 CSV views in a sibling staging
   tree, writes a manifest-v1 document last, verifies the closed tree through

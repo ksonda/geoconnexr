@@ -8,6 +8,7 @@ gx_abort <- function(message, class = "gx_error", ..., call = rlang::caller_env(
     any(startsWith(class, "gx_error_crosswalk")) ||
     any(startsWith(class, "gx_error_graph")) ||
     any(startsWith(class, "gx_error_fetch_plan")) ||
+    any(startsWith(class, "gx_error_fetch_preflight")) ||
     any(startsWith(class, "gx_error_aoi_recipe")) ||
     any(startsWith(class, "gx_error_catalog")) ||
     any(startsWith(class, "gx_error_snapshot")) ||

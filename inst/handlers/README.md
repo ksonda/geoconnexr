@@ -20,8 +20,19 @@ catalog URLs, emits one row per unique distribution plus ordered parameter
 rows, and records every implementation as planned and non-replayable. Its
 request list is empty and `execution_ready` is false. M7a does not probe
 packages, call implementations, resolve DNS, use the network or cache, or write
-files. Request construction, package preflight, execution, runtime
-registration, and serialization remain M7b/M7c work.
+files. Request construction, execution, runtime registration, and serialization
+remain later M7 work.
+
+The separate internal M7b report checks only host package metadata for selected
+handlers. Its built-in probe checks each unique allowlisted package once using a
+bounded direct read of installed `DESCRIPTION` identity and version; it ignores
+`Meta/package.rds` and never loads a namespace or inspects or calls a symbol.
+Missing and old packages become explicit skip statuses, but a present package
+or satisfied minimum version still yields `blocked_implementation_planned`.
+The report is host-specific, advisory, non-replayable, and never
+execution-ready. Future execution must repeat package and symbol checks at the
+point of invocation; provider request planning remains fixture- and
+transport-contract gated under ADR 0021.
 
 Current USGS Water Data API distributions are tested before the generic OGC API
 Features classifier. Legacy NWIS IV/DV URLs are compatibility-only and produce a
