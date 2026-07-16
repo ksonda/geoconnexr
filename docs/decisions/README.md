@@ -27,6 +27,7 @@ and link both records rather than rewriting history.
 | [0019](0019-catalog-only-snapshot-writer.md) | Accepted internal substrate | Publish catalog-only snapshots through a verified staging tree |
 | [0020](0020-internal-fetch-plan-selection.md) | Accepted internal substrate | Build an internal deterministic selection-only fetch plan |
 | [0021](0021-host-package-capability-preflight.md) | Accepted internal substrate | Keep package capability preflight host-specific and non-executable |
+| [0022](0022-inert-direct-csv-get-intents.md) | Accepted internal substrate | Record inert direct-CSV GET intents before transport |
 
 Each ADR states its context, decision, consequences, and status. Proposed ADRs
 may change; accepted ADRs govern implementation until superseded.

@@ -52,9 +52,10 @@ then verify a deterministic, redacted catalog-only snapshot at a new local
 destination. Internal M7a adds deterministic, selection-only fetch plans bound
 to strict portable-classifier and R-implementation metadata assets; M7b adds a
 separate host-specific advisory check using bounded direct reads of selected
-optional-package metadata without loading their namespaces. These are internal
-substrates, not exported discovery, fetch, package, snapshot, loading, or replay
-APIs. Public graph
+optional-package metadata without loading their namespaces. Internal M7c adds a
+host-independent value object for inert, policy-bound direct-CSV GET intents.
+These are internal substrates, not exported discovery, fetch, package,
+snapshot, loading, or replay APIs. Public graph
 discovery, catalog orchestration, and provider data retrieval remain gated on
 fixture-backed production evidence.
 
@@ -204,6 +205,19 @@ execution-ready; future execution must recheck immediately before invocation.
 See [ADR 0020](docs/decisions/0020-internal-fetch-plan-selection.md) and
 [ADR 0021](docs/decisions/0021-host-package-capability-preflight.md).
 
+The separate M7c `gx_csv_get_intents` S3 object implements contract 0.1.0. Its
+top level contains the byte-identical revalidated M7a plan, an exact shared
+inert policy, selected-CSV intent rows in global fetch order, coverage for every
+distribution, and exact non-executable metadata. Policy fixes GET, CSV `Accept`,
+identity encoding, and an empty body while leaving credential, redirect, cache,
+and parser behavior unbound. Each intent stores the declared media type and only
+a redacted canonical URL. Its full offline-canonical target is re-derived from
+the embedded plan and bound, with every policy field, through
+`gx_contract_hash()` under the `geoconnexr.csv-get-intent.v1` namespace. M7c
+does not consult M7b or `readr`, allocate request/byte/parser budgets, or
+authorize DNS, redirects, transport, caching, parsing, or execution. See
+[ADR 0022](docs/decisions/0022-inert-direct-csv-get-intents.md).
+
 `gx_resolve()`, `gx_jsonld()`, and the `gx_ref_*()` functions make bounded
 network requests, account for every physical retry, and validate DNS and every
 redirect target before transport. A package-owned monotonic per-host throttle
@@ -232,8 +246,9 @@ cumulative-byte ceilings. Single-feature lookup records its ordered item,
 validated-filter, and JSON-LD fallback attempts; JSON-LD fallback results are
 visibly marked incomplete. Dataset fetch handlers and public snapshot writing
 remain planned interfaces: M7a selects distributions without constructing or
-executing requests, and M7b only inspects host package metadata. The internal
-M9b writer is limited to validated catalog-only resources and is labeled
+executing requests, M7b only inspects host package metadata, and M7c records
+inert direct-CSV intent identity without granting authority. The internal M9b
+writer is limited to validated catalog-only resources and is labeled
 non-replayable in its manifest.
 
 The first crosswalk validates the reference service's advertised

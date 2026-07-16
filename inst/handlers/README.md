@@ -34,6 +34,21 @@ execution-ready. Future execution must repeat package and symbol checks at the
 point of invocation; provider request planning remains fixture- and
 transport-contract gated under ADR 0021.
 
+ADR 0022 implements the separate internal M7c `gx_csv_get_intents` S3 contract
+0.1.0. It embeds the byte-identical M7a plan, records an exact shared policy,
+emits one inert row for each selected CSV distribution in global fetch order,
+and retains exact coverage for every distribution. Policy fixes GET,
+`Accept: text/csv, application/csv;q=0.9`, `Accept-Encoding: identity`, and an
+empty body, with credential, redirect, cache, and parser behavior unbound. Each
+intent stores the declared media type and only a redacted canonical URL. The
+full offline-canonical target is re-derived from the embedded plan and bound,
+with every policy field, by `gx_contract_hash()` without being copied to the
+intent table. M7c does not consult M7b or `readr`, allocate request/byte/parser
+budgets, or authorize DNS, redirects, transport, cache, parsing, execution,
+serialization, or replay. The CSV
+implementation therefore remains `planned` and its response and parser
+contracts remain later M7 work.
+
 Current USGS Water Data API distributions are tested before the generic OGC API
 Features classifier. Legacy NWIS IV/DV URLs are compatibility-only and produce a
 deprecation warning. EDR plans must record the base URL, collection, query verb,

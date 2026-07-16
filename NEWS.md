@@ -59,6 +59,15 @@
   satisfying, or unpinned requirements as host-specific advisory state. Even
   satisfied requirements remain blocked on planned implementations; requests
   stay empty and the report is non-replayable and never execution-ready.
+- Added the unexported M7c `gx_csv_get_intents` S3 contract 0.1.0. It preserves
+  the M7a plan, records an exact shared inert policy, emits one intent for each
+  selected CSV distribution in global fetch order, and retains exact coverage
+  for every distribution. Intent hashes use `gx_contract_hash()` under the
+  `geoconnexr.csv-get-intent.v1` namespace to bind the re-derived full canonical
+  target, declared media type, and every policy field, while intent rows store
+  only redacted URLs. The boundary allocates no request, byte, row, or column
+  budget; grants no transport or replay authority; does not depend on M7b or
+  `readr`; and adds no public API, schema, or execution path.
 - Added the unexported M9b catalog-only snapshot writer. It revalidates a
   catalog, creates deterministic redacted UTF-8 CSV views in a sibling staging
   tree, writes a manifest-v1 document last, verifies the closed tree through

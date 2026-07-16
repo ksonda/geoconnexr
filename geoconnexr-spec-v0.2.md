@@ -31,7 +31,7 @@ The target remains an R-first package for discovery, identifier crosswalks, and 
 | M4 | Partial experimental slices M4a/M4b/M4c: `gx_gage_to_pid()` is implemented, and the v3.2 COMID lookup now has an explicit verified install lifecycle plus internal offline forward and release-scoped inverse mappers; public COMID, HUC12, point, inverse, and currentness contracts remain gated under ADRs 0004, 0008, 0009, and 0015. |
 | M5 | Partial experimental M5a/M5b: an unexported one-logical-request SELECT/ASK substrate provides strict bounded SPARQL 1.1 Results JSON parsing and provenance, while the public local renderer now consumes an exact-byte-pinned render-only v2 template manifest with explicit disabled execution, chunking, and pagination; public graph APIs, endpoint support, and paging remain gated under ADRs 0004, 0012, and 0013. |
 | M6 | Partial M6a/M6b/M6c: `gx_aoi()` canonicalizes one custom polygonal `sf`/`sfc` geometry offline, internal bounded hydration reconstructs AOI-only recipes while independently rebinding canonical GeoJSON to their WKB digest, and an internal catalog value object validates typed sites, flattened datasets, problems, requests, and completeness. Public `gx_catalog()`, live discovery/merge, nonempty reference layers, full replay, and upstream-derived AOI modes remain gated under ADRs 0014, 0016, and 0018. |
-| M7 | Partial M7a/M7b: an unexported deterministic selection-only plan binds M6c catalog distributions to strict dual handler assets, and a separate host-specific report checks selected optional-package versions without loading namespaces. Both remain request-empty and non-executable. Provider request construction, symbol/function preflight, execution, registration, serialization, and public APIs remain gated under ADRs 0020 and 0021. |
+| M7 | Partial M7a/M7b/M7c: an unexported deterministic selection-only plan binds M6c catalog distributions to strict dual handler assets, a separate host-specific report checks selected optional-package versions without loading namespaces, and a host-independent object records exact inert direct-CSV GET policy and intent identity. All remain request-empty and non-executable. Provider request construction, symbol/function preflight, execution, registration, serialization, and public APIs remain gated under ADRs 0020–0022. |
 | M8 | Planned. |
 | M9 | Partial M9a/M9b: an unexported offline verifier validates the bounded manifest and embedded request-ledger shape, rebinds AOI identity through M6b, inventories a closed portable resource tree, and verifies exact local bytes; an unexported creation-only writer stages, verifies, and publishes deterministic redacted catalog CSV resources plus manifest-v1. Public packaging/snapshot APIs, overwrite, loading, Frictionless acceptance, authenticity, and replay remain gated under ADRs 0017 and 0019. |
 | M10 | Planned. |
@@ -486,6 +486,40 @@ package, version, and symbols immediately before invocation. Provider request
 planning remains gated under ADR 0021 on fixture-backed mappings plus reviewed
 transport, ledger, redirect, credential, and budget contracts.
 
+M7c adds the unexported `gx_csv_get_intents` S3 value object with contract
+version 0.1.0 and exact top-level fields `contract_version`, `plan`, `policy`,
+`intents`, `coverage`, and `metadata`. It embeds and revalidates the
+byte-identical M7a plan without consulting M7b. Its exact policy fixes slice
+`direct_csv_get_v1`, GET, `Accept: text/csv, application/csv;q=0.9`, identity
+encoding, a zero-byte empty body and hash, and unbound credential, redirect,
+cache, and parser behavior.
+
+The intent table contains only selected `csv` distributions in global fetch
+order and records distribution and intent identity, declared media type, a
+redacted canonical URL, and `intent_status = "inert"`. The coverage table keeps
+every plan distribution and links selected CSV rows to their intent while
+distinguishing `intent_created`, `deferred_handler`, `not_selected`, and
+`reference_only`. The full target is re-derived through the offline safety
+policy, retaining its canonical query and removing its fragment. It is bound,
+with distribution ID, fetch order, handler, declared media type, and every exact
+policy field, by `gx_contract_hash()` under namespace
+`geoconnexr.csv-get-intent.v1`; it is not stored outside the embedded M7a plan.
+
+M7c intent identity is not a cache key, request ID, physical-attempt ID,
+manifest request hash, or provenance claim. The object assigns no per-intent
+encoded- or decoded-byte ceiling, row or column limit, or aggregate budget
+reservation. Metadata sets `host_specific`, `replayable`, `execution_ready`,
+`transport_authorized`, and `budgets_allocated` to false and exactly reconciles
+distribution, selection, intent, coverage-status, and zero-request counts.
+It inherits every M7a non-replayability reason and adds
+`attempt_ledger_unbound`, `cache_policy_unbound`, `credential_policy_unbound`,
+`parser_limits_unbound`,
+`provider_transport_unauthorized`, `redirect_policy_unbound`,
+`request_budgets_unallocated`, and `response_contract_unproven`. It performs no
+package inspection, handler call, DNS, network, redirect, cache, write,
+provider-response parsing, or CSV parsing and introduces no public API or
+serialized schema.
+
 Every handler implements `probe → plan → fetch → normalize`:
 
 - **probe:** determine whether the distribution is compatible;
@@ -530,6 +564,22 @@ and request-empty; the built-in probe loads no namespace, calls no symbol or
 handler, and initiates no DNS, provider transport, cache, or write operation;
 no package satisfaction status claims execution readiness; and no preflight,
 planning, or fetch API is exported.
+
+**M7c acceptance:** empty and populated plans yield exact
+bounded host-independent objects; the M7a plan remains byte-identical and
+request-empty; selected CSV distributions map one-to-one to fixed inert GET
+intents in global fetch order while every distribution retains exact coverage;
+re-derived canonical targets, stored redacted URLs, exact shared policy,
+empty-body facts, domain-separated intent IDs, foreign keys, statuses, order,
+counts, authority flags, and non-replayability reasons revalidate exactly;
+query values are not
+copied outside the embedded plan or disclosed by printing or conditions;
+results do not vary with M7b or installed packages; request/byte/parser budgets
+remain visibly unallocated; construction performs no package, handler, DNS,
+network, redirect, cache, write, provider-response parsing, or CSV parsing;
+fixture snapshots cover
+empty, CSV, mixed-handler, query/fragment, permutation, and forgery cases; and
+no M7c, planning, fetch, execution, or serialization API is exported.
 
 **Remaining M7 acceptance:** request-plan snapshots and fixture tests per
 handler; poisoned redirect; missing package; no-network dry run;
@@ -687,10 +737,13 @@ selection order, effective time, unplanned parameters, and count/byte budgets.
 It contains no requests and is explicitly non-executable and non-replayable.
 The separate M7b report records host package-version capability as advisory
 state while keeping every implementation blocked and preserving the empty
-request list. Later M7 contracts add request/query semantics, symbol checks,
-and execution preflight. Fetch status is one row per evaluated distribution
-with `attempted`, status, row/byte counts, elapsed time, error code/message, and
-fetched time.
+request list. The M7c object records exact inert direct-CSV GET policy, identity,
+and all-distribution coverage without allocating budgets or authorizing
+transport. Later M7 contracts add executable
+request/query semantics, symbol checks, response and parser contracts, ledger
+alignment, and execution preflight. Fetch status is one row per evaluated
+distribution with `attempted`, status, row/byte counts, elapsed time, error
+code/message, and fetched time.
 
 ### 6.5 Observations
 

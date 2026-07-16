@@ -15,8 +15,11 @@ Installed package state is machine-local and can change after inspection.
 Loading a third-party namespace merely to inspect it can execute `.onLoad`
 code, while package presence or a satisfying version does not prove that the
 planned handler functions exist or that their provider semantics are correct.
-The repository still lacks fixture-backed parameter mappings and request
-contracts for EDR, USGS Water Data, WQP, OGC API Features, and direct CSV.
+The repository still lacks executable fixture-backed parameter mappings and
+request contracts for EDR, USGS Water Data, WQP, and OGC API Features. Direct
+CSV likewise lacks transport, response, ledger, budget-allocation, and parser
+contracts, although ADR 0022 now implements a narrower inert GET-intent
+substrate.
 
 ## Decision
 
@@ -64,8 +67,10 @@ immediately before invocation; this report is never replay authority.
 Provider request construction remains deferred. It requires reviewed mapping
 and request assets, an arbitrary-provider transport boundary, request/attempt
 ledger alignment, credential-safe redirect behavior, and encoded/decoded and
-parser budget semantics. A separate inert CSV GET intent is the next candidate
-after those contracts are specified and fixture-pinned.
+parser budget semantics. ADR 0022 separately implements an M7c direct-CSV GET
+intent substrate that records exact inert policy facts but no budget allocation
+or transport authority. That description is not a provider request and does
+not close any execution gate.
 
 ## Consequences
 

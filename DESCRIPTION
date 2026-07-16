@@ -22,8 +22,10 @@ Description: Tools for discovering water-data sites and datasets through the
     metadata without constructing requests or executing providers. A separate
     internal host preflight uses bounded direct metadata reads for selected
     optional-package versions without loading namespaces and never claims
-    execution readiness. Graph discovery, public catalog orchestration, and
-    provider-data packaging remain under development.
+    execution readiness. A host-independent internal value object records
+    deterministic, redacted, policy-bound direct-CSV GET intents without
+    allocating budgets or authorizing transport. Graph discovery, public
+    catalog orchestration, and provider-data packaging remain under development.
 License: MIT + file LICENSE
 URL: https://github.com/ksonda/geoconnexr
 BugReports: https://github.com/ksonda/geoconnexr/issues
