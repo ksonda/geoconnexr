@@ -28,6 +28,7 @@ and link both records rather than rewriting history.
 | [0020](0020-internal-fetch-plan-selection.md) | Accepted internal substrate | Build an internal deterministic selection-only fetch plan |
 | [0021](0021-host-package-capability-preflight.md) | Accepted internal substrate | Keep package capability preflight host-specific and non-executable |
 | [0022](0022-inert-direct-csv-get-intents.md) | Accepted internal substrate | Record inert direct-CSV GET intents before transport |
+| [0023](0023-bounded-direct-csv-request-plans.md) | Accepted internal substrate | Allocate bounded non-executable direct-CSV request plans |
 
 Each ADR states its context, decision, consequences, and status. Proposed ADRs
 may change; accepted ADRs govern implementation until superseded.

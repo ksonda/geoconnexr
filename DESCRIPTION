@@ -24,8 +24,12 @@ Description: Tools for discovering water-data sites and datasets through the
     optional-package versions without loading namespaces and never claims
     execution readiness. A host-independent internal value object records
     deterministic, redacted, policy-bound direct-CSV GET intents without
-    allocating budgets or authorizing transport. Graph discovery, public
-    catalog orchestration, and provider-data packaging remain under development.
+    allocating budgets or authorizing transport. A second host-independent
+    internal boundary allocates explicit global physical-attempt and byte
+    reservations, holds non-CSV shares, and emits bounded non-executable
+    direct-CSV logical request plans without transport or parser execution.
+    Graph discovery, public catalog orchestration, and provider-data packaging
+    remain under development.
 License: MIT + file LICENSE
 URL: https://github.com/ksonda/geoconnexr
 BugReports: https://github.com/ksonda/geoconnexr/issues

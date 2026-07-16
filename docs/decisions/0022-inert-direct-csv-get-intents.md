@@ -204,9 +204,10 @@ execution path, or replay authority.
   preference, empty-body, and policy identity without authorizing external work.
 - M7a selection, M7b package capability, and M7c intent construction remain
   separate contracts with different determinism and replay properties.
-- A later CSV request-planning checkpoint must allocate aggregate request and
-  byte budgets, define redirect and credential behavior, bind logical requests
-  to physical attempts, validate response media, and set bounded row and column
-  parsing limits before any execution.
+- ADR 0023 consumes M7c as a byte-identical input and allocates aggregate
+  request and byte reservations, binds a non-executable direct-CSV logical
+  request and response-shape contract, and records explicit row and column
+  limits. It does not mutate M7c, implement transport or response validation,
+  define CSV parser semantics, or create physical-attempt or ledger identity.
 - Other handlers still require fixture-backed provider-specific mappings and
   request contracts.
