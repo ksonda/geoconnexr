@@ -46,8 +46,9 @@ with every policy field, by `gx_contract_hash()` without being copied to the
 intent table. M7c does not consult M7b or `readr`, allocate request/byte/parser
 budgets, or authorize DNS, redirects, transport, cache, parsing, execution,
 serialization, or replay. The CSV implementation therefore remains `planned`;
-M7d below binds a response shape, but response-validation and parser
-implementation remain later M7 work.
+M7d below binds a response shape, and M7e validates caller-supplied response
+candidates, but provider transport/provenance and parser implementation remain
+later M7 work.
 
 ADR 0023 implements the separate internal M7d `gx_csv_request_plan` S3 contract
 0.1.0. It embeds M7c byte-for-byte, requires explicit response-byte, row, and
@@ -62,6 +63,19 @@ budgets, and it implements no DNS, transport, response validator, CSV parser,
 result schema, attempt ledger, timeout policy, serialization, execution, or
 replay. Runtime package and symbol preflight remains required immediately
 before any future invocation.
+
+ADR 0024 implements the separate internal M7e `gx_csv_validated_response` S3
+contract 0.1.0. It embeds M7d byte-for-byte and validates one exact in-memory
+candidate against one planned direct-CSV logical request: status 200, bounded
+singleton critical headers, an admitted CSV base media type, identity content
+encoding, optional exact Content-Length, the re-derived canonical no-redirect
+target, and all three response-byte ceilings. Arbitrary headers and the full
+target are discarded; the exact bounded raw body and its SHA-256 remain bound
+to normalized validation facts. The input origin is explicitly
+`caller_supplied`: no provider response is considered observed, no request or
+attempt occurred, no budget was consumed, and no CSV parser ran. M7e performs
+no DNS, network, redirect, cache, package, handler, clock, parser, or write
+work and grants no transport, execution, serialization, or replay authority.
 
 Current USGS Water Data API distributions are tested before the generic OGC API
 Features classifier. Legacy NWIS IV/DV URLs are compatibility-only and produce a

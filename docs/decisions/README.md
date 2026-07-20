@@ -29,6 +29,7 @@ and link both records rather than rewriting history.
 | [0021](0021-host-package-capability-preflight.md) | Accepted internal substrate | Keep package capability preflight host-specific and non-executable |
 | [0022](0022-inert-direct-csv-get-intents.md) | Accepted internal substrate | Record inert direct-CSV GET intents before transport |
 | [0023](0023-bounded-direct-csv-request-plans.md) | Accepted internal substrate | Allocate bounded non-executable direct-CSV request plans |
+| [0024](0024-offline-direct-csv-response-validation.md) | Accepted internal substrate | Validate caller-supplied direct-CSV response candidates offline |
 
 Each ADR states its context, decision, consequences, and status. Proposed ADRs
 may change; accepted ADRs govern implementation until superseded.
