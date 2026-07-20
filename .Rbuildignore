@@ -15,3 +15,6 @@
 ^.*\.Rcheck$
 ^.*\.tar\.gz$
 ^CITATION\.cff$
+^_pkgdown\.yml$
+^pkgdown$
+^index\.md$

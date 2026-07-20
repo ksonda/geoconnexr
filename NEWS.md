@@ -6,6 +6,9 @@
   the MIT license.
 - Added cross-platform R CMD check, test coverage, and isolated weekly bounded
   live-smoke workflows.
+- Added a responsive `pkgdown` documentation site with a task-focused homepage,
+  curated function reference, getting-started and safety guides, searchable
+  light/dark themes, and automatic deployment to GitHub Pages from `main`.
 - Recorded CRAN and r-universe as the intended stable and development release
   channels, respectively.
 - Documented the unresolved mainstem-vintage and SPARQL endpoint contract gates
