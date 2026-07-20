@@ -1,4 +1,5 @@
 url: https://ksonda.github.io/geoconnexr/
+destination: site
 
 title: geoconnexr
 description: >
@@ -12,17 +13,18 @@ template:
   theme-dark: github-dark
   includes:
     in_header: '<link rel="icon" href="favicon.svg" type="image/svg+xml">'
+    before_title: '<img class="gx-brand-mark" src="https://docs.geoconnex.us/outlined-logo-no-words.png" alt="Geoconnex">'
   bslib:
-    bg: "#fbfdfc"
-    fg: "#17323b"
-    primary: "#087f8c"
-    secondary: "#4f6f78"
-    success: "#2e8b74"
-    info: "#2f80a3"
-    border-radius: 0.65rem
+    bg: "#ffffff"
+    fg: "#1c1e21"
+    primary: "#3578e5"
+    secondary: "#606770"
+    success: "#2e8555"
+    info: "#54c7ec"
+    border-radius: 0.4rem
     btn-border-radius: 999px
-    code-bg: "#edf6f4"
-    code-color: "#145c63"
+    code-bg: "#f6f7f8"
+    code-color: "#1c1e21"
 
 home:
   title: geoconnexr - connected water data for R

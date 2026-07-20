@@ -6,7 +6,7 @@
 <!-- badges: end -->
 
 <div class="gx-hero">
-  <p class="gx-eyebrow">Geoconnex water data • R package</p>
+  <p class="gx-eyebrow">Geoconnex for R</p>
   <h2>Follow the water, keep the evidence.</h2>
   <p class="gx-lede">
     Discover connected water resources, crosswalk durable identifiers, and
@@ -23,18 +23,9 @@ profiles, OGC API Features reference data, provider-gage crosswalks, spatial
 areas of interest, and safe query assets.
 
 <div class="gx-card-grid">
-  <div class="gx-card">
-    <h3>Identity first</h3>
-    <p>Preserve PIDs and leading-zero identifiers instead of silently coercing or replacing them.</p>
-  </div>
-  <div class="gx-card">
-    <h3>Bounded by design</h3>
-    <p>Make request, redirect, byte, row, and parsing limits part of the contract.</p>
-  </div>
-  <div class="gx-card">
-    <h3>Honest provenance</h3>
-    <p>Represent partial results and upstream failures explicitly, with no invented authority.</p>
-  </div>
+<div class="gx-card"><h3>Identity first</h3><p>Preserve PIDs and leading-zero identifiers instead of silently coercing or replacing them.</p></div>
+<div class="gx-card"><h3>Bounded by design</h3><p>Make request, redirect, byte, row, and parsing limits part of the contract.</p></div>
+<div class="gx-card"><h3>Honest provenance</h3><p>Represent partial results and upstream failures explicitly, with no invented authority.</p></div>
 </div>
 
 ## A five-minute tour

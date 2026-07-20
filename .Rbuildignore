@@ -3,6 +3,7 @@
 ^\.github$
 ^\.gitignore$
 ^docs$
+^site$
 ^data-raw$
 ^CONTRIBUTING\.md$
 ^CODE_OF_CONDUCT\.md$
