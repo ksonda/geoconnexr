@@ -32,6 +32,7 @@ and link both records rather than rewriting history.
 | [0024](0024-offline-direct-csv-response-validation.md) | Accepted internal substrate | Validate caller-supplied direct-CSV response candidates offline |
 | [0025](0025-bounded-offline-direct-csv-parsing.md) | Accepted internal substrate | Parse validated direct-CSV bytes under a strict offline profile |
 | [0026](0026-single-attempt-direct-csv-execution.md) | Accepted internal substrate | Execute one direct-CSV request through the package transport |
+| [0027](0027-bounded-direct-csv-orchestration.md) | Accepted internal substrate | Orchestrate bounded direct-CSV requests with exact status reconciliation |
 
 Each ADR states its context, decision, consequences, and status. Proposed ADRs
 may change; accepted ADRs govern implementation until superseded.
