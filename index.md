@@ -82,14 +82,17 @@ attr(location, "diagnostics")
 
 ### Fetch roadmap progress
 
-The internal M7h checkpoint can now preview direct-CSV admission without any
-network activity, or execute multiple bounded direct-CSV requests sequentially
-while preserving one exact status per evaluated distribution. Individual
-transport and parse failures remain visible without stopping unrelated CSV
-requests, and successful evidence is compacted without retaining raw provider
-bodies. This is tested infrastructure for the future `gx_fetch()` workflow,
-not a newly exported fetch API. See
-[ADR 0027](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0027-bounded-direct-csv-orchestration.md).
+The internal M7h checkpoint can preview direct-CSV admission without network
+activity or execute bounded CSV requests sequentially with one exact status
+per distribution. M7i now adds the first complete non-CSV handler slice: one
+reserved OGC API Features items request, a runtime symbol check immediately
+before invocation, strict GeoJSON-to-`sf` normalization, and one charged
+attempt ledger row. Next-page links are reported as truncation and are not
+followed. This remains tested infrastructure for the future `gx_fetch()`
+workflow, not a newly exported fetch API. See
+[ADR 0027](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0027-bounded-direct-csv-orchestration.md)
+and
+[ADR 0028](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0028-single-page-oaf-handler.md).
 
 <div class="gx-status">
   <strong>Experimental status.</strong> The intended end-to-end catalog, fetch,

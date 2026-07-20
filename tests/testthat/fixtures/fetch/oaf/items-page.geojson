@@ -1,0 +1,38 @@
+{
+  "type": "FeatureCollection",
+  "numberMatched": 3,
+  "numberReturned": 2,
+  "features": [
+    {
+      "type": "Feature",
+      "id": "gage-001",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-77.0365, 38.8977]
+      },
+      "properties": {
+        "name": "Alpha Gage",
+        "provider_id": "00123"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "gage-002",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-78.6382, 35.7796]
+      },
+      "properties": {
+        "name": "Beta Gage",
+        "provider_id": "00456"
+      }
+    }
+  ],
+  "links": [
+    {
+      "rel": "next",
+      "type": "application/geo+json",
+      "href": "https://reference.geoconnex.us/collections/gages/items?offset=2"
+    }
+  ]
+}

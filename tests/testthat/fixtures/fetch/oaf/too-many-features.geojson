@@ -1,0 +1,11 @@
+{
+  "type": "FeatureCollection",
+  "numberMatched": 3,
+  "numberReturned": 3,
+  "features": [
+    {"type":"Feature","id":"1","geometry":{"type":"Point","coordinates":[-77,39]},"properties":{}},
+    {"type":"Feature","id":"2","geometry":{"type":"Point","coordinates":[-78,40]},"properties":{}},
+    {"type":"Feature","id":"3","geometry":{"type":"Point","coordinates":[-79,41]},"properties":{}}
+  ],
+  "links": []
+}
