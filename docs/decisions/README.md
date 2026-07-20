@@ -33,6 +33,8 @@ and link both records rather than rewriting history.
 | [0025](0025-bounded-offline-direct-csv-parsing.md) | Accepted internal substrate | Parse validated direct-CSV bytes under a strict offline profile |
 | [0026](0026-single-attempt-direct-csv-execution.md) | Accepted internal substrate | Execute one direct-CSV request through the package transport |
 | [0027](0027-bounded-direct-csv-orchestration.md) | Accepted internal substrate | Orchestrate bounded direct-CSV requests with exact status reconciliation |
+| [0028](0028-single-page-oaf-handler.md) | Accepted internal substrate | Execute one reservation-bound single-page OGC API Features request |
+| [0029](0029-cross-handler-orchestration.md) | Accepted internal substrate | Orchestrate CSV and OGC handlers under one bounded status contract |
 
 Each ADR states its context, decision, consequences, and status. Proposed ADRs
 may change; accepted ADRs govern implementation until superseded.
