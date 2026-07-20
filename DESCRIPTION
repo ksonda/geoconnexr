@@ -43,9 +43,12 @@ Description: Tools for discovering water-data sites and datasets through the
     run. An internal single-page OGC API Features handler now reuses one held
     all-handler reservation, rechecks its native symbol immediately before
     invocation, performs one DNS-pinned request, and binds strict GeoJSON-to-sf
-    normalization to the charged attempt. Graph discovery, public catalog and
-    cross-handler orchestration, remaining provider handlers, pagination, and
-    provider-data packaging remain under development.
+    normalization to the charged attempt. A cross-handler orchestrator now
+    schedules direct CSV and OGC requests in one global order with shared
+    admission limits, isolated failures, compact evidence, and exact
+    all-distribution status. Graph discovery, public catalog, remaining
+    provider handlers, pagination, replay, and provider-data packaging remain
+    under development.
 License: MIT + file LICENSE
 URL: https://ksonda.github.io/geoconnexr/, https://github.com/ksonda/geoconnexr
 BugReports: https://github.com/ksonda/geoconnexr/issues

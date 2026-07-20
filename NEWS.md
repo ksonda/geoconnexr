@@ -146,6 +146,20 @@
   forged-object tests keep provider filters, pagination, cross-handler
   orchestration, registration, serialization/replay, and public `gx_fetch()`
   gated.
+- Added the unexported M7j `gx_fetch_orchestration` S3 contract 0.1.0. It
+  derives direct-CSV and compatible OGC API Features candidates from one M7d
+  plan, admits them together under shared count and 64-MiB reserved-response
+  ceilings, and executes them sequentially in exact global fetch order. Typed
+  CSV and OGC capability/transport/parse failures become handler-specific
+  redacted terminal rows while unrelated work continues. A strict dry run
+  performs the same offline planning, admission, identity, and exact
+  one-row-per-distribution status projection without host or provider work.
+  Successful CSV evidence uses the M7h compact contract; OGC evidence removes
+  the repeated plan chain while retaining bounded GeoJSON bytes so validation
+  can rebuild M7i, reparse exact `sf`, and rebind scopes, attempts, statuses,
+  result indexes, counts, bytes, and authority. Remaining handlers,
+  pagination, registration, serialization/replay, a public fetched-result
+  schema, and `gx_fetch()` remain gated.
 - Added the unexported M9b catalog-only snapshot writer. It revalidates a
   catalog, creates deterministic redacted UTF-8 CSV views in a sibling staging
   tree, writes a manifest-v1 document last, verifies the closed tree through
