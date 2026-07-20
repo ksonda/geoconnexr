@@ -31,6 +31,9 @@ Description: Tools for discovering water-data sites and datasets through the
     An offline response boundary validates one bounded caller-supplied
     direct-CSV response candidate while explicitly withholding provider
     provenance, budget consumption, parsing, transport, and execution claims.
+    A strict offline UTF-8 CSV boundary then parses only those exact retained
+    bytes into a bounded character-only result contract without loading an
+    optional parser package or upgrading the caller-supplied provenance claim.
     Graph discovery, public catalog orchestration, and provider-data packaging
     remain under development.
 License: MIT + file LICENSE

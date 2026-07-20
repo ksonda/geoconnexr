@@ -58,7 +58,10 @@ M7d allocates the global physical-attempt and byte budgets into held
 all-handler reservations and bounded, non-executable direct-CSV logical request
 plans. M7e validates one bounded caller-supplied direct-CSV response candidate
 offline while preserving the exact raw bytes and explicitly declining provider
-provenance, budget-consumption, parsing, transport, replay, or execution claims.
+provenance, budget-consumption, transport, replay, or execution claims. M7f
+parses only those bytes under a strict bounded UTF-8 comma/header profile into
+an exact character-only table while retaining the caller-supplied provenance
+limit.
 These are internal substrates, not exported discovery, fetch, package,
 snapshot, loading, or replay APIs. Public graph
 discovery, catalog orchestration, and provider data retrieval remain gated on
@@ -253,6 +256,21 @@ provider observation, budget consumption, parsing, transport authorization,
 execution readiness, and replay false. See
 [ADR 0024](docs/decisions/0024-offline-direct-csv-response-validation.md).
 
+The internal M7f `gx_csv_parsed_response` S3 object implements contract 0.1.0
+and embeds M7e byte-for-byte. It accepts one explicit total-field ceiling and
+parses only M7e's retained body under a fixed strict UTF-8 profile: optional
+leading BOM, comma delimiter, doubled-quote escape, required exact unique
+header, LF/CRLF records, no quoted newlines or blank records, no trimming,
+missing-value conversion, type inference, or name repair, and character
+storage for every cell. A raw-byte scan enforces selected and implementation
+row/column limits plus input, field, header, and aggregate-field budgets before
+allocating the result. Chunked result and parse identities bind the exact
+names, values, dimensions, policy, limits, BOM presence, M7e validation, and
+body digest. Metadata records parser and result validation but still denies
+provider observation, physical attempts, fetch-budget consumption, transport,
+execution, serialization, and replay. See
+[ADR 0025](docs/decisions/0025-bounded-offline-direct-csv-parsing.md).
+
 `gx_resolve()`, `gx_jsonld()`, and the `gx_ref_*()` functions make bounded
 network requests, account for every physical retry, and validate DNS and every
 redirect target before transport. A package-owned monotonic per-host throttle
@@ -285,7 +303,9 @@ executing requests, M7b only inspects host package metadata, and M7c records
 inert direct-CSV intent identity without granting authority. M7d allocates
 non-consumed all-handler reservations and inert direct-CSV request plans while
 keeping transport authority false. M7e validates bounded caller-supplied
-direct-CSV response candidates without claiming provider provenance or parsing.
+direct-CSV response candidates without claiming provider provenance. M7f
+strictly parses their exact retained bytes into non-authoritative character
+tables without loading an optional parser package or authorizing transport.
 The internal M9b
 writer is limited to validated catalog-only resources and is labeled
 non-replayable in its manifest.
