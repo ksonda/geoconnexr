@@ -34,6 +34,9 @@ Description: Tools for discovering water-data sites and datasets through the
     A strict offline UTF-8 CSV boundary then parses only those exact retained
     bytes into a bounded character-only result contract without loading an
     optional parser package or upgrading the caller-supplied provenance claim.
+    An internal single-attempt executor can now run one selected direct-CSV
+    request through the DNS-pinned package transport, validate and parse the
+    provider response, and bind it to one charged redacted attempt ledger row.
     Graph discovery, public catalog orchestration, and provider-data packaging
     remain under development.
 License: MIT + file LICENSE

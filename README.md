@@ -61,7 +61,11 @@ offline while preserving the exact raw bytes and explicitly declining provider
 provenance, budget-consumption, transport, replay, or execution claims. M7f
 parses only those bytes under a strict bounded UTF-8 comma/header profile into
 an exact character-only table while retaining the caller-supplied provenance
-limit.
+limit. M7g executes one selected direct-CSV request through the package-owned
+DNS-pinned transport, validates and parses the observed provider response, and
+binds it to one charged physical-attempt ledger row without exposing a public
+fetch API.
+
 These are internal substrates, not exported discovery, fetch, package,
 snapshot, loading, or replay APIs. Public graph
 discovery, catalog orchestration, and provider data retrieval remain gated on
@@ -271,6 +275,18 @@ provider observation, physical attempts, fetch-budget consumption, transport,
 execution, serialization, and replay. See
 [ADR 0025](docs/decisions/0025-bounded-offline-direct-csv-parsing.md).
 
+The internal M7g `gx_csv_execution` S3 object implements contract 0.1.0. It
+re-derives one selected direct-CSV target, binds explicit timeout and per-host
+interval policy, and performs one cache-bypassing GET through the same
+DNS-revalidated, public-address-pinned, redirect-disabled streaming transport
+used by the protocol clients. M7e validates the observed response before M7f
+parses it. M7g preserves that nested chain byte-for-byte and adds one
+host-specific execution identity plus one charged physical-attempt ledger row
+with a redacted URL, resolved host/IP, status, media, exact bytes, body digest,
+and completion time. The completed evidence remains non-replayable and does not
+authorize another request or any non-CSV handler. See
+[ADR 0026](docs/decisions/0026-single-attempt-direct-csv-execution.md).
+
 `gx_resolve()`, `gx_jsonld()`, and the `gx_ref_*()` functions make bounded
 network requests, account for every physical retry, and validate DNS and every
 redirect target before transport. A package-owned monotonic per-host throttle
@@ -305,7 +321,10 @@ non-consumed all-handler reservations and inert direct-CSV request plans while
 keeping transport authority false. M7e validates bounded caller-supplied
 direct-CSV response candidates without claiming provider provenance. M7f
 strictly parses their exact retained bytes into non-authoritative character
-tables without loading an optional parser package or authorizing transport.
+tables without loading an optional parser package. M7g can execute exactly one
+selected direct-CSV request through the bounded package transport and bind the
+provider response to its charged attempt, but public and multi-handler fetch
+orchestration remains gated.
 The internal M9b
 writer is limited to validated catalog-only resources and is labeled
 non-replayable in its manifest.

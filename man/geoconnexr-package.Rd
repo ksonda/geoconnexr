@@ -14,6 +14,7 @@ developed behind fixture-backed contracts.
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://ksonda.github.io/geoconnexr/}
   \item \url{https://github.com/ksonda/geoconnexr}
   \item Report bugs at \url{https://github.com/ksonda/geoconnexr/issues}
 }

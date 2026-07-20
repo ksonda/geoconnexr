@@ -2,7 +2,7 @@
 
 **Status:** Accepted implementation roadmap; a stable 0.1.0 contract freeze is gated on the remaining P0 decisions and vertical-spike evidence below
 **Version:** 0.2.0
-**Reviewed:** 2026-07-16
+**Reviewed:** 2026-07-20
 
 ## 0. Executive decision
 
@@ -31,7 +31,7 @@ The target remains an R-first package for discovery, identifier crosswalks, and 
 | M4 | Partial experimental slices M4a/M4b/M4c: `gx_gage_to_pid()` is implemented, and the v3.2 COMID lookup now has an explicit verified install lifecycle plus internal offline forward and release-scoped inverse mappers; public COMID, HUC12, point, inverse, and currentness contracts remain gated under ADRs 0004, 0008, 0009, and 0015. |
 | M5 | Partial experimental M5a/M5b: an unexported one-logical-request SELECT/ASK substrate provides strict bounded SPARQL 1.1 Results JSON parsing and provenance, while the public local renderer now consumes an exact-byte-pinned render-only v2 template manifest with explicit disabled execution, chunking, and pagination; public graph APIs, endpoint support, and paging remain gated under ADRs 0004, 0012, and 0013. |
 | M6 | Partial M6a/M6b/M6c: `gx_aoi()` canonicalizes one custom polygonal `sf`/`sfc` geometry offline, internal bounded hydration reconstructs AOI-only recipes while independently rebinding canonical GeoJSON to their WKB digest, and an internal catalog value object validates typed sites, flattened datasets, problems, requests, and completeness. Public `gx_catalog()`, live discovery/merge, nonempty reference layers, full replay, and upstream-derived AOI modes remain gated under ADRs 0014, 0016, and 0018. |
-| M7 | Partial M7a/M7b/M7c/M7d/M7e/M7f: an unexported deterministic selection-only plan binds M6c catalog distributions to strict dual handler assets, a separate host-specific report checks selected optional-package versions without loading namespaces, host-independent objects record inert direct-CSV GET intent identity and allocate global physical-attempt/byte reservations plus bounded non-executable logical requests, an offline boundary validates one caller-supplied response candidate without claiming provider provenance, and a strict offline parser binds its exact bytes to a character-only result contract. The nested M7a request list remains empty and no transport is authorized. Runtime package/symbol invocation checks, provider transport, attempt ledgers, execution, registration, serialization, and public APIs remain gated under ADRs 0020–0025. |
+| M7 | Partial M7a–M7g: the internal chain selects catalog distributions, records direct-CSV intent, allocates one-attempt reservations, validates response envelopes, and parses strict character tables. M7g can now execute one selected direct-CSV logical request through the DNS-pinned package transport and bind its provider-observed response to one charged physical-attempt ledger row. The nested M7a request list remains empty; public/multi-request execution, non-CSV handlers, runtime package/symbol checks, registration, serialization, and replay remain gated under ADRs 0020–0026. |
 | M8 | Planned. |
 | M9 | Partial M9a/M9b: an unexported offline verifier validates the bounded manifest and embedded request-ledger shape, rebinds AOI identity through M6b, inventories a closed portable resource tree, and verifies exact local bytes; an unexported creation-only writer stages, verifies, and publishes deterministic redacted catalog CSV resources plus manifest-v1. Public packaging/snapshot APIs, overwrite, loading, Frictionless acceptance, authenticity, and replay remain gated under ADRs 0017 and 0019. |
 | M10 | Planned. |
@@ -667,6 +667,25 @@ Physical-attempt identity and ledger rows remain coupled to transport, where a
 real execution scope, DNS/outcome/timing/charging facts, and provider provenance
 can exist.
 
+M7g adds the unexported `gx_csv_execution` S3 value object with contract
+version 0.1.0. It accepts one M7d logical request plus explicit parser-field,
+timeout, per-host interval, and execution-scope inputs. The full target is
+re-derived rather than accepted from the caller. One cache-bypassing GET runs
+through the package-owned request executor with identity encoding, no redirects
+or retries, DNS revalidation and public-address connection pinning, and the
+minimum selected encoded/decoded/response byte ceiling.
+
+M7e validates the observed response before transport may return success, and
+M7f parses its exact retained body. M7g then binds the byte-identical M7f-to-M7a
+chain to one host-specific execution identity and one physical-attempt ledger
+row containing only a redacted URL plus resolved host/IP, status, media, exact
+bytes, body digest, and completion time. Its outer metadata honestly records
+provider observation, transport authorization, attempt/budget consumption, and
+successful parsing while remaining non-replayable and non-execution-ready. It
+closes the direct-CSV attempt, response-origin, timeout, and transport-adapter
+blockers without making other handlers executable or exporting `gx_fetch()`
+under ADR 0026.
+
 Every handler implements `probe → plan → fetch → normalize`:
 
 - **probe:** determine whether the distribution is compatible;
@@ -788,14 +807,26 @@ parser, performs no DNS/network/cache/clock/body-file/write work, and claims no
 provider observation, attempt, fetch-budget consumption, transport, execution,
 serialization, or replay; no M7f parser/result API is exported.
 
+**M7g acceptance:** one selected direct-CSV logical request produces exactly
+one DNS-revalidated, connection-pinned, cache-bypassing physical attempt and an
+exact host-specific execution object; M7e validates the provider response and
+M7f parses the same body while the complete nested chain remains byte-identical;
+method, headers, empty body, no-redirect/no-retry policy, timeout, interval, and
+the minimum selected byte ceiling reach the performer exactly; execution and
+attempt identities bind scope, request/reservation/distribution, full re-derived
+target, public host/IP, response facts, body digest, times, and charged bytes
+while storing only a redacted URL; unsafe DNS, changed URL, invalid status/media/
+encoding/length, oversized body, invalid CSV, malformed inputs, and forged
+nested or owned facts fail under typed trace-redacted conditions; failure never
+retries or exposes body/query values; no cache or file is used; and M7g plus
+`gx_fetch()` remain unexported.
+
 **Remaining M7 acceptance:** provider-specific request-plan snapshots and
-fixture tests for every non-CSV handler; physical-attempt identity and exact
-ledger alignment; runtime package/symbol recheck coupled to invocation;
-provider transport/provenance; poisoned redirect; missing package;
-no-network dry run;
-timeout/size/page budgets; one handler failure does not abort unrelated
-handlers; exact one-to-one status reconciliation; reviewed registration and
-serialization/replay contracts.
+fixture tests for every non-CSV handler; runtime package/symbol recheck coupled
+to invocation; multi-request/provider execution and ledgers; poisoned redirect;
+missing package; no-network dry run; page and aggregate budgets; one handler
+failure does not abort unrelated handlers; exact one-to-one status
+reconciliation; reviewed registration and serialization/replay contracts.
 
 ### M8 — Harmonization
 
