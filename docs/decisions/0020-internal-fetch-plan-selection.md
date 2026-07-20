@@ -59,9 +59,10 @@ not probe installed packages, call handlers, resolve DNS, use the network,
 touch the cache, or write files. Validation rebinds classifications and handler
 metadata to the bundled asset hashes rather than trusting mutable object fields.
 
-Public `gx_fetch_plan()` and `gx_fetch()` remain unexported. Provider request
-construction, optional-package preflight, execution, runtime registration, and
-serialized/replayable plan contracts are deferred to M7b/M7c.
+Public `gx_fetch_plan()` and `gx_fetch()` remain unexported. The host-specific
+optional-package check is implemented separately under ADR 0021. Provider
+request construction, execution, runtime registration, and serialized or
+replayable plan contracts remain deferred to later M7 work.
 
 ## Consequences
 

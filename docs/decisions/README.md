@@ -26,6 +26,7 @@ and link both records rather than rewriting history.
 | [0018](0018-internal-catalog-value-object.md) | Accepted internal substrate | Separate the catalog value object from live discovery |
 | [0019](0019-catalog-only-snapshot-writer.md) | Accepted internal substrate | Publish catalog-only snapshots through a verified staging tree |
 | [0020](0020-internal-fetch-plan-selection.md) | Accepted internal substrate | Build an internal deterministic selection-only fetch plan |
+| [0021](0021-host-package-capability-preflight.md) | Accepted internal substrate | Keep package capability preflight host-specific and non-executable |
 
 Each ADR states its context, decision, consequences, and status. Proposed ADRs
 may change; accepted ADRs govern implementation until superseded.
