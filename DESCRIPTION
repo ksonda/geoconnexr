@@ -40,8 +40,12 @@ Description: Tools for discovering water-data sites and datasets through the
     A bounded internal direct-CSV orchestrator adds deterministic sequential
     admission, continue-on-error execution, exact all-distribution status
     reconciliation, compact successful results, and a strict no-network dry
-    run. Graph discovery, public catalog orchestration, non-CSV fetch handlers,
-    and provider-data packaging remain under development.
+    run. An internal single-page OGC API Features handler now reuses one held
+    all-handler reservation, rechecks its native symbol immediately before
+    invocation, performs one DNS-pinned request, and binds strict GeoJSON-to-sf
+    normalization to the charged attempt. Graph discovery, public catalog and
+    cross-handler orchestration, remaining provider handlers, pagination, and
+    provider-data packaging remain under development.
 License: MIT + file LICENSE
 URL: https://ksonda.github.io/geoconnexr/, https://github.com/ksonda/geoconnexr
 BugReports: https://github.com/ksonda/geoconnexr/issues

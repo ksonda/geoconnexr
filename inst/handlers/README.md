@@ -91,6 +91,21 @@ fetch-budget consumption, transport, execution, serialization, and replay.
 It does not load `readr`: the registry's planned runtime implementation remains
 gated on an actual package/version/symbol check coupled to future invocation.
 
+ADR 0028 implements the first internal non-CSV execution slice without
+changing the registry's portable planned state. `gx_oaf_request_plan` accepts
+only one selected, query-free, canonically encoded OGC API Features items URL
+with a matching M7d held reservation. It adds fixed `f=json` and `limit`
+parameters and binds one GET, one attempt, the held byte ceilings, identity
+encoding, status/media expectations, and no credentials, redirects, retries,
+cache, or next-page follow. `gx_oaf_execution` resolves the declared native
+`gx_handler_oaf` symbol again immediately before invocation, performs one
+DNS-pinned request, strictly parses the bounded FeatureCollection to `sf`, and
+binds the retained body and result to one charged attempt. Missing-symbol,
+changed-target, excessive-feature, and forged-evidence fixtures fail closed.
+M7i remains internal; provider filters, queryables, pagination, cross-handler
+orchestration, registration, serialization/replay, and public fetch remain
+planned.
+
 Current USGS Water Data API distributions are tested before the generic OGC API
 Features classifier. Legacy NWIS IV/DV URLs are compatibility-only and produce a
 deprecation warning. EDR plans must record the base URL, collection, query verb,

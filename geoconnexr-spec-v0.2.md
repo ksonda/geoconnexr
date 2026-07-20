@@ -31,7 +31,7 @@ The target remains an R-first package for discovery, identifier crosswalks, and 
 | M4 | Partial experimental slices M4a/M4b/M4c: `gx_gage_to_pid()` is implemented, and the v3.2 COMID lookup now has an explicit verified install lifecycle plus internal offline forward and release-scoped inverse mappers; public COMID, HUC12, point, inverse, and currentness contracts remain gated under ADRs 0004, 0008, 0009, and 0015. |
 | M5 | Partial experimental M5a/M5b: an unexported one-logical-request SELECT/ASK substrate provides strict bounded SPARQL 1.1 Results JSON parsing and provenance, while the public local renderer now consumes an exact-byte-pinned render-only v2 template manifest with explicit disabled execution, chunking, and pagination; public graph APIs, endpoint support, and paging remain gated under ADRs 0004, 0012, and 0013. |
 | M6 | Partial M6a/M6b/M6c: `gx_aoi()` canonicalizes one custom polygonal `sf`/`sfc` geometry offline, internal bounded hydration reconstructs AOI-only recipes while independently rebinding canonical GeoJSON to their WKB digest, and an internal catalog value object validates typed sites, flattened datasets, problems, requests, and completeness. Public `gx_catalog()`, live discovery/merge, nonempty reference layers, full replay, and upstream-derived AOI modes remain gated under ADRs 0014, 0016, and 0018. |
-| M7 | Partial M7a–M7h: the internal chain selects catalog distributions, records direct-CSV intent, allocates one-attempt reservations, validates response envelopes, and parses strict character tables. M7g executes one selected direct-CSV logical request through the DNS-pinned package transport. M7h now orchestrates bounded direct-CSV requests sequentially, isolates transport/parse failures, reconciles exactly one status per distribution, compacts successful evidence, and provides a strict no-network dry run. The nested M7a request list remains empty; public and non-CSV execution, runtime package/symbol checks, registration, serialization, and replay remain gated under ADRs 0020–0027. |
+| M7 | Partial M7a–M7i: the internal chain selects catalog distributions, records direct-CSV intent, allocates one-attempt reservations, validates response envelopes, and parses strict character tables. M7g executes one selected direct-CSV request; M7h orchestrates CSV requests with isolated failures and exact status; M7i adds one reservation-bound, single-page OGC API Features request with an invocation-time native-symbol check and strict GeoJSON-to-`sf` result. The nested M7a request list remains empty; public fetch, pagination, cross-handler orchestration, remaining provider handlers, registration, serialization, and replay remain gated under ADRs 0020–0028. |
 | M8 | Planned. |
 | M9 | Partial M9a/M9b: an unexported offline verifier validates the bounded manifest and embedded request-ledger shape, rebinds AOI identity through M6b, inventories a closed portable resource tree, and verifies exact local bytes; an unexported creation-only writer stages, verifies, and publishes deterministic redacted catalog CSV resources plus manifest-v1. Public packaging/snapshot APIs, overwrite, loading, Frictionless acceptance, authenticity, and replay remain gated under ADRs 0017 and 0019. |
 | M10 | Planned. |
@@ -713,6 +713,28 @@ M7h remains internal and does not implement non-CSV handlers, runtime symbol
 preflight coupled to invocation, registration, serialization/replay, or public
 `gx_fetch()`.
 
+M7i adds the unexported `gx_oaf_request_plan` and `gx_oaf_execution` S3 value
+objects, both contract version 0.1.0. Planning requires one selected
+`ogc_api_features` distribution whose query-free canonical path ends in
+`/collections/{id}/items` and whose M7d `handler_reserved` coverage row binds
+one `held_deferred_handler` reservation. It adds only deterministic `f=json`
+and `limit` parameters, stores redacted URLs, fixes GET/identity/status/media,
+rejects redirects, retries, cache, and credentials, and allocates no more than
+the held one-attempt and encoded/decoded-byte shares.
+
+Immediately before execution, M7i resolves `geoconnexr::gx_handler_oaf` as a
+function and invokes the returned binding without intervening provider work.
+Missing-symbol failure occurs before DNS or transport. The handler performs one
+DNS-revalidated, public-address-pinned request and parses one bounded GeoJSON
+FeatureCollection into `sf`. It never follows `rel=next`; a next link, a larger
+`numberMatched`, or a full-limit page produces explicit truncation. The
+host-specific execution retains the bounded body and binds it to one charged
+attempt; whole-object validation reparses the bytes and recomputes request,
+execution, attempt, result, truncation, implementation, and metadata facts
+under ADR 0028. Provider filters, queryables, multi-page budgets,
+cross-handler scheduling, optional-package invocation, registration,
+serialization/replay, and public `gx_fetch()` remain gated.
+
 Every handler implements `probe → plan → fetch → normalize`:
 
 - **probe:** determine whether the distribution is compatible;
@@ -864,11 +886,21 @@ blockers reconcile exactly; forged plan, child-scope, result, status, byte, or
 metadata facts fail whole-object validation; and M7h plus `gx_fetch()` remain
 unexported.
 
+**M7i acceptance:** one selected query-free OGC items distribution rebinds
+offline to its exact M7d held reservation and deterministic request snapshot;
+one live fixture resolves and invokes the native handler in immediate order,
+performs exactly one bounded attempt, strictly parses GeoJSON to exact `sf`,
+and reports an unfollowed next link as truncation; missing-symbol failure occurs
+before DNS/transport; changed final URLs, over-limit pages, malformed payloads,
+and forged bytes/result/invocation/ledger/metadata facts fail under typed
+trace-redacted conditions; retained bytes and all identities revalidate; no
+M7i API or public `gx_fetch()` is exported.
+
 **Remaining M7 acceptance:** provider-specific request-plan snapshots and
-fixture tests for every non-CSV handler; runtime package/symbol recheck coupled
-to invocation; multi-provider and paginated execution ledgers; poisoned
-redirect and missing-package fixtures; handler-specific page and aggregate
-budgets; cross-handler failure isolation; reviewed registration and
+fixture tests for the remaining non-CSV handlers; optional-package symbol
+rechecks coupled to invocation; multi-provider and paginated execution ledgers;
+missing-package fixtures; handler-specific aggregate page budgets;
+cross-handler failure isolation; reviewed registration and
 serialization/replay contracts.
 
 ### M8 — Harmonization
@@ -1035,9 +1067,11 @@ response to an exact physical-attempt ledger row. M7h orchestrates admitted
 direct-CSV requests sequentially, continues after isolatable transport/parse
 failures, compacts successful evidence, and reconciles one exact status row for
 every distribution; its dry run performs no host or provider work. Later M7
-contracts add non-CSV provider request/query semantics, runtime symbol checks
-coupled to invocation, multi-provider pagination, registration, and
-serialization/replay. The eventual public fetch status may add user-facing
+contracts build on M7i's first reservation-bound single-page OGC API Features
+handler and native invocation-time symbol check to add cross-handler status,
+remaining provider request/query semantics, optional-package symbol checks,
+multi-provider pagination, registration, and serialization/replay. The
+eventual public fetch status may add user-facing
 elapsed/message fields and fetched times without weakening M7h's identity,
 attempt, byte, and one-to-one reconciliation rules.
 

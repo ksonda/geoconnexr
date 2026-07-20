@@ -68,12 +68,15 @@ fetch API. M7h adds bounded sequential direct-CSV orchestration, exact
 one-row-per-distribution status reconciliation, isolated transport/parse
 failures, and a deterministic dry run that performs no host or provider work.
 Successful results retain compact execution and character-table evidence
-without raw bodies or repeated plan chains.
+without raw bodies or repeated plan chains. M7i adds the first non-CSV handler
+slice: one held-reservation OGC API Features request, an invocation-time native
+symbol check, strict single-page GeoJSON-to-`sf` normalization, and one exact
+charged attempt.
 
 These are internal substrates, not exported discovery, fetch, package,
 snapshot, loading, or replay APIs. Public graph
-discovery, catalog orchestration, and provider data retrieval remain gated on
-fixture-backed production evidence.
+discovery, catalog and cross-handler orchestration, pagination, and general
+provider data retrieval remain gated on fixture-backed production evidence.
 
 ## Intended workflow
 
@@ -307,6 +310,20 @@ retained. M7h is still unexported and does not make non-CSV handlers,
 registration, runtime invocation preflight, serialization/replay, or public
 `gx_fetch()` available. See
 [ADR 0027](docs/decisions/0027-bounded-direct-csv-orchestration.md).
+
+The internal M7i `gx_oaf_request_plan` and `gx_oaf_execution` S3 objects add
+the first complete non-CSV handler slice. A selected, query-free OGC API
+Features `/collections/{id}/items` distribution reuses its exact M7d
+one-attempt and byte reservation. Planning adds only fixed `f=json` and
+`limit` parameters. Execution re-resolves the native package symbol directly
+before invocation, then performs one DNS-pinned, cache-bypassing request with
+no redirect, retry, or next-page follow. Strict GeoJSON validation returns an
+`sf` result; an advertised next page is reported as truncation. Retained
+response bytes, result rows, invocation facts, and the charged attempt are
+rebound during whole-object validation. M7i remains unexported and does not yet
+join OGC results to M7h, map provider filters, paginate, register plugins,
+serialize/replay, or expose `gx_fetch()`. See
+[ADR 0028](docs/decisions/0028-single-page-oaf-handler.md).
 
 `gx_resolve()`, `gx_jsonld()`, and the `gx_ref_*()` functions make bounded
 network requests, account for every physical retry, and validate DNS and every
