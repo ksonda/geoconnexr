@@ -1,0 +1,121 @@
+url: https://ksonda.github.io/geoconnexr/
+
+title: geoconnexr
+description: >
+  Safe, bounded tools for discovering, crosswalking, and packaging water data
+  through the Geoconnex ecosystem.
+
+template:
+  bootstrap: 5
+  light-switch: true
+  theme: github-light
+  theme-dark: github-dark
+  includes:
+    in_header: '<link rel="icon" href="favicon.svg" type="image/svg+xml">'
+  bslib:
+    bg: "#fbfdfc"
+    fg: "#17323b"
+    primary: "#087f8c"
+    secondary: "#4f6f78"
+    success: "#2e8b74"
+    info: "#2f80a3"
+    border-radius: 0.65rem
+    btn-border-radius: 999px
+    code-bg: "#edf6f4"
+    code-color: "#145c63"
+
+home:
+  title: geoconnexr - connected water data for R
+  description: >
+    Discover Geoconnex resources, preserve identifier identity, and build
+    reproducible water-data workflows with explicit safety boundaries.
+  sidebar:
+    structure: [links, license, community, citation, authors, dev]
+
+navbar:
+  structure:
+    left: [intro, reference, articles, news, project]
+    right: [search, github, lightswitch]
+  components:
+    project:
+      text: Project
+      menu:
+      - text: Build roadmap
+        href: https://github.com/ksonda/geoconnexr/blob/main/geoconnexr-spec-v0.2.md
+      - text: Architecture decisions
+        href: https://github.com/ksonda/geoconnexr/tree/main/docs/decisions
+      - text: Contributing
+        href: https://github.com/ksonda/geoconnexr/blob/main/CONTRIBUTING.md
+      - text: Security policy
+        href: https://github.com/ksonda/geoconnexr/security/policy
+
+reference:
+- title: Define an area of interest
+  desc: Create and validate hydrologic identifiers and spatial areas.
+  contents:
+  - gx_aoi
+  - gx_validate_huc
+  - gx_validate_comid
+
+- title: Resolve and understand Geoconnex resources
+  desc: Resolve persistent identifiers and parse bounded JSON-LD profiles.
+  contents:
+  - gx_client
+  - gx_endpoints
+  - gx_resolve
+  - gx_jsonld
+  - gx_parse_location
+  - gx_parse_datasets
+
+- title: Explore reference features
+  desc: Discover collections, queryables, and bounded OGC API feature results.
+  contents:
+  - gx_ref_collections
+  - gx_ref_queryables
+  - gx_ref_features
+  - gx_ref_feature
+
+- title: Crosswalk identifiers
+  desc: Map provider identifiers and manage the optional NHDPlus lookup.
+  contents:
+  - gx_gage_to_pid
+  - gx_mainstem_lookup_info
+  - gx_mainstem_lookup_install
+
+- title: Query and distribution tools
+  desc: Inspect safe query templates, handlers, and reviewed conversion rules.
+  contents:
+  - gx_templates
+  - gx_render_query
+  - gx_handlers
+  - gx_classify_distribution
+  - gx_unit_conversions
+
+- title: Infrastructure and package internals
+  desc: Cache controls and versioned identity primitives for advanced use.
+  contents:
+  - gx_cache_info
+  - gx_cache_clear
+  - gx_contract_hash
+  - geoconnexr-package
+
+articles:
+- title: Start here
+  navbar: ~
+  contents:
+  - geoconnexr
+- title: Design and operation
+  navbar: ~
+  contents:
+  - safety-and-reproducibility
+
+footer:
+  structure:
+    left: [package, legal]
+    right: [developed_by, built_with]
+  components:
+    legal: Experimental software; verify results before operational use.
+
+authors:
+  Kyle Onda:
+    href: https://github.com/ksonda
