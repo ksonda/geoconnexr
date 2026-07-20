@@ -1,0 +1,225 @@
+{
+  "fixture_version": "1.0.0",
+  "purpose": "Bounded synthetic descriptors for non-executable direct-CSV GET intent planning.",
+  "cases": [
+    {
+      "case_id": "csv_query_fragment_default_port",
+      "description": "A selected CSV descriptor carries a sanitized query, an HTTPS default port, and a fragment that is not part of the transport target.",
+      "descriptor": {
+        "distribution_key": "query-fragment-default-port",
+        "url": "https://data.example.org:443/observations.csv?station=00123&token=fixture-token#preview",
+        "media_type": "text/csv",
+        "conforms_to": [],
+        "fetchable": true,
+        "variables": [
+          "discharge"
+        ]
+      },
+      "selection": {
+        "selection_order": 1,
+        "fetch_order": 1,
+        "selected": true,
+        "decision": "selected_unplanned"
+      },
+      "expectation": {
+        "classifier": "csv",
+        "intent_eligible": true,
+        "expected_intent_count": 1,
+        "canonical_transport_url": "https://data.example.org/observations.csv?station=00123&token=fixture-token",
+        "note": "The exact query remains internal; display and error surfaces must redact it. The fragment and default port are absent from the transport URL."
+      }
+    },
+    {
+      "case_id": "csv_media_type_only_duplicate_variables",
+      "description": "A selected distribution without a CSV suffix is classified by media type and appears in two catalog variable rows.",
+      "descriptor": {
+        "distribution_key": "media-type-only-duplicate-variables",
+        "url": "https://data.example.org/download/current",
+        "media_type": "text/csv",
+        "conforms_to": [],
+        "fetchable": true,
+        "variables": [
+          "discharge",
+          "temperature"
+        ]
+      },
+      "selection": {
+        "selection_order": 2,
+        "fetch_order": 2,
+        "selected": true,
+        "decision": "selected_unplanned"
+      },
+      "expectation": {
+        "classifier": "csv",
+        "intent_eligible": true,
+        "expected_intent_count": 1,
+        "canonical_transport_url": "https://data.example.org/download/current",
+        "note": "Both variable rows share one distribution identity and therefore yield one distribution-level intent, not one intent per variable."
+      }
+    },
+    {
+      "case_id": "csv_extension_contradictory_media_type",
+      "description": "A selected .csv URL is classified as CSV even though its descriptor advertises application/octet-stream.",
+      "descriptor": {
+        "distribution_key": "extension-contradictory-media-type",
+        "url": "https://data.example.org/archive/observations.csv",
+        "media_type": "application/octet-stream",
+        "conforms_to": [],
+        "fetchable": true,
+        "variables": [
+          "stage"
+        ]
+      },
+      "selection": {
+        "selection_order": 3,
+        "fetch_order": 3,
+        "selected": true,
+        "decision": "selected_unplanned"
+      },
+      "expectation": {
+        "classifier": "csv",
+        "intent_eligible": true,
+        "expected_intent_count": 1,
+        "canonical_transport_url": "https://data.example.org/archive/observations.csv",
+        "note": "The suffix satisfies the current classifier. A future executor must independently enforce its accepted response media types."
+      }
+    },
+    {
+      "case_id": "precedence_wqp_with_csv_media_type",
+      "description": "A selected Water Quality Portal descriptor also advertises CSV but remains owned by the higher-precedence WQP handler.",
+      "descriptor": {
+        "distribution_key": "precedence-wqp-csv-media",
+        "url": "https://www.waterqualitydata.us/data/Result/search?siteid=USGS-01234567&mimeType=csv",
+        "media_type": "text/csv",
+        "conforms_to": [],
+        "fetchable": true,
+        "variables": [
+          "dissolved-oxygen"
+        ]
+      },
+      "selection": {
+        "selection_order": 4,
+        "fetch_order": 4,
+        "selected": true,
+        "decision": "selected_unplanned"
+      },
+      "expectation": {
+        "classifier": "wqp",
+        "intent_eligible": false,
+        "expected_intent_count": 0,
+        "canonical_transport_url": "https://www.waterqualitydata.us/data/Result/search?siteid=USGS-01234567&mimeType=csv",
+        "note": "CSV media type does not override first-match handler precedence."
+      }
+    },
+    {
+      "case_id": "precedence_oaf_with_csv_media_type",
+      "description": "A selected OGC API Features items descriptor also advertises CSV but remains owned by the higher-precedence OAF handler.",
+      "descriptor": {
+        "distribution_key": "precedence-oaf-csv-media",
+        "url": "https://features.example.org/collections/gages/items?f=csv",
+        "media_type": "text/csv",
+        "conforms_to": [
+          "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core"
+        ],
+        "fetchable": true,
+        "variables": [
+          "feature"
+        ]
+      },
+      "selection": {
+        "selection_order": 5,
+        "fetch_order": 5,
+        "selected": true,
+        "decision": "selected_unplanned"
+      },
+      "expectation": {
+        "classifier": "ogc_api_features",
+        "intent_eligible": false,
+        "expected_intent_count": 0,
+        "canonical_transport_url": "https://features.example.org/collections/gages/items?f=csv",
+        "note": "Items-path and conformance matches precede the generic CSV classifier."
+      }
+    },
+    {
+      "case_id": "csv_outside_time",
+      "description": "A CSV descriptor excluded by the effective time intersection remains visible but produces no intent.",
+      "descriptor": {
+        "distribution_key": "outside-time",
+        "url": "https://data.example.org/history/outside.csv",
+        "media_type": "text/csv",
+        "conforms_to": [],
+        "fetchable": true,
+        "variables": [
+          "discharge"
+        ]
+      },
+      "selection": {
+        "selection_order": 6,
+        "fetch_order": null,
+        "selected": false,
+        "decision": "outside_time"
+      },
+      "expectation": {
+        "classifier": "csv",
+        "intent_eligible": false,
+        "expected_intent_count": 0,
+        "canonical_transport_url": "https://data.example.org/history/outside.csv",
+        "note": "Only selected distributions may produce direct-CSV intents."
+      }
+    },
+    {
+      "case_id": "csv_not_fetchable",
+      "description": "A catalog-declared non-fetchable CSV descriptor remains visible but produces no intent.",
+      "descriptor": {
+        "distribution_key": "not-fetchable",
+        "url": "https://data.example.org/restricted/not-fetchable.csv",
+        "media_type": "text/csv",
+        "conforms_to": [],
+        "fetchable": false,
+        "variables": [
+          "temperature"
+        ]
+      },
+      "selection": {
+        "selection_order": 7,
+        "fetch_order": null,
+        "selected": false,
+        "decision": "not_fetchable"
+      },
+      "expectation": {
+        "classifier": "csv",
+        "intent_eligible": false,
+        "expected_intent_count": 0,
+        "canonical_transport_url": "https://data.example.org/restricted/not-fetchable.csv",
+        "note": "The intent layer must preserve the selection decision rather than reinterpret fetchability."
+      }
+    },
+    {
+      "case_id": "csv_skipped_max_datasets",
+      "description": "A CSV candidate skipped by the M7a dataset cap remains visible but produces no intent.",
+      "descriptor": {
+        "distribution_key": "skipped-max-datasets",
+        "url": "https://data.example.org/overflow/skipped.csv",
+        "media_type": "application/csv",
+        "conforms_to": [],
+        "fetchable": true,
+        "variables": [
+          "conductivity"
+        ]
+      },
+      "selection": {
+        "selection_order": 8,
+        "fetch_order": null,
+        "selected": false,
+        "decision": "skipped_max_datasets"
+      },
+      "expectation": {
+        "classifier": "csv",
+        "intent_eligible": false,
+        "expected_intent_count": 0,
+        "canonical_transport_url": "https://data.example.org/overflow/skipped.csv",
+        "note": "Request-intent construction cannot bypass the upstream selection cap."
+      }
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "contract_version": "0.1.0",
+  "policy": {
+    "slice_id": "direct_csv_get_v1",
+    "method": "GET",
+    "accept": "text/csv, application/csv;q=0.9",
+    "accept_encoding": "identity",
+    "body_bytes": 0,
+    "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "credential_policy": "unbound",
+    "redirect_policy": "unbound",
+    "cache_policy": "unbound",
+    "parser_policy": "unbound"
+  },
+  "intents": {
+    "contract_version": ["0.1.0", "0.1.0", "0.1.0"],
+    "intent_order": [1, 2, 3],
+    "intent_id": [
+      "4f0d08c509dca7653216dbefe6ebbdd9611dd925723614d65e40ed0319b1afcc",
+      "b89665c2734f3a19adfd2203993909ad41a8302bd19d153194312c1e679164bb",
+      "a0767b861ffa1930b3f5d71746bb758665441a2b7bda7f1689edb7335e3e1a38"
+    ],
+    "distribution_id": [
+      "fc982de9dfbcaf8b620769bbf759d6f7f3f77e2d0f1e7116668058a57b222461",
+      "980784df0f5e25eab55720829ebc784627c4f593e528a32b9bb2dabaac0a28a5",
+      "dccaf1b9df144620ac5f553bbd756f9a1db8d62e01f8faf25ca3924fd24a6089"
+    ],
+    "fetch_order": [1, 2, 3],
+    "handler_id": ["csv", "csv", "csv"],
+    "declared_media_type": [
+      "text/csv",
+      "text/csv",
+      "application/octet-stream"
+    ],
+    "canonical_url_redacted": [
+      "https://data.example.org/observations.csv?[redacted]",
+      "https://data.example.org/download/current",
+      "https://data.example.org/archive/observations.csv"
+    ],
+    "intent_status": ["inert", "inert", "inert"]
+  },
+  "coverage": {
+    "distribution_id": [
+      "fc982de9dfbcaf8b620769bbf759d6f7f3f77e2d0f1e7116668058a57b222461",
+      "980784df0f5e25eab55720829ebc784627c4f593e528a32b9bb2dabaac0a28a5",
+      "dccaf1b9df144620ac5f553bbd756f9a1db8d62e01f8faf25ca3924fd24a6089",
+      "3fb5040a217e10d94e4f773c101abaca1ce4035a1b647fd1110b21c76a22b9e0",
+      "3093dce1f822cf25e628600f6f81a78d85471456bfb255fedc5b709aa884fcdc",
+      "a85c5d46a9554fe0143036bdf10b74bb4dae475c4382eda2ede358cfebbff11b",
+      "6566aa99839215a974ae076b2d03f5a9bc19da7188c8af8015ba0fd4608ac31c",
+      "59d4efa1dd9e72cbdb55b416c41c14201f4a1d127a2341efe1bb44a70e53e0ec"
+    ],
+    "intent_id": [
+      "4f0d08c509dca7653216dbefe6ebbdd9611dd925723614d65e40ed0319b1afcc",
+      "b89665c2734f3a19adfd2203993909ad41a8302bd19d153194312c1e679164bb",
+      "a0767b861ffa1930b3f5d71746bb758665441a2b7bda7f1689edb7335e3e1a38",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "intent_status": [
+      "intent_created",
+      "intent_created",
+      "intent_created",
+      "deferred_handler",
+      "deferred_handler",
+      "not_selected",
+      "not_selected",
+      "not_selected"
+    ]
+  },
+  "counts": {
+    "distributions": 8,
+    "selected": 5,
+    "intents": 3,
+    "intent_created": 3,
+    "deferred_handler": 2,
+    "not_selected": 3,
+    "reference_only": 0,
+    "requests": 0
+  },
+  "non_replayable_reasons": [
+    "attempt_ledger_unbound",
+    "cache_policy_unbound",
+    "credential_policy_unbound",
+    "handler_implementations_planned",
+    "parser_limits_unbound",
+    "provider_transport_unauthorized",
+    "redirect_policy_unbound",
+    "request_budgets_unallocated",
+    "request_plans_absent",
+    "response_contract_unproven"
+  ]
+}

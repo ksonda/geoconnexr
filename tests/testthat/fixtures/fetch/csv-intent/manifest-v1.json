@@ -1,0 +1,20 @@
+{
+  "manifest_version": "1.0.0",
+  "fixture_set": "direct-csv-request-intent",
+  "files": [
+    {
+      "path": "cases-v1.json",
+      "bytes": 8237,
+      "sha256": "d444ffc823e05117a027d9ffdbd76f0b6cf29a0168bb496df6d3336d8c2e2a0a",
+      "provenance": "synthetic",
+      "description": "Bounded sanitized distribution descriptors and selection outcomes for non-executable direct-CSV GET intent planning."
+    },
+    {
+      "path": "expected-v1.json",
+      "bytes": 3201,
+      "sha256": "4029d2debe024af0005e744fb9e7703a30dc20f64aa972cb6b18751c938083cd",
+      "provenance": "synthetic-known-answer",
+      "description": "Exact policy, known-answer intent hashes, coverage links and statuses, counts, and blockers for the bounded direct-CSV fixture plan."
+    }
+  ]
+}
