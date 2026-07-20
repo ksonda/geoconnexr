@@ -46,8 +46,9 @@ with every policy field, by `gx_contract_hash()` without being copied to the
 intent table. M7c does not consult M7b or `readr`, allocate request/byte/parser
 budgets, or authorize DNS, redirects, transport, cache, parsing, execution,
 serialization, or replay. The CSV implementation therefore remains `planned`;
-M7d below binds a response shape, and M7e validates caller-supplied response
-candidates, but provider transport/provenance and parser implementation remain
+M7d below binds a response shape, M7e validates caller-supplied response
+candidates, and M7f parses the exact admitted bytes under a package-owned
+profile. Provider transport/provenance and runtime handler invocation remain
 later M7 work.
 
 ADR 0023 implements the separate internal M7d `gx_csv_request_plan` S3 contract
@@ -76,6 +77,19 @@ to normalized validation facts. The input origin is explicitly
 attempt occurred, no budget was consumed, and no CSV parser ran. M7e performs
 no DNS, network, redirect, cache, package, handler, clock, parser, or write
 work and grants no transport, execution, serialization, or replay authority.
+
+ADR 0025 implements the separate internal M7f `gx_csv_parsed_response` S3
+contract 0.1.0. It embeds M7e byte-for-byte and parses only M7e's exact retained
+body through one package-owned strict UTF-8 comma/header profile. An explicit
+total-field ceiling and fixed input, scalar, header, row, and column limits are
+checked by a raw-byte lexical pass before allocating an exact character-only
+schema and table. Empty cells remain empty strings; no missing-value conversion,
+type inference, trimming, comments, quoted record terminators, or name repair
+is allowed. M7f records parser/result validation but retains caller-supplied
+origin and denies provider observation, physical-attempt or ledger provenance,
+fetch-budget consumption, transport, execution, serialization, and replay.
+It does not load `readr`: the registry's planned runtime implementation remains
+gated on an actual package/version/symbol check coupled to future invocation.
 
 Current USGS Water Data API distributions are tested before the generic OGC API
 Features classifier. Legacy NWIS IV/DV URLs are compatibility-only and produce a

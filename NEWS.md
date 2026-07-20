@@ -92,6 +92,19 @@
   was consumed, no parser ran, and transport, execution, replay, runtime
   preflight, attempt/ledger alignment, result semantics, and serialization
   remain blocked.
+- Added the unexported M7f `gx_csv_parsed_response` S3 contract 0.1.0. It
+  preserves M7e and the complete nested plan chain byte-for-byte, requires an
+  explicit total-field ceiling, and parses only M7e's exact retained raw body
+  under one strict UTF-8 comma/header profile. A preallocation scan rejects
+  invalid encoding, controls, misplaced BOMs, blank or embedded records,
+  malformed quotes, ragged width, empty/duplicate headers, and every byte,
+  row, column, field, and header limit before creating the exact all-character
+  schema and table. Chunked domain-separated hashes bind exact names, values,
+  dimensions, policy, limits, BOM presence, and M7e body/validation identity.
+  Metadata records parser/result validation while retaining caller-supplied
+  origin and denying provider observation, attempt/ledger provenance, fetch-
+  budget consumption, transport, execution, replay, and serialization. M7f
+  loads no optional parser package and exports no parser or result API.
 - Added the unexported M9b catalog-only snapshot writer. It revalidates a
   catalog, creates deterministic redacted UTF-8 CSV views in a sibling staging
   tree, writes a manifest-v1 document last, verifies the closed tree through

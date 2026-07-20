@@ -1,0 +1,24 @@
+{
+  "fixture_version": "1.0.0",
+  "purpose": "Strict offline CSV parsing of one exact M7e validated caller-supplied body.",
+  "provenance": "The fixture proves deterministic parser and result semantics only; no provider transport or physical attempt occurred.",
+  "cases": [
+    {
+      "case_id": "accepted_utf8_character_table",
+      "description": "A header plus one LF-terminated data row is parsed without type inference so the station identifier retains its leading zeroes.",
+      "response_case": "../csv-response-validation/cases-v1.json#accepted_text_csv_identity",
+      "body_path": "../csv-response-validation/body-accepted-v1.csv",
+      "max_fields": 1000,
+      "expectation": {
+        "accepted": true,
+        "rows": 1,
+        "columns": 2,
+        "fields": 4,
+        "storage_type": "character",
+        "parser_executed": true,
+        "provider_response_observed": false,
+        "note": "The exact all-character table is non-authoritative and remains bound to a caller-supplied M7e candidate."
+      }
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "manifest_version": "1.0.0",
+  "contract": "gx_csv_parsed_response",
+  "contract_version": "0.1.0",
+  "source_dependencies": [
+    {
+      "path": "../csv-response-validation/manifest-v1.json",
+      "bytes": 1368,
+      "sha256": "2d329bb780cae838f3c5db70f759903bfeb6e6a84f4ace30a797ac07780a0771"
+    },
+    {
+      "path": "../csv-response-validation/cases-v1.json",
+      "bytes": 1396,
+      "sha256": "4301fefa69850844f94ac4f3d29a28eb55b9173fa5879375c4abb46bd96a39e7"
+    },
+    {
+      "path": "../csv-response-validation/expected-v1.json",
+      "bytes": 1649,
+      "sha256": "8ddd1fdaa5a72d3866d2ae0e6ffff14c294d5bd54692d415f1fee7597436944c"
+    },
+    {
+      "path": "../csv-response-validation/body-accepted-v1.csv",
+      "bytes": 24,
+      "sha256": "e1e4bae6de933a5219206b4c76b19eda0d00c59930d334a2df5d7b3402af651f"
+    }
+  ],
+  "files": [
+    {
+      "path": "cases-v1.json",
+      "bytes": 1042,
+      "sha256": "6d4c89dae63b5174e0d4bc0163ee446588967d19890353ae5533ca43b6910bdd"
+    },
+    {
+      "path": "expected-v1.json",
+      "bytes": 2605,
+      "sha256": "9616bc38ea73be8eb65d7a36c1719c9156bddbfd3b6c0ad825ac31c31986667d"
+    }
+  ],
+  "notes": [
+    "The parser fixture reuses and recursively pins the exact M7e synthetic caller-supplied response; no provider transport or physical attempt occurred.",
+    "The known-answer result is a strict UTF-8 comma/header all-character table with no inference, missing-value conversion, whitespace trimming, or name repair.",
+    "The fixture proves bounded parser and result-contract behavior only; runtime handler checks, provider provenance, budget consumption, transport, serialization, and replay remain unbound."
+  ]
+}

@@ -215,3 +215,8 @@ serialization contract, execution path, or replay authority.
   mandatory later gates.
 - M7d remains immutable and honest about the absence of its own validator; M7e
   records the narrower resolved blocker only at the outer boundary.
+
+ADR 0025 consumes the exact retained M7e body through a strict bounded offline
+UTF-8 CSV parser and character-only result contract. It does not mutate M7e,
+prove provider or attempt provenance, consume fetch budgets, invoke the planned
+optional handler, authorize transport, or make either object replayable.

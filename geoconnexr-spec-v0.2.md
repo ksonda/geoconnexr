@@ -31,7 +31,7 @@ The target remains an R-first package for discovery, identifier crosswalks, and 
 | M4 | Partial experimental slices M4a/M4b/M4c: `gx_gage_to_pid()` is implemented, and the v3.2 COMID lookup now has an explicit verified install lifecycle plus internal offline forward and release-scoped inverse mappers; public COMID, HUC12, point, inverse, and currentness contracts remain gated under ADRs 0004, 0008, 0009, and 0015. |
 | M5 | Partial experimental M5a/M5b: an unexported one-logical-request SELECT/ASK substrate provides strict bounded SPARQL 1.1 Results JSON parsing and provenance, while the public local renderer now consumes an exact-byte-pinned render-only v2 template manifest with explicit disabled execution, chunking, and pagination; public graph APIs, endpoint support, and paging remain gated under ADRs 0004, 0012, and 0013. |
 | M6 | Partial M6a/M6b/M6c: `gx_aoi()` canonicalizes one custom polygonal `sf`/`sfc` geometry offline, internal bounded hydration reconstructs AOI-only recipes while independently rebinding canonical GeoJSON to their WKB digest, and an internal catalog value object validates typed sites, flattened datasets, problems, requests, and completeness. Public `gx_catalog()`, live discovery/merge, nonempty reference layers, full replay, and upstream-derived AOI modes remain gated under ADRs 0014, 0016, and 0018. |
-| M7 | Partial M7a/M7b/M7c/M7d/M7e: an unexported deterministic selection-only plan binds M6c catalog distributions to strict dual handler assets, a separate host-specific report checks selected optional-package versions without loading namespaces, host-independent objects record inert direct-CSV GET intent identity and allocate global physical-attempt/byte reservations plus bounded non-executable logical requests, and an offline boundary validates one caller-supplied response candidate without claiming provider provenance. The nested M7a request list remains empty and no transport is authorized. Runtime package/symbol preflight, provider transport, parsing/result semantics, attempt ledgers, execution, registration, serialization, and public APIs remain gated under ADRs 0020–0024. |
+| M7 | Partial M7a/M7b/M7c/M7d/M7e/M7f: an unexported deterministic selection-only plan binds M6c catalog distributions to strict dual handler assets, a separate host-specific report checks selected optional-package versions without loading namespaces, host-independent objects record inert direct-CSV GET intent identity and allocate global physical-attempt/byte reservations plus bounded non-executable logical requests, an offline boundary validates one caller-supplied response candidate without claiming provider provenance, and a strict offline parser binds its exact bytes to a character-only result contract. The nested M7a request list remains empty and no transport is authorized. Runtime package/symbol invocation checks, provider transport, attempt ledgers, execution, registration, serialization, and public APIs remain gated under ADRs 0020–0025. |
 | M8 | Planned. |
 | M9 | Partial M9a/M9b: an unexported offline verifier validates the bounded manifest and embedded request-ledger shape, rebinds AOI identity through M6b, inventories a closed portable resource tree, and verifies exact local bytes; an unexported creation-only writer stages, verifies, and publishes deterministic redacted catalog CSV resources plus manifest-v1. Public packaging/snapshot APIs, overwrite, loading, Frictionless acceptance, authenticity, and replay remain gated under ADRs 0017 and 0019. |
 | M10 | Planned. |
@@ -631,6 +631,42 @@ read, CSV parsing, or file write. Revalidating M7a may reread its bounded
 bundled handler assets. M7e introduces no public API or schema, execution path,
 serialization contract, or replay authority under ADR 0024.
 
+M7f adds the unexported `gx_csv_parsed_response` S3 value object with contract
+version 0.1.0 and exact top-level fields `contract_version`,
+`validated_response`, `policy`, `schema`, `data`, `parse`, and `metadata`. It
+embeds and revalidates M7e byte-for-byte, accepts one explicit positive
+`max_fields` parser ceiling, and parses only M7e's exact retained raw body.
+
+The fixed profile admits strict UTF-8 with one optional leading BOM, comma
+delimiters, double quotes with doubled-quote escaping, an exact nonempty unique
+header, LF or CRLF records, and an optional final terminator. It rejects quoted
+record terminators, bare CR, blank records, comments, trimming, missing-value
+tokens, type inference, name repair, ragged rows, and alternate encodings or
+dialects. Every cell remains a non-missing character value; header-only input
+produces a typed zero-row result.
+
+A package-owned raw scanner validates encoding, controls, syntax, exact width,
+and every budget before allocating the result. Fixed ceilings are 16 MiB input,
+1 MiB per decoded field, 16 KiB per header name, 1 MiB across header names,
+1,000,000 implementation rows, and 10,000 implementation columns. The lower of
+the selected M7d and implementation row/column ceilings applies. The explicit
+`max_fields` ceiling, no greater than 1,000,000, counts header and data cells.
+
+`schema` binds ordered character columns and `data` is an exact character-only
+tibble. Chunked length-prefixed hashes bind each exact column, the ordered
+result, and then the M7e validation/body identities, parser policy, limits, BOM
+presence, and counts under the `geoconnexr.csv-parse.v1` namespace. Metadata
+records parser and result validation but keeps provider observation, attempt
+execution, fetch-budget consumption, transport authorization, execution
+readiness, replay, and serialization false; origin remains `caller_supplied`.
+
+M7f invokes no optional parser package and performs no transport or body-file
+I/O under ADR 0025. The registry's planned `readr` adapter still requires an
+actual package/version/symbol check coupled atomically to future invocation.
+Physical-attempt identity and ledger rows remain coupled to transport, where a
+real execution scope, DNS/outcome/timing/charging facts, and provider provenance
+can exist.
+
 Every handler implements `probe → plan → fetch → normalize`:
 
 - **probe:** determine whether the distribution is compatible;
@@ -734,10 +770,28 @@ operation; pinned fixtures assert no transport or CSV-semantic provenance; and
 no M7e, fetch, parser, execution, schema, serialization, or replay API is
 exported.
 
+**M7f acceptance:** one pinned M7e body produces an exact bounded
+host-independent parser policy, character schema/data table, counts, chunked
+result hash, parse identity, and non-authoritative metadata while M7e through
+M7a remain byte-identical; BOM/no-BOM, LF/CRLF, quoted commas and doubled
+quotes, literal leading zeroes/`NA`/`#`/spaces, empty cells, header-only data,
+and valid multibyte UTF-8 follow the fixed profile; invalid/control UTF-8,
+misplaced BOMs, bare or embedded terminators, blank records, malformed quotes,
+empty/duplicate headers, ragged rows, and every selected or implementation
+budget fail under typed trace-redacted errors before result allocation; all
+columns remain exact non-missing character vectors without inference or name
+repair; result and parse identities bind exact values, dimensions, policy,
+limits, BOM, M7e validation, and body digest without locale or numeric-display
+drift; forged nested objects, policy, schema/data, hashes, attributes, metadata,
+or blockers fail whole-object revalidation; construction loads no optional
+parser, performs no DNS/network/cache/clock/body-file/write work, and claims no
+provider observation, attempt, fetch-budget consumption, transport, execution,
+serialization, or replay; no M7f parser/result API is exported.
+
 **Remaining M7 acceptance:** provider-specific request-plan snapshots and
 fixture tests for every non-CSV handler; physical-attempt identity and exact
-ledger alignment; runtime package/symbol recheck; bounded CSV parser and result
-contract; provider transport/provenance; poisoned redirect; missing package;
+ledger alignment; runtime package/symbol recheck coupled to invocation;
+provider transport/provenance; poisoned redirect; missing package;
 no-network dry run;
 timeout/size/page budgets; one handler failure does not abort unrelated
 handlers; exact one-to-one status reconciliation; reviewed registration and
@@ -900,10 +954,11 @@ physical-attempt and encoded/decoded-byte capacity for every selected handler
 and emitting only bounded, non-executable direct-CSV logical request plans.
 M7e keeps those objects byte-identical while validating one bounded caller-
 supplied direct-CSV response envelope and raw body without claiming provider
-origin or budget consumption. Later M7 contracts add provider-specific
-request/query semantics, runtime symbol checks, result schemas and CSV parsing,
-physical-attempt and ledger alignment, transport/provenance, and execution
-preflight.
+origin or budget consumption. M7f keeps that chain byte-identical while parsing
+the exact retained bytes under a strict bounded UTF-8 profile into an exact
+character-only schema and table. Later M7 contracts add provider-specific
+request/query semantics, runtime symbol checks coupled to invocation, physical-
+attempt and ledger alignment, transport/provenance, and execution preflight.
 Fetch status is one row per evaluated
 distribution with `attempted`, status, row/byte counts, elapsed time, error
 code/message, and fetched time.

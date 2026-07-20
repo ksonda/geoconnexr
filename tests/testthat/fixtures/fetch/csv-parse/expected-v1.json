@@ -1,0 +1,73 @@
+{
+  "contract_version": "0.1.0",
+  "policy": {
+    "slice_id": "direct_csv_parse_v1",
+    "encoding": "UTF-8",
+    "bom_policy": "optional_at_byte_one_strip",
+    "delimiter": ",",
+    "quote": "\"",
+    "escape_policy": "doubled_quote_only",
+    "header_policy": "required_nonempty_unique_exact",
+    "record_terminators": ["LF", "CRLF"],
+    "embedded_record_terminators": "reject",
+    "comment_policy": "disabled",
+    "blank_record_policy": "reject",
+    "trim_whitespace": false,
+    "missing_value_policy": "none_empty_is_empty_string",
+    "type_inference": "disabled",
+    "storage_type": "character",
+    "max_input_bytes": 16777216,
+    "max_field_bytes": 1048576,
+    "max_header_name_bytes": 16384,
+    "max_header_bytes": 1048576,
+    "max_fields": 1000,
+    "request_max_rows": 10000,
+    "request_max_columns": 100,
+    "implementation_max_rows": 1000000,
+    "implementation_max_columns": 10000,
+    "hash_chunk_fields": 1024
+  },
+  "schema": [
+    {
+      "contract_version": "0.1.0",
+      "column_index": 1,
+      "column_name": "station",
+      "storage_type": "character"
+    },
+    {
+      "contract_version": "0.1.0",
+      "column_index": 2,
+      "column_name": "value",
+      "storage_type": "character"
+    }
+  ],
+  "data": {
+    "station": "00123",
+    "value": "4.5"
+  },
+  "parse": {
+    "parse_id": "591e40e3e06c70114ad340b14a96ac654e01ad79586399bbdcbcd9e237addf54",
+    "validation_id": "a900e2a135641fc50df246ef5d0a8575ec12359ee227330b9ad37a511dd6d2ee",
+    "body_sha256": "e1e4bae6de933a5219206b4c76b19eda0d00c59930d334a2df5d7b3402af651f",
+    "result_sha256": "938d96785bc6a892573fba251bc944a0f709c2e88f66e6c38956727781a98c72",
+    "bom_present": false,
+    "row_count": 1,
+    "column_count": 2,
+    "field_count": 4,
+    "parse_status": "parsed_caller_supplied_validated_response"
+  },
+  "metadata": {
+    "host_specific": false,
+    "replayable": false,
+    "execution_ready": false,
+    "transport_authorized": false,
+    "response_candidate_validated": true,
+    "provider_response_observed": false,
+    "budgets_consumed": false,
+    "parser_executed": true,
+    "csv_semantics_validated": true,
+    "result_contract_bound": true,
+    "observation_origin": "caller_supplied",
+    "non_replayable_reasons": ["arbitrary_provider_client_unimplemented", "attempt_identity_unbound", "attempt_ledger_unbound", "handler_implementations_planned", "non_csv_request_plans_absent", "provider_transport_unauthorized", "response_origin_unbound", "runtime_package_preflight_required", "serialization_unbound", "timeout_policy_unbound", "transport_adapter_unimplemented"]
+  }
+}
