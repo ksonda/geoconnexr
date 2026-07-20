@@ -136,6 +136,21 @@
   observation and budget consumption while keeping replay, multi-request
   orchestration, non-CSV handlers, registration, serialization, and
   public `gx_fetch()` gated.
+- Added the unexported M7h `gx_csv_orchestration` S3 contract 0.1.0. It
+  admits direct-CSV logical requests in deterministic global order under
+  explicit count and 64-MiB aggregate reserved-response ceilings, then
+  runs M7g sequentially with continue-on-error semantics. A strict dry
+  run computes the same admission and one-row-per-distribution status
+  projection without DNS, transport, clocks, throttling, cache, or
+  writes. Live transport and parse failures become bounded redacted
+  terminal rows while unrelated requests continue. Successful M7g values
+  are validated and compacted into exact execution, attempt, validation,
+  parser, schema, character-data, and identity facts without retaining
+  raw bodies or repeating the complete M7d-to-M7a chain. Whole-object
+  validation rebinds child scopes, identities, results, statuses,
+  indexes, counts, budgets, and authority metadata. Non-CSV handlers,
+  runtime invocation preflight, registration, serialization/replay, and
+  public `gx_fetch()` remain gated.
 - Added the unexported M9b catalog-only snapshot writer. It revalidates
   a catalog, creates deterministic redacted UTF-8 CSV views in a sibling
   staging tree, writes a manifest-v1 document last, verifies the closed
