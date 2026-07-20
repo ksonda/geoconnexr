@@ -151,6 +151,20 @@
   indexes, counts, budgets, and authority metadata. Non-CSV handlers,
   runtime invocation preflight, registration, serialization/replay, and
   public `gx_fetch()` remain gated.
+- Added the unexported M7i `gx_oaf_request_plan` and `gx_oaf_execution`
+  S3 contracts 0.1.0 plus the internal native `gx_handler_oaf`
+  implementation. One selected query-free OGC API Features items URL is
+  rebound to its exact M7d held reservation, planned with only fixed
+  `f=json` and `limit` parameters, and executed through one DNS-pinned,
+  redirect/retry/cache-free physical attempt. The implementation symbol
+  is resolved immediately before invocation; a missing symbol fails
+  before DNS or transport. Strict bounded GeoJSON parsing returns `sf`,
+  records explicit single-page truncation, and binds retained response
+  bytes, result rows, execution, and attempt evidence. Fixture
+  snapshots, poisoned-redirect, over-limit-page, missing-symbol, and
+  forged-object tests keep provider filters, pagination, cross-handler
+  orchestration, registration, serialization/replay, and public
+  `gx_fetch()` gated.
 - Added the unexported M9b catalog-only snapshot writer. It revalidates
   a catalog, creates deterministic redacted UTF-8 CSV views in a sibling
   staging tree, writes a manifest-v1 document last, verifies the closed
