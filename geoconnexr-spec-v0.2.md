@@ -21,7 +21,7 @@ The product concept is worth building and the layered architecture is sound. The
 
 The target remains an R-first package for discovery, identifier crosswalks, and watershed data snapshots across the Geoconnex ecosystem.
 
-### Implementation status (2026-07-14)
+### Implementation status (2026-07-15)
 
 | Module | Status |
 |---|---|
@@ -31,7 +31,8 @@ The target remains an R-first package for discovery, identifier crosswalks, and 
 | M4 | Partial experimental slices M4a/M4b/M4c: `gx_gage_to_pid()` is implemented, and the v3.2 COMID lookup now has an explicit verified install lifecycle plus internal offline forward and release-scoped inverse mappers; public COMID, HUC12, point, inverse, and currentness contracts remain gated under ADRs 0004, 0008, 0009, and 0015. |
 | M5 | Partial experimental M5a/M5b: an unexported one-logical-request SELECT/ASK substrate provides strict bounded SPARQL 1.1 Results JSON parsing and provenance, while the public local renderer now consumes an exact-byte-pinned render-only v2 template manifest with explicit disabled execution, chunking, and pagination; public graph APIs, endpoint support, and paging remain gated under ADRs 0004, 0012, and 0013. |
 | M6 | Partial M6a/M6b/M6c: `gx_aoi()` canonicalizes one custom polygonal `sf`/`sfc` geometry offline, internal bounded hydration reconstructs AOI-only recipes while independently rebinding canonical GeoJSON to their WKB digest, and an internal catalog value object validates typed sites, flattened datasets, problems, requests, and completeness. Public `gx_catalog()`, live discovery/merge, nonempty reference layers, full replay, and upstream-derived AOI modes remain gated under ADRs 0014, 0016, and 0018. |
-| M7–M8 | Planned. |
+| M7 | Partial M7a: an unexported deterministic selection-only plan binds M6c catalog distributions to strict dual handler assets, collapses variables into ordered parameter rows, applies offline URL safety, time decisions, stable ordering, and budgets, and remains request-empty and non-executable. Request construction, package preflight, execution, registration, serialization, and public APIs remain gated under ADR 0020. |
+| M8 | Planned. |
 | M9 | Partial M9a/M9b: an unexported offline verifier validates the bounded manifest and embedded request-ledger shape, rebinds AOI identity through M6b, inventories a closed portable resource tree, and verifies exact local bytes; an unexported creation-only writer stages, verifies, and publishes deterministic redacted catalog CSV resources plus manifest-v1. Public packaging/snapshot APIs, overwrite, loading, Frictionless acceptance, authenticity, and replay remain gated under ADRs 0017 and 0019. |
 | M10 | Planned. |
 
@@ -439,6 +440,29 @@ gx_handler_register(name, classifier, implementation,
                     precedence = NULL, scope = c("session", "call"))
 ```
 
+The implemented M7a checkpoint is deliberately narrower and unexported. It
+accepts only a revalidated M6c catalog whose selected components include
+datasets. The loader strictly binds the portable first-match classifiers in
+`registry.yml` to the R implementation and optional-package metadata in
+`implementations-r.json`; both exact asset hashes are recorded in the plan.
+
+M7a groups catalog rows by `distribution_id`, requires all non-variable facts
+within a group to agree, and emits one distribution row plus ordered parameter
+rows for the group's variables. Each admitted URL passes the offline target
+safety policy without DNS and must reclassify to the catalog's handler. The
+requested time range is intersected with catalog coverage. Selection is
+bytewise by provider-URI missingness/value, provider-name missingness/value,
+site URI, and distribution ID; `max_datasets` counts only otherwise eligible
+fetch candidates. Request and byte ceilings are recorded for later stages.
+
+Contract 0.1.0 requires an exact empty request list and leaves parameter keys
+unmapped. Every fetch implementation is `planned`, every handler is
+non-replayable, and `execution_ready` is false. Construction and validation do
+not probe installed packages, call handlers, resolve DNS, use the network or
+cache, or write files. Public planning/execution, request construction,
+optional-package preflight, runtime registration, and serialized/replayable
+plans remain deferred under ADR 0020.
+
 Every handler implements `probe → plan → fetch → normalize`:
 
 - **probe:** determine whether the distribution is compatible;
@@ -460,9 +484,24 @@ Initial handlers:
 
 SensorThings is deferred until the provider audit demonstrates material coverage.
 
-Fetch status contains one row per evaluated distribution, including skipped/reference-only/dry-run rows, plus `attempted`. Selection order for `max_datasets` is stable (`provider`, `site_uri`, `distribution_id`) unless the user supplies an order.
+Future fetch status contains one row per evaluated distribution, including
+skipped/reference-only/dry-run rows, plus `attempted`. M7a selection order is
+fixed; a reviewed user-supplied ordering interface remains a later proposal.
 
-**Acceptance:** plan snapshots and fixture tests per handler; poisoned URL/redirect; missing package; no-network dry run; timeout/size/page budget; one handler failure does not abort unrelated handlers; exact one-to-one status reconciliation.
+**M7a acceptance:** empty and populated M6c catalogs produce exact bounded
+objects; variables collapse to one distribution plus deterministic parameter
+rows; catalog row permutations preserve source identity and plan order;
+conflicting group facts, unsafe URLs, classifier drift, malformed times,
+invalid budgets, and forged asset/handler bindings fail closed; count, foreign
+key, time, decision, and cap relationships reconcile; construction performs no
+package probing, DNS resolution, network or cache access, handler call, or file
+write; no planning or fetch API is exported.
+
+**Remaining M7 acceptance:** request-plan snapshots and fixture tests per
+handler; poisoned redirect; missing package; no-network dry run;
+timeout/size/page budgets; one handler failure does not abort unrelated
+handlers; exact one-to-one status reconciliation; reviewed registration and
+serialization/replay contracts.
 
 ### M8 — Harmonization
 
@@ -609,7 +648,12 @@ Rows also retain `dataset_uri`, names/descriptions, temporal coverage, variable/
 
 ### 6.4 Fetch plan/status
 
-The plan records distribution, handler, stable order, request/query semantics, time/parameter selection, package requirement, and budgets. Status is one row per evaluated distribution with `attempted`, status, row/byte counts, elapsed time, error code/message, and fetched time.
+The M7a plan records distribution identity, bound handler metadata, stable
+selection order, effective time, unplanned parameters, and count/byte budgets.
+It contains no requests and is explicitly non-executable and non-replayable.
+Later M7 contracts add request/query semantics and package preflight. Fetch
+status is one row per evaluated distribution with `attempted`, status, row/byte
+counts, elapsed time, error code/message, and fetched time.
 
 ### 6.5 Observations
 

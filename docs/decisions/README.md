@@ -25,6 +25,7 @@ and link both records rather than rewriting history.
 | [0017](0017-offline-snapshot-verification.md) | Accepted internal substrate | Verify snapshot contents as a closed offline tree |
 | [0018](0018-internal-catalog-value-object.md) | Accepted internal substrate | Separate the catalog value object from live discovery |
 | [0019](0019-catalog-only-snapshot-writer.md) | Accepted internal substrate | Publish catalog-only snapshots through a verified staging tree |
+| [0020](0020-internal-fetch-plan-selection.md) | Accepted internal substrate | Build an internal deterministic selection-only fetch plan |
 
 Each ADR states its context, decision, consequences, and status. Proposed ADRs
 may change; accepted ADRs govern implementation until superseded.

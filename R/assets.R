@@ -59,37 +59,8 @@ gx_validate_classifier <- function(classifier, allowed_facts) {
 #' @return A tibble with one row per classifier, ordered by precedence.
 #' @export
 gx_handlers <- function() {
-  path <- file.path(gx_asset_dir("handlers"), "registry.yml")
-  registry <- yaml::read_yaml(path)
-  handlers <- registry$handlers
-  if (!is.list(handlers) || !length(handlers) ||
-      !identical(registry$evaluation, "first_match_wins")) {
-    gx_abort("Handler registry has an invalid top-level contract.", "gx_error_asset")
-  }
-
-  ids <- vapply(handlers, function(x) x$id %||% "", character(1))
-  precedence <- vapply(handlers, function(x) as.numeric(x$precedence %||% NA), numeric(1))
-  if (any(!nzchar(ids)) || anyDuplicated(ids) || any(!is.finite(precedence)) ||
-      anyDuplicated(precedence)) {
-    gx_abort("Handler IDs and precedence values must be unique.", "gx_error_asset")
-  }
-  ord <- order(precedence)
-  handlers <- handlers[ord]
-  ids <- ids[ord]
-  precedence <- precedence[ord]
-  if (!identical(ids[[length(ids)]], "unknown")) {
-    gx_abort("The unknown classifier must be the final fallback.", "gx_error_asset")
-  }
-  allowed_facts <- unlist(registry$allowed_fact_names, use.names = FALSE)
-  invisible(lapply(handlers, function(x) gx_validate_classifier(x$classifier, allowed_facts)))
-
-  tibble::tibble(
-    id = ids,
-    precedence = as.integer(precedence),
-    lifecycle = vapply(handlers, function(x) x$lifecycle %||% "active", character(1)),
-    outcome = vapply(handlers, function(x) x$outcome %||% "fetch", character(1)),
-    classifier = unname(lapply(handlers, `[[`, "classifier"))
-  )
+  handlers <- gx_handler_registry_load_impl()$handlers
+  handlers[c("id", "precedence", "lifecycle", "outcome", "classifier")]
 }
 
 gx_predicate_matches <- function(predicate, facts) {
