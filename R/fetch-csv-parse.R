@@ -987,6 +987,7 @@ gx_csv_parsed_response_validate_impl <- function(x) {
   invisible(x)
 }
 
+#' @export
 print.gx_csv_parsed_response <- function(x, ...) {
   gx_csv_parsed_response_validate_impl(x)
   cat("<gx_csv_parsed_response>\n")
