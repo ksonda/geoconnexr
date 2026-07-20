@@ -64,7 +64,11 @@ an exact character-only table while retaining the caller-supplied provenance
 limit. M7g executes one selected direct-CSV request through the package-owned
 DNS-pinned transport, validates and parses the observed provider response, and
 binds it to one charged physical-attempt ledger row without exposing a public
-fetch API.
+fetch API. M7h adds bounded sequential direct-CSV orchestration, exact
+one-row-per-distribution status reconciliation, isolated transport/parse
+failures, and a deterministic dry run that performs no host or provider work.
+Successful results retain compact execution and character-table evidence
+without raw bodies or repeated plan chains.
 
 These are internal substrates, not exported discovery, fetch, package,
 snapshot, loading, or replay APIs. Public graph
@@ -287,6 +291,23 @@ and completion time. The completed evidence remains non-replayable and does not
 authorize another request or any non-CSV handler. See
 [ADR 0026](docs/decisions/0026-single-attempt-direct-csv-execution.md).
 
+The internal M7h `gx_csv_orchestration` S3 object implements contract 0.1.0.
+It evaluates M7d direct-CSV requests in exact global request order, admits them
+under explicit count and aggregate reserved-response ceilings, and invokes
+M7g sequentially with one derived child scope per request. A transport or parse
+failure produces one stable redacted terminal row and does not abort later
+unrelated direct-CSV requests. Every M7d coverage row has exactly one status,
+including dry-run, batch-deferred, handler-unimplemented, not-selected, and
+reference-only rows. `dry_run = TRUE` performs the same admission and status
+projection without DNS, transport, clocks, throttling, cache, or writes.
+Successful M7g objects are validated and compacted into execution, attempt,
+response-validation, fixed parser-policy, exact character schema/data, and
+identity facts; raw response bodies and repeated M7d-to-M7a plan chains are not
+retained. M7h is still unexported and does not make non-CSV handlers,
+registration, runtime invocation preflight, serialization/replay, or public
+`gx_fetch()` available. See
+[ADR 0027](docs/decisions/0027-bounded-direct-csv-orchestration.md).
+
 `gx_resolve()`, `gx_jsonld()`, and the `gx_ref_*()` functions make bounded
 network requests, account for every physical retry, and validate DNS and every
 redirect target before transport. A package-owned monotonic per-host throttle
@@ -323,8 +344,9 @@ direct-CSV response candidates without claiming provider provenance. M7f
 strictly parses their exact retained bytes into non-authoritative character
 tables without loading an optional parser package. M7g can execute exactly one
 selected direct-CSV request through the bounded package transport and bind the
-provider response to its charged attempt, but public and multi-handler fetch
-orchestration remains gated.
+provider response to its charged attempt. M7h can orchestrate multiple bounded
+direct-CSV requests with exact statuses and continue-on-error behavior, but
+public and multi-handler fetch orchestration remains gated.
 The internal M9b
 writer is limited to validated catalog-only resources and is labeled
 non-replayable in its manifest.

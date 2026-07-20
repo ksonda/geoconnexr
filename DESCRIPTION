@@ -37,8 +37,11 @@ Description: Tools for discovering water-data sites and datasets through the
     An internal single-attempt executor can now run one selected direct-CSV
     request through the DNS-pinned package transport, validate and parse the
     provider response, and bind it to one charged redacted attempt ledger row.
-    Graph discovery, public catalog orchestration, and provider-data packaging
-    remain under development.
+    A bounded internal direct-CSV orchestrator adds deterministic sequential
+    admission, continue-on-error execution, exact all-distribution status
+    reconciliation, compact successful results, and a strict no-network dry
+    run. Graph discovery, public catalog orchestration, non-CSV fetch handlers,
+    and provider-data packaging remain under development.
 License: MIT + file LICENSE
 URL: https://ksonda.github.io/geoconnexr/, https://github.com/ksonda/geoconnexr
 BugReports: https://github.com/ksonda/geoconnexr/issues

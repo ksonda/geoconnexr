@@ -80,6 +80,17 @@ attr(location, "diagnostics")
 - Explicit installation and verification of the optional NHDPlus lookup.
 - Typed SPARQL template rendering and portable distribution classification.
 
+### Fetch roadmap progress
+
+The internal M7h checkpoint can now preview direct-CSV admission without any
+network activity, or execute multiple bounded direct-CSV requests sequentially
+while preserving one exact status per evaluated distribution. Individual
+transport and parse failures remain visible without stopping unrelated CSV
+requests, and successful evidence is compacted without retaining raw provider
+bodies. This is tested infrastructure for the future `gx_fetch()` workflow,
+not a newly exported fetch API. See
+[ADR 0027](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0027-bounded-direct-csv-orchestration.md).
+
 <div class="gx-status">
   <strong>Experimental status.</strong> The intended end-to-end catalog, fetch,
   harmonize, and snapshot workflow is still being implemented. The reference
