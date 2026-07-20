@@ -124,6 +124,18 @@
   attempt/ledger provenance, fetch- budget consumption, transport,
   execution, replay, and serialization. M7f loads no optional parser
   package and exports no parser or result API.
+- Added the unexported M7g `gx_csv_execution` S3 contract 0.1.0. It
+  executes one selected direct-CSV logical request through the
+  package-owned DNS-revalidated, public-address-pinned,
+  redirect-disabled streaming transport with explicit timeout and
+  per-host interval policy, no cache or retry, and the minimum selected
+  response-byte ceiling. M7e validates the provider response before M7f
+  parses the same exact body; M7g preserves that nested chain and adds
+  one scope-bound execution identity plus one charged, redacted
+  physical-attempt ledger row. Outer metadata now records provider
+  observation and budget consumption while keeping replay, multi-request
+  orchestration, non-CSV handlers, registration, serialization, and
+  public `gx_fetch()` gated.
 - Added the unexported M9b catalog-only snapshot writer. It revalidates
   a catalog, creates deterministic redacted UTF-8 CSV views in a sibling
   staging tree, writes a manifest-v1 document last, verifies the closed

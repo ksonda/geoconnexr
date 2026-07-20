@@ -9,6 +9,8 @@ developed behind fixture-backed contracts.
 
 Useful links:
 
+- <https://ksonda.github.io/geoconnexr/>
+
 - <https://github.com/ksonda/geoconnexr>
 
 - Report bugs at <https://github.com/ksonda/geoconnexr/issues>
