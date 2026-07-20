@@ -70,7 +70,10 @@ ledger alignment, credential-safe redirect behavior, and encoded/decoded and
 parser budget semantics. ADR 0022 separately implements an M7c direct-CSV GET
 intent substrate that records exact inert policy facts but no budget allocation
 or transport authority. That description is not a provider request and does
-not close any execution gate.
+not close any execution gate. ADR 0023 adds a host-independent M7d reservation
+and direct-CSV logical-request-plan substrate without consulting this advisory
+report. M7d still requires a fresh runtime package and symbol preflight before
+any future executor may invoke provider code.
 
 ## Consequences
 
@@ -81,5 +84,7 @@ not close any execution gate.
 - Package presence never upgrades a planned implementation to executable
   status and never authorizes provider transport.
 - Symbol availability, function signatures, provider requests, redirects,
-  retries, cache behavior, and execution accounting remain later M7 work.
+  transport, response parsing, and execution accounting remain later M7 work;
+  M7d binds only the direct-CSV inert policy and global reservation facts
+  described by ADR 0023.
 - M7b introduces no public API or serialized schema.

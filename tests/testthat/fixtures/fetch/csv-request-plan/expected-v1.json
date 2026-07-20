@@ -1,0 +1,117 @@
+{
+  "fixture_version": "1.0.0",
+  "contract_version": "0.1.0",
+  "policy": {
+    "slice_id": "direct_csv_request_plan_v1",
+    "method": "GET",
+    "accept": "text/csv, application/csv;q=0.9",
+    "accept_encoding": "identity",
+    "body_bytes": 0,
+    "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "credential_policy": "source_url_opaque_no_additional_credentials",
+    "redirect_policy": "reject",
+    "max_redirects": 0,
+    "retry_policy": "none",
+    "max_retries": 0,
+    "max_physical_attempts": 1,
+    "cache_policy": "bypass",
+    "success_status": 200,
+    "response_media_types": ["text/csv", "application/csv"],
+    "response_content_encoding": "identity",
+    "allocation_policy": "global_selected_fair_share_v1",
+    "max_response_bytes": 100,
+    "max_rows": 10000,
+    "max_columns": 100,
+    "parser_policy": "shape_limits_only"
+  },
+  "budgets": {
+    "source_budgets": {
+      "max_datasets": 5,
+      "max_requests": 5,
+      "max_encoded_bytes": 500,
+      "max_decoded_bytes": 500
+    },
+    "reserved_requests": 5,
+    "reserved_encoded_bytes": 500,
+    "reserved_decoded_bytes": 500,
+    "remaining_requests": 0,
+    "remaining_encoded_bytes": 0,
+    "remaining_decoded_bytes": 0
+  },
+  "reservations": {
+    "reservation_id": ["dc887bce38b526fc7a7c213cd040e95b531c38da02a70f6a1d40f84c58cbb900", "90328966be67685039aef315c91693889978bea12774aaf1bb9a4bb340a6df2e", "f0cadb1282d9a9925e6f9d35e872e88659968f98b6813124903b9ba676a31513", "ed5dd4871e76ee9d496468b5c60bea9da8e6b2aac340c25516e1585766d52130", "c31c8b005438a50bdb60a25bfedc8a6be3a36661314ae5878297cbd9187fa15e"],
+    "distribution_id": ["fc982de9dfbcaf8b620769bbf759d6f7f3f77e2d0f1e7116668058a57b222461", "980784df0f5e25eab55720829ebc784627c4f593e528a32b9bb2dabaac0a28a5", "dccaf1b9df144620ac5f553bbd756f9a1db8d62e01f8faf25ca3924fd24a6089", "3fb5040a217e10d94e4f773c101abaca1ce4035a1b647fd1110b21c76a22b9e0", "3093dce1f822cf25e628600f6f81a78d85471456bfb255fedc5b709aa884fcdc"],
+    "fetch_order": [1, 2, 3, 4, 5],
+    "handler_id": ["csv", "csv", "csv", "wqp", "ogc_api_features"],
+    "max_encoded_bytes": [100, 100, 100, 100, 100],
+    "max_decoded_bytes": [100, 100, 100, 100, 100],
+    "reservation_status": ["csv_request_planned", "csv_request_planned", "csv_request_planned", "held_deferred_handler", "held_deferred_handler"]
+  },
+  "request_plans": {
+    "logical_request_id": ["0a520972796e6f0559aca2765a741bb6ebe02504975b33e605447920c9493d4f", "7f58d41d3768d44b7d88a9971b1244b8e6b91939f5a1e57849607534e5c59b4e", "9c118af6d33890c338c33d28c0d47cc3ea03bbbf33ed7fdd0d4af967f9c50190"],
+    "intent_id": ["4f0d08c509dca7653216dbefe6ebbdd9611dd925723614d65e40ed0319b1afcc", "b89665c2734f3a19adfd2203993909ad41a8302bd19d153194312c1e679164bb", "a0767b861ffa1930b3f5d71746bb758665441a2b7bda7f1689edb7335e3e1a38"],
+    "reservation_id": ["dc887bce38b526fc7a7c213cd040e95b531c38da02a70f6a1d40f84c58cbb900", "90328966be67685039aef315c91693889978bea12774aaf1bb9a4bb340a6df2e", "f0cadb1282d9a9925e6f9d35e872e88659968f98b6813124903b9ba676a31513"],
+    "distribution_id": ["fc982de9dfbcaf8b620769bbf759d6f7f3f77e2d0f1e7116668058a57b222461", "980784df0f5e25eab55720829ebc784627c4f593e528a32b9bb2dabaac0a28a5", "dccaf1b9df144620ac5f553bbd756f9a1db8d62e01f8faf25ca3924fd24a6089"],
+    "fetch_order": [1, 2, 3],
+    "canonical_url_redacted": ["https://data.example.org/observations.csv?[redacted]", "https://data.example.org/download/current", "https://data.example.org/archive/observations.csv"],
+    "declared_media_type": [
+      "text/csv",
+      "text/csv",
+      "application/octet-stream"
+    ],
+    "max_encoded_bytes": [100, 100, 100],
+    "max_decoded_bytes": [100, 100, 100],
+    "response_byte_limit": [100, 100, 100]
+  },
+  "coverage": {
+    "distribution_id": ["fc982de9dfbcaf8b620769bbf759d6f7f3f77e2d0f1e7116668058a57b222461", "980784df0f5e25eab55720829ebc784627c4f593e528a32b9bb2dabaac0a28a5", "dccaf1b9df144620ac5f553bbd756f9a1db8d62e01f8faf25ca3924fd24a6089", "3fb5040a217e10d94e4f773c101abaca1ce4035a1b647fd1110b21c76a22b9e0", "3093dce1f822cf25e628600f6f81a78d85471456bfb255fedc5b709aa884fcdc", "a85c5d46a9554fe0143036bdf10b74bb4dae475c4382eda2ede358cfebbff11b", "6566aa99839215a974ae076b2d03f5a9bc19da7188c8af8015ba0fd4608ac31c", "59d4efa1dd9e72cbdb55b416c41c14201f4a1d127a2341efe1bb44a70e53e0ec"],
+    "intent_id": [
+      "4f0d08c509dca7653216dbefe6ebbdd9611dd925723614d65e40ed0319b1afcc",
+      "b89665c2734f3a19adfd2203993909ad41a8302bd19d153194312c1e679164bb",
+      "a0767b861ffa1930b3f5d71746bb758665441a2b7bda7f1689edb7335e3e1a38",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "reservation_id": [
+      "dc887bce38b526fc7a7c213cd040e95b531c38da02a70f6a1d40f84c58cbb900",
+      "90328966be67685039aef315c91693889978bea12774aaf1bb9a4bb340a6df2e",
+      "f0cadb1282d9a9925e6f9d35e872e88659968f98b6813124903b9ba676a31513",
+      "ed5dd4871e76ee9d496468b5c60bea9da8e6b2aac340c25516e1585766d52130",
+      "c31c8b005438a50bdb60a25bfedc8a6be3a36661314ae5878297cbd9187fa15e",
+      null,
+      null,
+      null
+    ],
+    "logical_request_id": [
+      "0a520972796e6f0559aca2765a741bb6ebe02504975b33e605447920c9493d4f",
+      "7f58d41d3768d44b7d88a9971b1244b8e6b91939f5a1e57849607534e5c59b4e",
+      "9c118af6d33890c338c33d28c0d47cc3ea03bbbf33ed7fdd0d4af967f9c50190",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "request_status": ["csv_request_planned", "csv_request_planned", "csv_request_planned", "handler_reserved", "handler_reserved", "not_selected", "not_selected", "not_selected"]
+  },
+  "counts": {
+    "distributions": 8,
+    "selected": 5,
+    "intents": 3,
+    "reservations": 5,
+    "request_plans": 3,
+    "csv_request_planned": 3,
+    "csv_budget_deferred": 0,
+    "handler_reserved": 2,
+    "handler_budget_deferred": 0,
+    "not_selected": 3,
+    "reference_only": 0,
+    "physical_attempts_reserved": 5,
+    "requests_executed": 0,
+    "physical_attempts_executed": 0
+  },
+  "non_replayable_reasons": ["arbitrary_provider_client_unimplemented", "attempt_identity_unbound", "attempt_ledger_unbound", "csv_parser_enforcement_unimplemented", "csv_parser_semantics_unbound", "handler_implementations_planned", "non_csv_request_plans_absent", "provider_transport_unauthorized", "response_validator_unimplemented", "result_schema_unbound", "runtime_package_preflight_required", "serialization_unbound", "timeout_policy_unbound", "transport_adapter_unimplemented"]
+}

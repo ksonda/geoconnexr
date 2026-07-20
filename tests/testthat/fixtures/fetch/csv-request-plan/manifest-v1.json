@@ -1,0 +1,29 @@
+{
+  "manifest_version": "1.0.0",
+  "contract": "gx_csv_request_plan",
+  "contract_version": "0.1.0",
+  "source_dependencies": [
+    {
+      "path": "../csv-intent/cases-v1.json",
+      "bytes": 8237,
+      "sha256": "d444ffc823e05117a027d9ffdbd76f0b6cf29a0168bb496df6d3336d8c2e2a0a"
+    },
+    {
+      "path": "../csv-intent/expected-v1.json",
+      "bytes": 3201,
+      "sha256": "4029d2debe024af0005e744fb9e7703a30dc20f64aa972cb6b18751c938083cd"
+    }
+  ],
+  "files": [
+    {
+      "path": "expected-v1.json",
+      "bytes": 6457,
+      "sha256": "082f6b409d8287c679b315a32b59f2fe075b64d29a07e2ee5e008d096c12eb4f"
+    }
+  ],
+  "notes": [
+    "The M7d fixture reuses the hash-pinned M7c descriptor corpus without copying it.",
+    "Known-answer reservation and logical-request identities bind full canonical targets while stored request-plan URLs remain redacted.",
+    "All limits are fixture inputs, not public package defaults."
+  ]
+}

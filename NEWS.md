@@ -68,6 +68,18 @@
   only redacted URLs. The boundary allocates no request, byte, row, or column
   budget; grants no transport or replay authority; does not depend on M7b or
   `readr`; and adds no public API, schema, or execution path.
+- Added the unexported M7d `gx_csv_request_plan` S3 contract 0.1.0. It preserves
+  M7c and its nested request-empty M7a plan byte-for-byte, requires explicit
+  per-response byte, row, and column ceilings, and allocates M7a's physical
+  attempt, encoded-byte, and decoded-byte budgets across every selected
+  distribution in global fetch order. Fair quotient/remainder shares and held
+  non-CSV reservations prevent direct CSV from stealing global capacity. Only
+  reserved CSV intents receive domain-separated, redacted, non-executable
+  logical request plans. The boundary binds zero redirects and retries, one
+  possible physical attempt, cache bypass, status/media/encoding response
+  constraints, and shape limits, but implements no DNS, transport, response
+  validator, result schema, parser semantics, attempt ledger, timeout policy,
+  serialization, replay, or public API.
 - Added the unexported M9b catalog-only snapshot writer. It revalidates a
   catalog, creates deterministic redacted UTF-8 CSV views in a sibling staging
   tree, writes a manifest-v1 document last, verifies the closed tree through

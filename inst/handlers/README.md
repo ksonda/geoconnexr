@@ -45,9 +45,23 @@ full offline-canonical target is re-derived from the embedded plan and bound,
 with every policy field, by `gx_contract_hash()` without being copied to the
 intent table. M7c does not consult M7b or `readr`, allocate request/byte/parser
 budgets, or authorize DNS, redirects, transport, cache, parsing, execution,
-serialization, or replay. The CSV
-implementation therefore remains `planned` and its response and parser
-contracts remain later M7 work.
+serialization, or replay. The CSV implementation therefore remains `planned`;
+M7d below binds a response shape, but response-validation and parser
+implementation remain later M7 work.
+
+ADR 0023 implements the separate internal M7d `gx_csv_request_plan` S3 contract
+0.1.0. It embeds M7c byte-for-byte, requires explicit response-byte, row, and
+column ceilings, and reserves M7a's physical-attempt and encoded/decoded-byte
+budgets across every selected distribution in global fetch order. Non-CSV rows
+inside the reserved prefix retain held shares; only reserved CSV intents emit
+`planned_non_executable` logical request plans. The policy binds GET, an opaque
+source target with no added credentials, zero redirects and retries, one
+possible physical attempt, cache bypass, status 200, CSV response media,
+identity response encoding, and shape limits. M7d allocates but does not consume
+budgets, and it implements no DNS, transport, response validator, CSV parser,
+result schema, attempt ledger, timeout policy, serialization, execution, or
+replay. Runtime package and symbol preflight remains required immediately
+before any future invocation.
 
 Current USGS Water Data API distributions are tested before the generic OGC API
 Features classifier. Legacy NWIS IV/DV URLs are compatibility-only and produce a
