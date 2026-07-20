@@ -1,0 +1,230 @@
+{
+  "fixture_version": 2,
+  "contract_version": "0.2.0",
+  "runtime": {
+    "render_enabled": true,
+    "execution_enabled": false,
+    "pagination_enabled": false,
+    "chunking_enabled": false,
+    "gate": "ADR-0004"
+  },
+  "integrity": {
+    "algorithm": "sha256",
+    "scope": "exact_stored_bytes"
+  },
+  "templates": {
+    "sites_on_mainstem": {
+      "path": "sites_on_mainstem.rq",
+      "stored_bytes": 632,
+      "stored_sha256": "13451334dc2bf4c70cc512eb983ad9138ad5abe44fb803a75d9d0b033fe6576b",
+      "slots": ["mainstem_uri", "limit", "offset"],
+      "result_variables": ["site", "name", "provider", "site_wkt"],
+      "required_result_variables": ["site"],
+      "order": {
+        "variables": ["site", "name", "provider", "site_wkt"],
+        "direction": "ascending",
+        "covers_result_variables": true,
+        "total": false,
+        "stable_across_requests": false
+      },
+      "result_key": {
+        "variables": ["site", "name", "provider", "site_wkt"],
+        "uniqueness": "distinct_projection",
+        "scope": "result_document",
+        "stable_across_requests": false
+      },
+      "pagination": {
+        "enabled": false,
+        "candidate_strategy": "offset",
+        "blockers": [
+          "rdf_term_order_is_not_total",
+          "blank_nodes_are_document_scoped",
+          "graph_has_no_snapshot_contract"
+        ]
+      },
+      "row_budget": 10000
+    },
+    "sites_in_aoi": {
+      "path": "sites_in_aoi.rq",
+      "stored_bytes": 473,
+      "stored_sha256": "53c85dc0959c6ebfe4b08a90c807a31b879cb1a62a1a851dc9d4d6e80db6ccbe",
+      "slots": ["aoi_wkt", "limit", "offset"],
+      "result_variables": ["site", "name", "provider", "site_wkt"],
+      "required_result_variables": ["site", "site_wkt"],
+      "order": {
+        "variables": ["site", "name", "provider", "site_wkt"],
+        "direction": "ascending",
+        "covers_result_variables": true,
+        "total": false,
+        "stable_across_requests": false
+      },
+      "result_key": {
+        "variables": ["site", "name", "provider", "site_wkt"],
+        "uniqueness": "distinct_projection",
+        "scope": "result_document",
+        "stable_across_requests": false
+      },
+      "pagination": {
+        "enabled": false,
+        "candidate_strategy": "offset",
+        "blockers": [
+          "rdf_term_order_is_not_total",
+          "blank_nodes_are_document_scoped",
+          "graph_has_no_snapshot_contract"
+        ]
+      },
+      "row_budget": 10000
+    },
+    "datasets_for_sites": {
+      "path": "datasets_for_sites.rq",
+      "stored_bytes": 1178,
+      "stored_sha256": "7a739dc6c130e7fbf67b07ccd59ad0c1ecc43d8eaff6db5cd59d6a6113df1d65",
+      "slots": ["site_uris", "limit", "offset"],
+      "result_variables": [
+        "site", "dataset", "dataset_name", "temporal_coverage",
+        "distribution", "access_url", "media_type", "variable",
+        "variable_name", "variable_match", "unit_uri", "unit_label"
+      ],
+      "required_result_variables": ["site", "dataset"],
+      "order": {
+        "variables": [
+          "site", "dataset", "distribution", "variable", "access_url",
+          "dataset_name", "temporal_coverage", "media_type", "variable_name",
+          "variable_match", "unit_uri", "unit_label"
+        ],
+        "direction": "ascending",
+        "covers_result_variables": true,
+        "total": false,
+        "stable_across_requests": false
+      },
+      "result_key": {
+        "variables": [
+          "site", "dataset", "distribution", "variable", "access_url",
+          "dataset_name", "temporal_coverage", "media_type", "variable_name",
+          "variable_match", "unit_uri", "unit_label"
+        ],
+        "uniqueness": "distinct_projection",
+        "scope": "result_document",
+        "stable_across_requests": false
+      },
+      "pagination": {
+        "enabled": false,
+        "candidate_strategy": "offset",
+        "blockers": [
+          "rdf_term_order_is_not_total",
+          "blank_nodes_are_document_scoped",
+          "graph_has_no_snapshot_contract"
+        ]
+      },
+      "row_budget": 10000
+    },
+    "datasets_by_variable": {
+      "path": "datasets_by_variable.rq",
+      "stored_bytes": 1225,
+      "stored_sha256": "d508334c97c73de78dca41e5262c1926e9020579b1eb7278735b23096a4d7dfb",
+      "slots": ["variable_uri", "limit", "offset"],
+      "result_variables": [
+        "site", "dataset", "dataset_name", "temporal_coverage",
+        "distribution", "access_url", "media_type", "variable",
+        "variable_name", "variable_match", "unit_uri", "unit_label"
+      ],
+      "required_result_variables": ["site", "dataset", "variable"],
+      "order": {
+        "variables": [
+          "site", "dataset", "distribution", "variable", "access_url",
+          "dataset_name", "temporal_coverage", "media_type", "variable_name",
+          "variable_match", "unit_uri", "unit_label"
+        ],
+        "direction": "ascending",
+        "covers_result_variables": true,
+        "total": false,
+        "stable_across_requests": false
+      },
+      "result_key": {
+        "variables": [
+          "site", "dataset", "distribution", "variable", "access_url",
+          "dataset_name", "temporal_coverage", "media_type", "variable_name",
+          "variable_match", "unit_uri", "unit_label"
+        ],
+        "uniqueness": "distinct_projection",
+        "scope": "result_document",
+        "stable_across_requests": false
+      },
+      "pagination": {
+        "enabled": false,
+        "candidate_strategy": "offset",
+        "blockers": [
+          "rdf_term_order_is_not_total",
+          "blank_nodes_are_document_scoped",
+          "graph_has_no_snapshot_contract"
+        ]
+      },
+      "row_budget": 10000
+    },
+    "sites_by_provider": {
+      "path": "sites_by_provider.rq",
+      "stored_bytes": 433,
+      "stored_sha256": "216dc74c3e64d6d1bc238137ecb5cf043297beca222a3fb6ddbc3e0bc7bb19ee",
+      "slots": ["provider_uri", "limit", "offset"],
+      "result_variables": ["site", "name", "provider"],
+      "required_result_variables": ["site", "provider"],
+      "order": {
+        "variables": ["site", "name", "provider"],
+        "direction": "ascending",
+        "covers_result_variables": true,
+        "total": false,
+        "stable_across_requests": false
+      },
+      "result_key": {
+        "variables": ["site", "name", "provider"],
+        "uniqueness": "distinct_projection",
+        "scope": "result_document",
+        "stable_across_requests": false
+      },
+      "pagination": {
+        "enabled": false,
+        "candidate_strategy": "offset",
+        "blockers": [
+          "rdf_term_order_is_not_total",
+          "blank_nodes_are_document_scoped",
+          "graph_has_no_snapshot_contract"
+        ]
+      },
+      "row_budget": 10000
+    },
+    "provider_coverage": {
+      "path": "provider_coverage.rq",
+      "stored_bytes": 598,
+      "stored_sha256": "1e2dcf1008cb1821cc5ac4cda104ca5402f686464609037e33ad7602f115e4e8",
+      "slots": ["provider_uri", "limit", "offset"],
+      "result_variables": [
+        "provider", "site_count", "dataset_count", "distribution_count"
+      ],
+      "required_result_variables": [
+        "provider", "site_count", "dataset_count", "distribution_count"
+      ],
+      "order": {
+        "variables": ["provider"],
+        "direction": "ascending",
+        "covers_result_variables": false,
+        "total": true,
+        "stable_across_requests": true
+      },
+      "result_key": {
+        "variables": ["provider"],
+        "uniqueness": "group_by",
+        "scope": "query_binding",
+        "stable_across_requests": true
+      },
+      "pagination": {
+        "enabled": false,
+        "candidate_strategy": "none",
+        "blockers": [
+          "single_aggregate_result",
+          "graph_has_no_snapshot_contract"
+        ]
+      },
+      "row_budget": 1
+    }
+  }
+}

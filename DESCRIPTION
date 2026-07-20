@@ -9,9 +9,17 @@ Description: Tools for discovering water-data sites and datasets through the
     query-template assets, versioned contracts, and reproducible-procedure
     metadata for watershed data snapshots. The package is in an architecture
     spike stage; its protocol slices provide bounded, cache-aware PID
-    resolution, fail-closed JSON-LD retrieval and expansion, and tolerant
-    diagnostic-producing Geoconnex profile parsing while discovery and
-    packaging modules remain under development.
+    resolution, fail-closed JSON-LD retrieval and expansion, tolerant
+    diagnostic-producing Geoconnex profile parsing, and a native bounded OGC
+    API Features reference client with a validated provider-gage PID crosswalk
+    and checksum-pinned optional COMID/mainstem membership substrates. Custom
+    polygon AOIs have bounded offline CRS84 recipe construction and
+    integrity-checked hydration boundaries, and an internal closed-tree
+    verifier checks manifest-relative snapshot integrity offline. A bounded
+    internal catalog value object and creation-only catalog snapshot writer
+    provide a deterministic offline packaging substrate. Graph discovery,
+    public catalog orchestration, and provider-data packaging remain under
+    development.
 License: MIT + file LICENSE
 URL: https://github.com/ksonda/geoconnexr
 BugReports: https://github.com/ksonda/geoconnexr/issues
@@ -22,10 +30,12 @@ Imports:
     cli (>= 3.6.0),
     curl (>= 5.0.0),
     digest (>= 0.6.30),
+    fs (>= 1.6.0),
     httr2 (>= 1.2.0),
     jsonld (>= 2.2.1),
     jsonlite (>= 1.8.8),
     rlang (>= 1.1.0),
+    sf (>= 1.0-14),
     stringi (>= 1.7.0),
     tibble (>= 3.2.0),
     xml2 (>= 1.3.6),

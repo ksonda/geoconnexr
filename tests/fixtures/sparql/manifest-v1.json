@@ -1,0 +1,36 @@
+{
+  "fixture_version": 1,
+  "standard": "SPARQL 1.1 Query Results JSON",
+  "fixtures": [
+    {
+      "path": "select-terms.min.json",
+      "kind": "synthetic_select_rdf_terms",
+      "stored_sha256": "763766d9f44378daf5f3c3c19a2b2bfd9ae2be8faf27675fb1681ec5d548d88b"
+    },
+    {
+      "path": "select-empty.min.json",
+      "kind": "synthetic_select_zero_rows",
+      "stored_sha256": "750f1e37a8529f95401ad39af74b9a3431c49932f8d7e1121fcf56bbecea0bfb"
+    },
+    {
+      "path": "select-zero-width.min.json",
+      "kind": "synthetic_select_one_zero_width_row",
+      "stored_sha256": "17239761913615c06d9aa00258f3e8d7464cf8a89e87973ea98c3f9ce2d0d53c"
+    },
+    {
+      "path": "select-unbound-row.min.json",
+      "kind": "synthetic_select_one_all_unbound_row",
+      "stored_sha256": "9e2716a104d5ce4d8606bfd9a7349138003fd654fe22b68b442eb9b41526a988"
+    },
+    {
+      "path": "ask-true.min.json",
+      "kind": "synthetic_ask_true",
+      "stored_sha256": "3eae4486d3073eee1841cd4524843a3e2c69d701cde1009a117cfd24b56d9cc8"
+    },
+    {
+      "path": "ask-false.min.json",
+      "kind": "synthetic_ask_false",
+      "stored_sha256": "520e65d6dc2e7f77f5019b3fb693e7568666c904eb601539f82289b28445243d"
+    }
+  ]
+}

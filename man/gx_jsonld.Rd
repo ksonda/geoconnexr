@@ -27,7 +27,7 @@ credentials; do not write it to logs without redaction.
 \code{content_bytes}, and \code{response_sha256} describe the selected source.
 \item \code{document}, \code{source_document}, and \code{expanded} contain the selected form,
 parsed source JSON-LD, and standards-expanded JSON-LD, respectively.
-\item \code{resolution} is the \code{\link[=gx_resolve]{gx_resolve()}} row, \code{requests} is a physical-request
+\item \code{resolution} is the \code{\link[=gx_resolve]{gx_resolve()}} row, \code{requests} is a request-attempt
 ledger with redacted URLs, and \code{diagnostics} has fixed columns \code{severity},
 \code{code}, \code{path}, \code{message}, and \code{recoverable}.
 }
@@ -43,15 +43,17 @@ arbitrary context loading is disabled.
 
 Parsers receive already-bounded bytes and cannot make network requests.
 HTML is parsed with \code{NONET}; only inline scripts and one safe advertised
-alternate are considered. M2 disables transport retries so every physical
-request fits the same ledger and cumulative budget. The \code{as} argument changes
-only \code{document}, not validation or expansion.
+alternate is considered. Package-owned retries record every physical attempt
+in the same ledger and cumulative budget used by PID resolution, landing
+retrieval, and alternate discovery. The \code{as} argument changes only
+\code{document}, not validation or expansion.
 }
 
 \section{Safety limits}{
 
-Options provide fail-closed ceilings. Defaults are 16 requests; twice the
-client's per-response limit in cumulative response bytes; 2 MiB of local
+Options provide fail-closed ceilings. Defaults are 16 request attempts or
+cache retrievals; twice the client's per-response limit in cumulative
+response bytes; 2 MiB of local
 JSON; depth 64; 10,000 serialized members; 512 KiB of contexts; 16 MiB of
 expanded JSON; and 64 HTML candidates. Profile parsing additionally limits
 one identity to 64 defining fragments and dataset output to 10,000 rows.

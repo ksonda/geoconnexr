@@ -61,3 +61,24 @@ count drifts.
 - If the target date passes without sufficient evidence, the owner must either
   set a new dated decision point or remove the affected interfaces from the
   0.1.0 surface.
+
+## Experimental implementation checkpoint (2026-07-13)
+
+ADR 0012 adds only an unexported, configurable substrate for one logical POST
+of trusted package-controlled read-only SELECT or ASK text. It never rewrites
+or paginates the query; package-owned physical retries may replay the unchanged
+body under ADR 0010. It accepts only bounded SPARQL 1.1 Results JSON and does
+not establish POST-at-root as a supported upstream contract. `gx_sparql()`,
+`gx_query()`, and graph discovery remain unexported, and the live evidence and
+superseding endpoint decision required above remain open.
+
+## Render-only manifest checkpoint (2026-07-13)
+
+ADR 0013 replaces the earlier aspirational template metadata with an
+exact-byte-pinned v2 manifest whose runtime capabilities explicitly disable
+execution, chunking, and pagination. It records reviewed SELECT projections,
+literal `ORDER BY` variables, result-key scope, and the unresolved stability
+blockers without claiming that SPARQL supplies a total cross-request order.
+`gx_templates()` and `gx_render_query()` remain local inspection/rendering
+interfaces only. This hardening does not close the endpoint evidence gate or
+authorize `gx_query()`, `gx_sparql()`, or named paging.

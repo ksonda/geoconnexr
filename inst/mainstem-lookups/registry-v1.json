@@ -1,0 +1,49 @@
+{
+  "registry_version": 1,
+  "lookups": [
+    {
+      "lookup_id": "ref-rivers-nhdpv2-v3.2",
+      "release": "v3.2",
+      "tag_commit": "fd42072b1e9bf9de33cd047052b99508753c7fea",
+      "asset_id": "378822640",
+      "asset_name": "nhdpv2_lookup.csv",
+      "source_url": "https://github.com/internetofwater/ref_rivers/releases/download/v3.2/nhdpv2_lookup.csv",
+      "release_url": "https://github.com/internetofwater/ref_rivers/releases/tag/v3.2",
+      "repository_url": "https://github.com/internetofwater/ref_rivers",
+      "allowed_hosts": [
+        "github.com",
+        "release-assets.githubusercontent.com"
+      ],
+      "media_types": [
+        "text/csv",
+        "application/octet-stream"
+      ],
+      "encoding": "UTF-8",
+      "line_ending": "LF",
+      "final_newline": true,
+      "columns": [
+        "uri",
+        "comid"
+      ],
+      "rows": 2357730,
+      "bytes": 120422425,
+      "sha256": "d73898e3eabbdc4aef493e2cb47d4bddcf4762872ca3971c74e1dbe0a4b73acb",
+      "forward_cardinality": "zero_or_one",
+      "active_state": "non_superseded_at_release",
+      "license": "CC0-1.0",
+      "known_answers": [
+        {
+          "comid": "17789327",
+          "mainstem_uri": "https://geoconnex.us/ref/mainstems/1622734"
+        },
+        {
+          "comid": "13637491",
+          "mainstem_uri": "https://geoconnex.us/ref/mainstems/323742"
+        }
+      ],
+      "known_absent": [
+        "999999999"
+      ]
+    }
+  ]
+}

@@ -19,6 +19,13 @@ gx_default_cache_dir <- function() {
   )
 }
 
+gx_default_data_dir <- function() {
+  getOption(
+    "geoconnexr.data_dir",
+    tools::R_user_dir("geoconnexr", which = "data")
+  )
+}
+
 gx_now <- function() {
   clock <- getOption("geoconnexr.clock", Sys.time)
   if (!is.function(clock)) {
@@ -87,18 +94,37 @@ gx_cache_backend <- function(cache_dir) {
 #'
 #' @param endpoint One of `"graph"`, `"reference"`, or `"pid"`.
 #' @param timeout Per-attempt timeout in seconds.
-#' @param retries Number of retry attempts after the initial request.
-#' @param max_bytes Maximum decoded response bytes.
+#' @param retries Number of physical retry attempts after the initial request,
+#'   from zero through 1,000.
+#' @param min_interval Minimum seconds between physical attempts reserved for
+#'   the same hostname. Defaults to 0.1 seconds.
+#' @param max_bytes Maximum identity-encoded response bytes per physical
+#'   attempt.
 #' @param cache Whether successful and redirect responses may use the package
 #'   cache.
 #' @param offline Whether requests must be satisfied from valid cache entries.
 #' @param cache_dir Cache directory.
 #'
 #' @return An object of class `gx_client`.
+#'
+#' @section Retries:
+#' The package retries HTTP 429, 500, 502, 503, and 504 responses and transport
+#' failures. Every physical attempt revalidates DNS and is recorded for
+#' downstream request/byte budgets. `Retry-After` is honored up to
+#' `geoconnexr.retry_max_delay`, which defaults to 60 seconds; a larger server
+#' minimum stops retrying instead of being shortened.
+#'
+#' @section Host throttling:
+#' Physical attempts across clients in one R process share a hostname schedule.
+#' Retries and manual redirect hops reserve new slots, while cache hits and
+#' offline misses do not. `min_interval = 0` adds no interval of its own but
+#' still honors a preceding positive reservation from another client. Bounded
+#' concurrent dispatch remains future work.
 #' @export
 gx_client <- function(endpoint = c("graph", "reference", "pid"),
                       timeout = 30,
                       retries = 3L,
+                      min_interval = getOption("geoconnexr.min_interval", 0.1),
                       max_bytes = 2 * 1024^2,
                       cache = TRUE,
                       offline = getOption("geoconnexr.offline", FALSE),
@@ -117,8 +143,15 @@ gx_client <- function(endpoint = c("graph", "reference", "pid"),
     retries,
     "retries",
     minimum = 0,
-    maximum = .Machine$integer.max,
+    maximum = 1000,
     integer = TRUE
+  )
+  min_interval <- gx_scalar_number(
+    min_interval,
+    "min_interval",
+    minimum = 0,
+    maximum = 3600,
+    integer = FALSE
   )
   max_bytes <- gx_scalar_number(
     max_bytes,
@@ -145,6 +178,7 @@ gx_client <- function(endpoint = c("graph", "reference", "pid"),
       base_url = unname(gx_endpoints()[[endpoint]]),
       timeout = timeout,
       retries = retries,
+      min_interval = min_interval,
       max_bytes = max_bytes,
       cache = cache,
       offline = offline,
@@ -165,6 +199,7 @@ print.gx_client <- function(x, ...) {
     "* Endpoint: {x$endpoint} ({x$base_url})",
     "* Offline: {x$offline}",
     "* Cache: {x$cache}",
+    "* Per-host interval: {format(x$min_interval)} seconds",
     "* Response ceiling: {format(x$max_bytes, big.mark = ',')} bytes"
   ))
   invisible(x)

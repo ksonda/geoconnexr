@@ -43,3 +43,11 @@ The experimental L1 HTTP client fails closed:
   AAAA records remain usable through a pinned public IPv4 address.
 - Retry behavior uses `httr2`; deterministic retry/throttle/concurrency tests
   remain required before M1 is declared complete.
+
+## Follow-up
+
+ADR 0010 supersedes the retry portion of this consequence: retries are now
+package-owned, DNS is revalidated for every physical attempt, and deterministic
+retry accounting is implemented. At that decision's acceptance,
+throttle/concurrency remained open. ADR 0011 now implements package-owned
+per-host throttling; bounded concurrency remains open.

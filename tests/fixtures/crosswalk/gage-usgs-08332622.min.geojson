@@ -1,0 +1,23 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": 1000001,
+      "properties": {
+        "id": 1000001,
+        "uri": "https://geoconnex.us/ref/gages/1000001",
+        "provider_id": "USGS-08332622",
+        "nhdpv2_comid": 17789327,
+        "mainstem_uri": "https://geoconnex.us/ref/mainstems/1622734"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-107.2826306, 35.9456833]
+      }
+    }
+  ],
+  "numberMatched": 1,
+  "numberReturned": 1,
+  "links": []
+}

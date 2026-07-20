@@ -7,9 +7,14 @@
 gx_templates()
 }
 \value{
-A tibble with one row per bundled template. List columns preserve
-parameter, ordering, and result-key metadata.
+A tibble with one row per bundled template. It includes exact source
+byte/hash pins, ordered result-variable contracts, render-only runtime
+flags, and list columns for parameters, ordering, result keys, and blocked
+pagination metadata.
 }
 \description{
-List bundled, typed SPARQL templates
+Returns the render-only named-query manifest. The \code{order}, \code{result_key}, and
+\code{pagination} list columns distinguish reviewed query facts from unproven
+cross-request stability. \code{pagination[[i]]$enabled} is currently always
+\code{FALSE}; listing a candidate strategy does not authorize paging.
 }

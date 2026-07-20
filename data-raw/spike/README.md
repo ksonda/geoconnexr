@@ -17,3 +17,20 @@ Recommended live-run ceiling: 20 requests, 60 seconds per request, 2 MiB per
 metadata response, 10 MiB total metadata, and no redirect following for graph
 POSTs. Store large/raw captures outside the package; commit only minimized,
 sanitized fixtures and SHA-256 evidence sidecars.
+
+The M2 JSON-LD corpus closes its module-level profile fixture requirement. M3
+now has hash-pinned collection/queryable schemas, checked legacy-item failure
+evidence, and deterministic pagination/empty-result tests. Current,
+superseded, v3, and full large-geometry evidence remains open, as do the HUC10
+fetch/package path, mainstem-vintage decision, graph contract decision, and
+measured delivery estimate.
+
+The M4a gage crosswalk has separate hash-pinned queryable and known-answer
+fixtures. `m4-upstream-evidence-v1.json` pins the checked upstream commit,
+release asset, checksum, and contrasting known answers that invalidated the
+earlier COMID→VAA `levelpathi`→mainstem assumption: those identifiers are not
+interchangeable. M4b now mirrors that audit in an immutable installed registry
+and implements an explicit, integrity-checked download/import/offline lifecycle
+plus a local-only forward mapper. Remaining M4 evidence must resolve mainstem
+currentness/supersession, HUC and point provenance, and inverse ranking before
+their public APIs are exported.

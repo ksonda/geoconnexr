@@ -64,15 +64,27 @@ test_that("JSON schemas compile and shipped YAML assets validate", {
   query_manifest <- yaml::read_yaml(
     system.file("queries", "manifest.yml", package = "geoconnexr")
   )
+  query_manifest$endpoint_policy$reject_content_types <- as.list(
+    query_manifest$endpoint_policy$reject_content_types
+  )
   query_manifest$templates <- lapply(query_manifest$templates, function(x) {
-    x$stable_order <- as.list(x$stable_order)
-    x$result_key <- as.list(x$result_key)
+    x$result_variables <- as.list(x$result_variables)
+    x$required_result_variables <- as.list(x$required_result_variables)
+    x$order$variables <- as.list(x$order$variables)
+    x$result_key$variables <- as.list(x$result_key$variables)
+    x$pagination$blockers <- as.list(x$pagination$blockers)
+    x$parameters <- lapply(x$parameters, function(parameter) {
+      if (!is.null(parameter$geometry_types)) {
+        parameter$geometry_types <- as.list(parameter$geometry_types)
+      }
+      parameter
+    })
     x
   })
   query_json <- jsonlite::toJSON(query_manifest, auto_unbox = TRUE, null = "null")
   expect_true(jsonvalidate::json_validate(
     query_json,
-    file.path(schema_dir, "query-manifest-v1.json"),
+    file.path(schema_dir, "query-manifest-v2.json"),
     engine = "ajv"
   ))
 
@@ -135,7 +147,37 @@ test_that("manifest resource paths exclude traversal and absolute forms", {
   expect_false(grepl(pattern, "../outside.csv", perl = TRUE))
   expect_false(grepl(pattern, "a/../../outside.csv", perl = TRUE))
   expect_false(grepl(pattern, "C:\\outside.csv", perl = TRUE))
+  expect_false(grepl(pattern, "C:outside.csv", perl = TRUE))
   expect_false(grepl(pattern, "/outside.csv", perl = TRUE))
+  expect_false(grepl(pattern, "a\\outside.csv", perl = TRUE))
+  expect_false(grepl(pattern, "a//outside.csv", perl = TRUE))
+  expect_false(grepl(pattern, "a/", perl = TRUE))
+  expect_false(grepl(pattern, "a/.. ", perl = TRUE))
+  expect_false(grepl(pattern, "http:outside.csv", perl = TRUE))
+  expect_false(grepl(pattern, "~/outside.csv", perl = TRUE))
+  expect_false(grepl(pattern, "manifest.json", perl = TRUE))
+  expect_false(grepl(pattern, "NUL", perl = TRUE))
+  expect_false(grepl(pattern, "catalog/COM1.csv", perl = TRUE))
+  expect_false(grepl(pattern, paste0(strrep("a", 256L), ".csv"), perl = TRUE))
+  expect_false(grepl(
+    pattern,
+    paste(rep("a", 17L), collapse = "/"),
+    perl = TRUE
+  ))
+})
+
+test_that("the catalog-only snapshot fixture satisfies manifest-v1", {
+  skip_if_not_installed("jsonvalidate")
+  path <- testthat::test_path(
+    "..", "fixtures", "snapshot", "catalog-only-v1", "manifest.json"
+  )
+  json <- paste(readLines(path, warn = FALSE), collapse = "\n")
+
+  expect_true(jsonvalidate::json_validate(
+    json,
+    system.file("schema", "manifest-v1.json", package = "geoconnexr"),
+    engine = "ajv"
+  ))
 })
 
 test_that("runtime implementation metadata covers every classifier honestly", {

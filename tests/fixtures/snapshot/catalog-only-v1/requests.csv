@@ -1,0 +1,2 @@
+request_id,stage,method,status
+fixture-request-1,catalog,GET,200

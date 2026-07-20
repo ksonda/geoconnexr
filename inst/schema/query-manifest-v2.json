@@ -1,0 +1,320 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ksonda.github.io/geoconnexr/schema/query-manifest-v2.json",
+  "title": "geoconnexr render-only named-query manifest v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "contract_version",
+    "runtime",
+    "integrity",
+    "endpoint_policy",
+    "defaults",
+    "templates"
+  ],
+  "properties": {
+    "version": {"const": 2},
+    "contract_version": {"const": "0.2.0"},
+    "runtime": {"$ref": "#/$defs/runtime"},
+    "integrity": {"$ref": "#/$defs/integrity"},
+    "endpoint_policy": {"$ref": "#/$defs/endpoint_policy"},
+    "defaults": {"$ref": "#/$defs/defaults"},
+    "templates": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"pattern": "^[a-z][a-z0-9_]*$"},
+      "additionalProperties": {"$ref": "#/$defs/template"}
+    }
+  },
+  "$defs": {
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "render_enabled",
+        "execution_enabled",
+        "pagination_enabled",
+        "chunking_enabled",
+        "gate"
+      ],
+      "properties": {
+        "render_enabled": {"const": true},
+        "execution_enabled": {"const": false},
+        "pagination_enabled": {"const": false},
+        "chunking_enabled": {"const": false},
+        "gate": {"const": "ADR-0004"}
+      }
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "scope"],
+      "properties": {
+        "algorithm": {"const": "sha256"},
+        "scope": {"const": "exact_stored_bytes"}
+      }
+    },
+    "endpoint_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "content_type",
+        "accept",
+        "follow_redirects",
+        "reject_content_types"
+      ],
+      "properties": {
+        "method": {"const": "POST"},
+        "content_type": {"const": "application/sparql-query"},
+        "accept": {"const": "application/sparql-results+json"},
+        "follow_redirects": {"const": false},
+        "reject_content_types": {
+          "type": "array",
+          "prefixItems": [{"const": "text/html"}],
+          "minItems": 1,
+          "maxItems": 1
+        }
+      }
+    },
+    "defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "page_size",
+        "max_page_size",
+        "http_iri_list_max_items"
+      ],
+      "properties": {
+        "page_size": {"type": "integer", "minimum": 1, "maximum": 1000},
+        "max_page_size": {"type": "integer", "minimum": 1, "maximum": 1000},
+        "http_iri_list_max_items": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+        }
+      }
+    },
+    "variable_array": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+      }
+    },
+    "http_iri_parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "required", "maximum_bytes"],
+      "properties": {
+        "type": {"const": "http_iri"},
+        "required": {"const": true},
+        "maximum_bytes": {"type": "integer", "minimum": 1, "maximum": 8192}
+      }
+    },
+    "http_iri_list_parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "required",
+        "minimum_items",
+        "maximum_items",
+        "item_maximum_bytes",
+        "encoded_maximum_bytes",
+        "unique_items",
+        "sort"
+      ],
+      "properties": {
+        "type": {"const": "http_iri_list"},
+        "required": {"const": true},
+        "minimum_items": {"type": "integer", "minimum": 1, "maximum": 200},
+        "maximum_items": {"type": "integer", "minimum": 1, "maximum": 200},
+        "item_maximum_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8192
+        },
+        "encoded_maximum_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65536
+        },
+        "unique_items": {"const": true},
+        "sort": {"const": "bytewise"}
+      }
+    },
+    "integer_parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "required", "minimum", "maximum"],
+      "properties": {
+        "type": {"const": "integer"},
+        "required": {"const": true},
+        "minimum": {
+          "type": "integer",
+          "minimum": -2147483647,
+          "maximum": 2147483647
+        },
+        "maximum": {
+          "type": "integer",
+          "minimum": -2147483647,
+          "maximum": 2147483647
+        }
+      }
+    },
+    "crs84_wkt_parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "required",
+        "maximum_bytes",
+        "geometry_types",
+        "allow_empty"
+      ],
+      "properties": {
+        "type": {"const": "crs84_wkt_literal"},
+        "required": {"const": true},
+        "maximum_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 131072
+        },
+        "geometry_types": {"const": ["POLYGON", "MULTIPOLYGON"]},
+        "allow_empty": {"const": false}
+      }
+    },
+    "literal_parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "required", "maximum_bytes"],
+      "properties": {
+        "type": {"const": "literal"},
+        "required": {"const": true},
+        "maximum_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 131072
+        }
+      }
+    },
+    "datetime_parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "required"],
+      "properties": {
+        "type": {"const": "datetime"},
+        "required": {"const": true}
+      }
+    },
+    "parameter": {
+      "oneOf": [
+        {"$ref": "#/$defs/http_iri_parameter"},
+        {"$ref": "#/$defs/http_iri_list_parameter"},
+        {"$ref": "#/$defs/integer_parameter"},
+        {"$ref": "#/$defs/crs84_wkt_parameter"},
+        {"$ref": "#/$defs/literal_parameter"},
+        {"$ref": "#/$defs/datetime_parameter"}
+      ]
+    },
+    "order": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "variables",
+        "direction",
+        "covers_result_variables",
+        "total",
+        "stable_across_requests"
+      ],
+      "properties": {
+        "variables": {"$ref": "#/$defs/variable_array"},
+        "direction": {"const": "ascending"},
+        "covers_result_variables": {"type": "boolean"},
+        "total": {"type": "boolean"},
+        "stable_across_requests": {"type": "boolean"}
+      }
+    },
+    "result_key": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "variables",
+        "uniqueness",
+        "scope",
+        "stable_across_requests"
+      ],
+      "properties": {
+        "variables": {"$ref": "#/$defs/variable_array"},
+        "uniqueness": {"enum": ["distinct_projection", "group_by"]},
+        "scope": {"enum": ["result_document", "query_binding"]},
+        "stable_across_requests": {"type": "boolean"}
+      }
+    },
+    "pagination": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "candidate_strategy", "blockers"],
+      "properties": {
+        "enabled": {"const": false},
+        "candidate_strategy": {"enum": ["offset", "none"]},
+        "blockers": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "rdf_term_order_is_not_total",
+              "blank_nodes_are_document_scoped",
+              "graph_has_no_snapshot_contract",
+              "single_aggregate_result"
+            ]
+          }
+        }
+      }
+    },
+    "template": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "file",
+        "stored_bytes",
+        "stored_sha256",
+        "query_type",
+        "parameters",
+        "result_variables",
+        "required_result_variables",
+        "order",
+        "result_key",
+        "pagination",
+        "row_budget"
+      ],
+      "properties": {
+        "file": {"type": "string", "pattern": "^[A-Za-z0-9_-]+[.]rq$"},
+        "stored_bytes": {"type": "integer", "minimum": 1, "maximum": 262144},
+        "stored_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "query_type": {"const": "select"},
+        "parameters": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {"pattern": "^[A-Za-z][A-Za-z0-9_]*$"},
+          "additionalProperties": {"$ref": "#/$defs/parameter"}
+        },
+        "result_variables": {"$ref": "#/$defs/variable_array"},
+        "required_result_variables": {"$ref": "#/$defs/variable_array"},
+        "order": {"$ref": "#/$defs/order"},
+        "result_key": {"$ref": "#/$defs/result_key"},
+        "pagination": {"$ref": "#/$defs/pagination"},
+        "row_budget": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647
+        }
+      }
+    }
+  }
+}

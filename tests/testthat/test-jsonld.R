@@ -121,8 +121,73 @@ test_that("gx_jsonld follows one safe relative JSON-LD alternate", {
   expect_equal(length(setup$state$calls), 4L)
   expect_match(setup$state$calls[[4]]$headers[["accept"]], "application/ld\\+json")
   expect_true(all(vapply(setup$state$calls, `[[`, integer(1), "retries") == 0L))
-  expect_contains(out$diagnostics$code, "retries_disabled")
+  expect_false("retries_disabled" %in% out$diagnostics$code)
   expect_false(grepl("f=jsonld", out$requests$url[[4]], fixed = TRUE))
+})
+
+test_that("gx_jsonld records every physical retry in its shared budget", {
+  pid <- "https://geoconnex.us/id/retry"
+  landing <- "https://example.net/page/retry"
+  body <- charToRaw('{"@id":"https://example.net/site/retry"}')
+  pid_calls <- 0L
+  sleeps <- numeric()
+  setup <- gx_jsonld_test_client(list(
+    "HEAD https://geoconnex.us/id/retry" = function(request) {
+      pid_calls <<- pid_calls + 1L
+      if (pid_calls == 1L) {
+        response <- gx_jsonld_test_response(503L, body = charToRaw("wait"))
+        response$url <- request$url
+        return(response)
+      }
+      response <- gx_jsonld_test_response(303L, list(Location = landing))
+      response$url <- request$url
+      response
+    },
+    "HEAD https://example.net/page/retry" = gx_jsonld_test_response(200L),
+    "GET https://example.net/page/retry" = gx_jsonld_test_response(
+      200L, list(`Content-Type` = "application/ld+json"), body
+    )
+  ), retries = 1L)
+  withr::local_options(list(
+    geoconnexr.retry_jitter = function(max_seconds) 0,
+    geoconnexr.retry_sleep = function(seconds) sleeps <<- c(sleeps, seconds)
+  ))
+
+  out <- gx_jsonld(pid, client = setup$client)
+
+  expect_identical(out$requests$status, c(503L, 303L, 200L, 200L))
+  expect_identical(out$requests$bytes, c(4L, 0L, 0L, length(body)))
+  expect_identical(out$requests$request_id[[1]], out$requests$request_id[[2]])
+  expect_identical(length(setup$state$calls), 4L)
+  expect_true(all(vapply(setup$state$calls, `[[`, integer(1), "retries") == 0L))
+  expect_length(sleeps, 0L)
+})
+
+test_that("gx_jsonld attempt budgets stop a retry before transport", {
+  pid <- "https://geoconnex.us/id/retry-budget"
+  calls <- 0L
+  setup <- gx_jsonld_test_client(list(
+    "HEAD https://geoconnex.us/id/retry-budget" = function(request) {
+      calls <<- calls + 1L
+      response <- gx_jsonld_test_response(503L, body = charToRaw("wait"))
+      response$url <- request$url
+      response
+    }
+  ), retries = 3L)
+  withr::local_options(list(
+    geoconnexr.jsonld_max_requests = 1L,
+    geoconnexr.retry_jitter = function(max_seconds) 0
+  ))
+
+  error <- expect_error(
+    gx_jsonld(pid, client = setup$client),
+    class = "gx_error_jsonld_budget"
+  )
+
+  expect_identical(calls, 1L)
+  expect_identical(error$budget_kind, "requests")
+  expect_identical(error$requests$status, 503L)
+  expect_identical(error$requests$bytes, 4L)
 })
 
 test_that("gx_jsonld never fetches unsafe alternates", {
@@ -138,11 +203,13 @@ test_that("gx_jsonld never fetches unsafe alternates", {
     )
   ))
 
-  expect_error(
+  error <- expect_error(
     gx_jsonld(pid, client = setup$client),
     class = "gx_error_jsonld_missing"
   )
   expect_equal(length(setup$state$calls), 3L)
+  expect_identical(nrow(error$requests), 3L)
+  expect_identical(error$requests$status, c(303L, 200L, 200L))
 })
 
 test_that("remote contexts are allowlisted without invoking the jsonld loader", {
@@ -175,7 +242,7 @@ test_that("depth is checked before JSON-LD expansion", {
   expect_no_error(gx_parse_location('{"brackets":"[[[{{{","quote":"\\\""}'))
 })
 
-test_that("M2 network code does not bypass the shared transport", {
+test_that("network code keeps direct calls inside shared transport performers", {
   namespace <- asNamespace("geoconnexr")
   object_names <- ls(namespace, all.names = TRUE)
   objects <- mget(object_names, envir = namespace, inherits = FALSE)
@@ -186,7 +253,10 @@ test_that("M2 network code does not bypass the shared transport", {
     ))
   }, logical(1))]
 
-  expect_identical(direct, "gx_default_performer")
+  expect_setequal(
+    direct,
+    c("gx_default_file_performer", "gx_default_performer")
+  )
 })
 
 test_that("request metadata redacts credentials and sensitive URLs bypass cache", {

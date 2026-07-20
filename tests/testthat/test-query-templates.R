@@ -6,7 +6,7 @@ test_that("bundled query manifest is internally consistent", {
   expect_true(all(templates$row_budget > 0L))
 })
 
-test_that("mainstem query renders typed URIs and bounded paging", {
+test_that("mainstem query renders typed IRIs and a bounded one-shot slice", {
   query <- gx_render_query(
     "sites_on_mainstem",
     list(
@@ -63,6 +63,17 @@ test_that("query parameter injection and budget violations are rejected", {
         mainstem_uri = "https://geoconnex.us/ref/mainstems/1",
         limit = 1000,
         offset = 9501
+      )
+    ),
+    class = "gx_error_query_parameter"
+  )
+  expect_error(
+    gx_render_query(
+      "sites_on_mainstem",
+      list(
+        mainstem_uri = "https://geoconnex.us/ref/mainstems/1",
+        limit = 1L,
+        offset = .Machine$integer.max
       )
     ),
     class = "gx_error_query_parameter"
