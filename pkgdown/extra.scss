@@ -1,16 +1,17 @@
-// A quiet water-and-map visual system layered on pkgdown's accessible defaults.
+// Package-specific application of the CC0 visual language at
+// https://github.com/internetofwater/docs.geoconnex.us.
 
-$gx-ink: #17323b;
-$gx-water: #087f8c;
-$gx-water-dark: #075f69;
-$gx-river: #2f80a3;
-$gx-mist: #edf6f4;
-$gx-sand: #f4efe3;
+$gx-ink: #001220;
+$gx-blue: #3578e5;
+$gx-blue-dark: #1751af;
+$gx-blue-light: #80aaef;
+$gx-surface-dark: #1e2125;
+$gx-nav-dark: #121212;
 
 .navbar {
-  border-bottom: 1px solid rgba($gx-water, 0.18);
-  box-shadow: 0 0.25rem 1.2rem rgba(14, 65, 76, 0.06);
-  backdrop-filter: blur(12px);
+  min-height: 60px;
+  border-bottom: 1px solid rgba($gx-blue, 0.12);
+  box-shadow: 0 1px 2px rgba($gx-ink, 0.08);
 }
 
 html,
@@ -20,34 +21,38 @@ body {
 }
 
 .navbar-brand {
-  font-weight: 750;
-  letter-spacing: -0.025em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.gx-brand-mark {
+  width: 29px;
+  height: 36px;
+  object-fit: contain;
 }
 
 .gx-hero {
   position: relative;
   overflow: hidden;
-  margin: 0 0 2.25rem;
-  padding: clamp(2rem, 6vw, 4.75rem);
+  min-height: 260px;
+  margin: 0 0 2.5rem;
+  padding: clamp(2.5rem, 5vw, 3.5rem) clamp(1.5rem, 6vw, 4.75rem);
   color: white;
-  background:
-    radial-gradient(circle at 88% 18%, rgba(132, 225, 210, 0.38), transparent 28%),
-    radial-gradient(circle at 75% 82%, rgba(91, 174, 212, 0.34), transparent 34%),
-    linear-gradient(135deg, #0b3e4b 0%, #087f8c 55%, #2f80a3 100%);
-  border-radius: 1.25rem;
-  box-shadow: 0 1.2rem 3rem rgba(11, 62, 75, 0.18);
+  text-align: center;
+  background-color: $gx-ink;
+  background-image: url("https://docs.geoconnex.us/blob.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .gx-hero::after {
-  content: "";
-  position: absolute;
-  right: -8%;
-  bottom: -46%;
-  width: 46%;
-  aspect-ratio: 1;
-  border: 2px solid rgba(255, 255, 255, 0.22);
-  border-radius: 48% 52% 60% 40%;
-  transform: rotate(18deg);
+  content: none;
 }
 
 .gx-hero > * {
@@ -56,34 +61,38 @@ body {
 }
 
 .gx-eyebrow {
-  margin-bottom: 0.65rem;
-  color: #b8eee6;
+  margin-bottom: 0.75rem;
+  color: rgba(255, 255, 255, 0.78);
   font-size: 0.78rem;
-  font-weight: 750;
+  font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .gx-hero h2 {
-  max-width: 13ch;
-  margin: 0 0 1rem;
+  max-width: 18ch;
+  margin: 0 auto 1rem;
   color: white;
-  font-size: clamp(2.2rem, 6vw, 4.4rem);
-  line-height: 0.98;
-  letter-spacing: -0.045em;
+  font-size: clamp(2.15rem, 5vw, 3.6rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  text-shadow: 0 0 5px rgba(100, 100, 100, 0.6);
 }
 
 .gx-hero .gx-lede {
-  max-width: 43rem;
-  margin-bottom: 1.5rem;
-  color: rgba(255, 255, 255, 0.9);
+  max-width: 47rem;
+  margin: 0 auto 1.5rem;
+  color: rgba(255, 255, 255, 0.94);
   font-size: 1.1rem;
   hyphens: none;
+  text-shadow: 0 0 5px rgba(100, 100, 100, 0.6);
 }
 
 .gx-actions {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 0.7rem;
 }
 
@@ -93,11 +102,11 @@ body {
 }
 
 .gx-actions .btn-light {
-  color: $gx-water-dark;
+  color: $gx-blue-dark;
 }
 
 .gx-actions .btn-outline-light:hover {
-  color: $gx-water-dark;
+  color: $gx-blue-dark;
 }
 
 .gx-card-grid {
@@ -109,29 +118,31 @@ body {
 
 .gx-card {
   padding: 1.35rem;
-  background: linear-gradient(155deg, rgba(237, 246, 244, 0.78), rgba(255, 255, 255, 0.7));
-  border: 1px solid rgba($gx-water, 0.16);
-  border-radius: 0.9rem;
+  text-align: center;
+  background: #fff;
+  border: 1px solid #dadde1;
+  border-top: 0.28rem solid $gx-blue;
+  border-radius: 0.4rem;
 }
 
 .gx-card h3 {
   margin-top: 0;
-  color: $gx-water-dark;
+  color: $gx-blue-dark;
   font-size: 1.05rem;
 }
 
 .gx-card p {
   margin-bottom: 0;
-  color: #45626a;
+  color: #525860;
   font-size: 0.94rem;
 }
 
 .gx-status {
   margin: 2rem 0;
   padding: 1.15rem 1.3rem;
-  background: linear-gradient(90deg, rgba($gx-sand, 0.9), rgba($gx-mist, 0.72));
-  border-left: 0.3rem solid #d69d32;
-  border-radius: 0.35rem 0.8rem 0.8rem 0.35rem;
+  background: rgba($gx-blue, 0.08);
+  border-left: 0.3rem solid $gx-blue;
+  border-radius: 0 0.4rem 0.4rem 0;
 }
 
 .contents h2 {
@@ -153,7 +164,7 @@ pre.sourceCode {
 }
 
 .ref-index .section-desc {
-  color: #58727a;
+  color: #606770;
 }
 
 @media (max-width: 767.98px) {
@@ -162,26 +173,63 @@ pre.sourceCode {
   }
 
   .gx-hero {
-    border-radius: 0.9rem;
+    min-height: 0;
+    padding: 2.75rem 1.55rem;
+    border-radius: 0;
+  }
+
+  .gx-hero::before,
+  .gx-hero::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    display: block;
+    background: $gx-blue;
+  }
+
+  .gx-hero::before {
+    top: -10%;
+    right: -28%;
+    width: 62%;
+    height: 34%;
+    border-radius: 0 0 0 100%;
+  }
+
+  .gx-hero::after {
+    bottom: -12%;
+    left: -34%;
+    width: 76%;
+    height: 32%;
+    border-radius: 0 100% 0 0;
   }
 }
 
 [data-bs-theme="dark"] {
+  body {
+    background: $gx-surface-dark;
+  }
+
+  .navbar {
+    background: $gx-nav-dark;
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
   .gx-card {
-    background: linear-gradient(155deg, rgba(8, 63, 70, 0.42), rgba(18, 38, 45, 0.68));
-    border-color: rgba(116, 216, 201, 0.2);
+    background: $gx-surface-dark;
+    border-color: #34373c;
+    border-top-color: $gx-blue;
   }
 
   .gx-card h3 {
-    color: #82ddd0;
+    color: $gx-blue-light;
   }
 
   .gx-card p,
   .ref-index .section-desc {
-    color: #b7c9cd;
+    color: #d1d3d6;
   }
 
   .gx-status {
-    background: linear-gradient(90deg, rgba(102, 72, 20, 0.38), rgba(8, 63, 70, 0.34));
+    background: rgba($gx-blue, 0.14);
   }
 }
