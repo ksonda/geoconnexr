@@ -1,0 +1,34 @@
+{
+  "@context": {
+    "schema": "https://schema.org/",
+    "hyf": "https://www.opengis.net/def/schema/hy_features/hyf/"
+  },
+  "@id": "https://example.net/site/multi",
+  "@type": ["schema:Place", "hyf:HY_HydroLocation"],
+  "schema:name": "Multi Creek",
+  "schema:provider": {"@id": "https://example.net/org/multi", "schema:name": "Multi Provider"},
+  "schema:subjectOf": [
+    {
+      "@id": "https://example.net/dataset/a",
+      "@type": "schema:Dataset",
+      "schema:name": "Dataset A",
+      "schema:temporalCoverage": "2020-01-01/..",
+      "schema:variableMeasured": [
+        {"@id": "https://example.net/variable/a", "schema:name": "Variable A"},
+        {"@id": "https://example.net/variable/b", "schema:name": "Variable B"}
+      ],
+      "schema:distribution": [
+        {"schema:contentUrl": "https://example.net/data/a.csv", "schema:encodingFormat": "text/csv"},
+        {"schema:contentUrl": "https://example.net/data/a.json", "schema:encodingFormat": "application/json"}
+      ]
+    },
+    {
+      "@id": "https://example.net/dataset/b",
+      "@type": "schema:Dataset",
+      "schema:name": "Dataset B",
+      "schema:temporalCoverage": "../2024-12-31",
+      "schema:variableMeasured": {"@id": "https://example.net/variable/c", "schema:name": "Variable C"},
+      "schema:distribution": {"schema:contentUrl": "https://example.net/data/b.csv", "schema:encodingFormat": "text/csv"}
+    }
+  ]
+}

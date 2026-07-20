@@ -33,8 +33,10 @@ data-packaging client for the Geoconnex ecosystem.
 The repository is currently in its P0 architecture-spike phase. The initial
 scaffold provides versioned contracts, safe SPARQL template metadata,
 identifier/recipe foundations, recorded infrastructure evidence, and offline
-tests. The first network-facing slice adds bounded, cache-aware PID resolution;
-other retrieval functions remain gated on fixture-backed production evidence.
+tests. Its first protocol slices add bounded, cache-aware PID resolution plus
+fail-closed JSON-LD negotiation, expansion, and tolerant profile parsing.
+Broader discovery and data retrieval remain gated on fixture-backed production
+evidence.
 
 ## Intended workflow
 
@@ -61,6 +63,12 @@ aoi$recipe
 resolution <- gx_resolve("https://geoconnex.us/ref/gages/1000001")
 resolution[c("pid_uri", "landing_url", "problem_code")]
 
+# Retrieve and safely expand its JSON-LD, then extract profile tables
+document <- gx_jsonld("https://geoconnex.us/ref/gages/1000001")
+location <- gx_parse_location(document)
+datasets <- gx_parse_datasets(document)
+attr(location, "diagnostics")
+
 # Inspect and safely render a bounded named SPARQL template
 gx_templates()
 query <- gx_render_query(
@@ -79,10 +87,20 @@ gx_classify_distribution(
 gx_unit_conversions()
 ```
 
-`gx_resolve()` makes bounded network requests, validates every redirect target,
-and uses a representation-specific cache. The other functions shown above are
-offline. Dataset fetch handlers and snapshot writing remain planned interfaces
+`gx_resolve()` and `gx_jsonld()` make bounded network requests, validate every
+redirect target, and cache eligible query-free, credential-free
+representations. `gx_jsonld()` never lets the HTML or JSON-LD parser fetch a
+URL: it replaces exact allowlisted contexts with hash-pinned bundled assets and
+rejects unknown contexts. The two profile parsers are offline and return
+structured diagnostics instead of silently dropping tolerated production
+quirks. Dataset fetch handlers and snapshot writing remain planned interfaces
 and are labeled as such in the bundled implementation metadata.
+
+JSON-LD and parser contracts remain experimental. The fixture corpus now
+contains six observed, minimized pages from four landing hosts and five
+semantic providers, plus synthetic conformance/adversarial cases. This closes
+the P0 five-real-pages/three-providers evidence gate with one-page margin;
+synthetic fixtures remain explicitly excluded from that count.
 
 ## Design commitments
 
@@ -96,6 +114,8 @@ and are labeled as such in the bundled implementation metadata.
 - Treat source-specific failures and incomplete discovery as visible data,
   not silent empty results.
 - Preserve provider provenance and original values throughout harmonization.
+- Keep provider-controlled JSON-LD bounded by request, byte, depth, member,
+  expansion, HTML-candidate, node-fragment, and output-row budgets.
 
 ## Development
 

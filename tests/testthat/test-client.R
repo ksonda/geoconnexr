@@ -297,6 +297,72 @@ test_that("credentialed requests do not share or persist cache entries", {
   expect_equal(gx_cache_info(cache_dir)$entries, 0L)
 })
 
+test_that("query URLs and private responses are never persisted", {
+  cache_dir <- withr::local_tempdir()
+  calls <- gx_test_scripted_performer(list(
+    function(request) gx_test_response(
+      headers = list(`Cache-Control` = "no-store"),
+      body = charToRaw("no-store"),
+      url = request$url
+    ),
+    function(request) gx_test_response(
+      headers = list(`Set-Cookie` = "session=secret"),
+      body = charToRaw("cookie"),
+      url = request$url
+    ),
+    function(request) gx_test_response(
+      body = charToRaw("query"),
+      url = request$url
+    )
+  ))
+  withr::local_options(list(
+    geoconnexr.performer = calls$performer,
+    geoconnexr.dns_resolver = gx_test_public_dns,
+    geoconnexr.clock = gx_test_fixed_clock
+  ))
+  client <- gx_client("reference", cache_dir = cache_dir)
+
+  gx_test_http_request(client, "GET", "https://example.org/no-store")
+  gx_test_http_request(client, "GET", "https://example.org/cookie")
+  gx_test_http_request(client, "GET", "https://example.org/data?code=TOPSECRET")
+
+  expect_equal(calls$state$index, 3L)
+  expect_length(list.files(cache_dir, pattern = "[.]rds$"), 0L)
+  expect_false(geoconnexr:::gx_response_cache_allowed(list(`Cache-Control` = "private")))
+  expect_false(geoconnexr:::gx_response_cache_allowed(list(Pragma = "foo, no-cache")))
+  expect_false(geoconnexr:::gx_response_cache_allowed(list(Vary = "Accept, *")))
+  expect_false(geoconnexr:::gx_response_cache_allowed(list(
+    Location = "https://provider.example/data?token=TOPSECRET"
+  )))
+})
+
+test_that("redirect credentials are not persisted through response headers", {
+  cache_dir <- withr::local_tempdir()
+  calls <- gx_test_scripted_performer(list(
+    function(request) gx_test_response(
+      status = 303L,
+      headers = list(Location = "https://provider.example/data?token=TOPSECRET"),
+      url = request$url
+    )
+  ))
+  withr::local_options(list(
+    geoconnexr.performer = calls$performer,
+    geoconnexr.dns_resolver = gx_test_public_dns,
+    geoconnexr.clock = gx_test_fixed_clock
+  ))
+  client <- gx_client("reference", cache_dir = cache_dir)
+
+  response <- geoconnexr:::gx_http_request(
+    client,
+    "HEAD",
+    "https://example.org/redirect",
+    check_status = FALSE
+  )
+
+  expect_equal(response$status, 303L)
+  expect_length(list.files(cache_dir, pattern = "[.]rds$"), 0L)
+})
+
 test_that("cache clearing requires a package ownership marker", {
   cache_dir <- withr::local_tempdir()
   unrelated <- file.path(cache_dir, "important.rds")
@@ -358,11 +424,16 @@ test_that("compressed responses and transport failures use stable errors", {
     class = "gx_error_content_encoding"
   )
 
-  withr::local_options(geoconnexr.performer = function(request) stop("socket failed"))
-  expect_error(
+  withr::local_options(geoconnexr.performer = function(request) {
+    stop("socket failed at https://example.org/data?token=TOPSECRET")
+  })
+  error <- tryCatch(
     gx_test_http_request(client, "GET", "https://example.org/transport"),
-    class = "gx_error_transport"
+    error = identity
   )
+  expect_s3_class(error, "gx_error_transport")
+  expect_false(grepl("TOPSECRET", conditionMessage(error), fixed = TRUE))
+  expect_false(grepl("TOPSECRET", paste(format(error), collapse = "\n"), fixed = TRUE))
 })
 
 test_that("valid repeated response headers are preserved without rejection", {

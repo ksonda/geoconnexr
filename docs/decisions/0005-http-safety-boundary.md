@@ -26,8 +26,11 @@ The experimental L1 HTTP client fails closed:
 - disable libcurl redirect following so PID redirects can be checked and
   recorded one hop at a time;
 - key cache entries by the full supplied header representation and request-body
-  hash, never cache credentialed/range requests, apply a fixed retrieval-time
-  TTL, and revalidate cached bodies against current byte limits; and
+  hash, never cache credentialed/range requests or any query-bearing URL, honor
+  response `no-store`, `no-cache`, `private`, revalidation, `Vary: *`, and
+  `Set-Cookie` exclusions, and never persist redirect `Location` values carrying
+  queries, fragments, or user information; apply a fixed retrieval-time TTL,
+  and revalidate cached bodies against current byte limits; and
 - clear only directories carrying the package cache ownership marker.
 
 ## Consequences

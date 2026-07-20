@@ -174,9 +174,71 @@ gx_cache_key <- function(client, method, url, headers, body) {
   digest::digest(payload, algo = "sha256", serialize = FALSE)
 }
 
-gx_cache_allowed <- function(headers) {
+gx_sensitive_query <- function(url) {
+  if (!is.character(url) || length(url) != 1L || is.na(url)) return(TRUE)
+  before_fragment <- strsplit(url, "#", fixed = TRUE)[[1]][[1]]
+  grepl("?", before_fragment, fixed = TRUE)
+}
+
+gx_redact_url <- function(url) {
+  if (!is.character(url) || length(url) != 1L || is.na(url) || !nzchar(url) ||
+      stringi::stri_detect_regex(url, "[\\p{Z}\\p{Cc}\\p{Cf}\\p{Cs}]")) {
+    return("<invalid-url>")
+  }
+  value <- enc2utf8(url)
+  fragment_at <- regexpr("#", value, fixed = TRUE)[[1]]
+  has_fragment <- fragment_at > 0L
+  if (has_fragment) {
+    value <- substr(value, 1L, fragment_at - 1L)
+  }
+  query_at <- regexpr("?", value, fixed = TRUE)[[1]]
+  has_query <- query_at > 0L
+  if (has_query) {
+    value <- substr(value, 1L, query_at - 1L)
+  }
+  value <- sub(
+    "^([A-Za-z][A-Za-z0-9+.-]*://)[^/?#]*@",
+    "\\1",
+    value,
+    perl = TRUE
+  )
+  paste0(
+    value,
+    if (has_query) "?[redacted]" else "",
+    if (has_fragment) "#[redacted]" else ""
+  )
+}
+
+gx_cache_allowed <- function(headers, url) {
   sensitive <- c("authorization", "cookie", "proxy-authorization", "range")
-  !any(names(gx_normalize_headers(headers)) %in% sensitive)
+  !any(names(gx_normalize_headers(headers)) %in% sensitive) && !gx_sensitive_query(url)
+}
+
+gx_response_cache_allowed <- function(headers) {
+  normalized <- gx_normalize_headers(headers, allow_duplicates = TRUE)
+  cache_control <- tolower(gx_header(normalized, "cache-control") %||% "")
+  directives <- trimws(sub(
+    "=.*$", "", strsplit(cache_control, ",", fixed = TRUE)[[1]]
+  ))
+  pragma <- tolower(trimws(strsplit(
+    gx_header(normalized, "pragma") %||% "", ",", fixed = TRUE
+  )[[1]]))
+  vary <- trimws(strsplit(
+    gx_header(normalized, "vary") %||% "", ",", fixed = TRUE
+  )[[1]])
+  location <- gx_header(normalized, "location")
+  location_safe <- is.null(location) || (
+    is.character(location) && length(location) == 1L && nzchar(location) &&
+      !gx_sensitive_query(location) && !grepl("#", location, fixed = TRUE) &&
+      !grepl("^([A-Za-z][A-Za-z0-9+.-]*:)?//[^/?#]*@", location, perl = TRUE) &&
+      !stringi::stri_detect_regex(location, "[\\p{Z}\\p{Cc}\\p{Cf}\\p{Cs}]")
+  )
+  prohibited <- c("no-store", "no-cache", "private", "must-revalidate", "proxy-revalidate")
+  !any(directives %in% prohibited) &&
+    is.null(gx_header(normalized, "set-cookie")) &&
+    !"no-cache" %in% pragma &&
+    !"*" %in% vary &&
+    location_safe
 }
 
 gx_default_performer <- function(request) {
@@ -349,6 +411,7 @@ gx_cache_read <- function(backend, key, client, request) {
       (identical(request$method, "HEAD") ||
        is.na(content_length) || content_length <= client$max_bytes) &&
       (identical(request$method, "HEAD") || content_encoding %in% c("", "identity")) &&
+      gx_response_cache_allowed(headers) &&
       max_age_valid && !is.na(age) && age >= 0 && age <= max_age
   }, error = function(cnd) FALSE)
   if (!valid) {
@@ -440,7 +503,7 @@ gx_http_request <- function(client,
     resolved_port = target$port,
     resolved_ip = target$addresses
   )
-  backend <- if (client$cache && gx_cache_allowed(headers)) {
+  backend <- if (client$cache && gx_cache_allowed(headers, target$url)) {
     gx_cache_backend(client$cache_dir)
   } else {
     NULL
@@ -457,7 +520,7 @@ gx_http_request <- function(client,
   }
   if (client$offline) {
     gx_abort(
-      "Offline cache miss for {method} {.url {gx_canonical_url(url)}}.",
+      "Offline cache miss for {method} {.url {gx_redact_url(gx_canonical_url(url))}}.",
       "gx_error_offline_miss"
     )
   }
@@ -472,13 +535,18 @@ gx_http_request <- function(client,
       if (inherits(cnd, "gx_error")) {
         stop(cnd)
       }
-      gx_abort("HTTP transport failed.", "gx_error_transport", parent = cnd)
+      gx_abort(
+        "HTTP transport failed; underlying details were withheld.",
+        "gx_error_transport",
+        .redact_trace = TRUE
+      )
     }
   )
   response <- gx_validate_response(raw_response, request, client)
   gx_validate_endpoint_response(response, client, check_status)
 
-  cacheable <- response$status >= 200L && response$status < 400L
+  cacheable <- response$status >= 200L && response$status < 400L &&
+    gx_response_cache_allowed(response$headers)
   if (!is.null(backend) && cacheable) {
     cached_response <- response
     cached_response$request <- NULL

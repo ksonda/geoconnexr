@@ -1,0 +1,53 @@
+{
+  "@context": {
+    "schema": "https://schema.org/",
+    "hyf": "https://www.opengis.net/def/schema/hy_features/hyf/",
+    "gsp": "http://www.opengis.net/ont/geosparql#",
+    "sf": "http://www.opengis.net/ont/sf#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "locType": "https://www.opengis.net/def/schema/hy_features/hyf/HY_HydroLocationType/"
+  },
+  "@id": "https://example.net/site/alpha",
+  "@type": [
+    "schema:Place",
+    "hyf:HY_HydrometricFeature",
+    "hyf:HY_HydroLocation",
+    "locType:StreamGage"
+  ],
+  "schema:name": "Alpha Creek",
+  "schema:description": "Synthetic conformance site",
+  "gsp:hasGeometry": {
+    "@type": "sf:Point",
+    "gsp:asWKT": "POINT (-79.05 35.91)",
+    "gsp:crs": "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
+  },
+  "hyf:referencedPosition": {
+    "@type": "hyf:HY_IndirectPosition",
+    "hyf:linearElement": "https://geoconnex.us/ref/mainstems/12345"
+  },
+  "schema:provider": {
+    "@id": "https://example.net/org/provider",
+    "@type": "schema:Organization",
+    "schema:name": "Synthetic Provider",
+    "schema:url": "https://example.net"
+  },
+  "schema:subjectOf": {
+    "@id": "https://example.net/dataset/discharge",
+    "@type": "schema:Dataset",
+    "schema:name": "Discharge",
+    "schema:description": "Synthetic discharge measurements",
+    "schema:temporalCoverage": "2020-01-01/2024-12-31",
+    "schema:license": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "schema:variableMeasured": {
+      "@type": "schema:PropertyValue",
+      "schema:name": "Discharge",
+      "schema:unitText": "m3/s",
+      "skos:exactMatch": "http://vocabulary.odm2.org/variablename/discharge"
+    },
+    "schema:distribution": {
+      "@type": "schema:DataDownload",
+      "schema:encodingFormat": "text/csv; charset=utf-8",
+      "schema:contentUrl": "https://example.net/data/discharge.csv"
+    }
+  }
+}

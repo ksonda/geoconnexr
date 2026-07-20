@@ -11,6 +11,7 @@ and link both records rather than rewriting history.
 | [0003](0003-release-channels.md) | Accepted | Target CRAN and r-universe |
 | [0004](0004-upstream-contract-gates.md) | Accepted release gate | Defer mainstem and SPARQL contracts pending evidence |
 | [0005](0005-http-safety-boundary.md) | Accepted experimental policy | Fail closed at the provider-controlled HTTP boundary |
+| [0006](0006-jsonld-processing-boundary.md) | Accepted experimental policy | Expand JSON-LD without parser-controlled network access |
 
 Each ADR states its context, decision, consequences, and status. Proposed ADRs
 may change; accepted ADRs govern implementation until superseded.

@@ -18,7 +18,7 @@ gx_empty_resolution <- function() {
   )
 }
 
-gx_resolve_row <- function(pid_uri, client, follow, max_redirects) {
+gx_resolve_row <- function(pid_uri, client, follow, max_redirects, budget = NULL) {
   method <- "HEAD"
   current <- gx_canonical_url(pid_uri)
   chain <- current
@@ -31,6 +31,7 @@ gx_resolve_row <- function(pid_uri, client, follow, max_redirects) {
   accept <- "application/ld+json, text/html;q=0.9, */*;q=0.1"
 
   repeat {
+    gx_jsonld_budget_begin(budget)
     response <- tryCatch(
       gx_http_request(
         client,
@@ -42,9 +43,13 @@ gx_resolve_row <- function(pid_uri, client, follow, max_redirects) {
       error = function(cnd) cnd
     )
     if (inherits(response, "error")) {
+      if (!is.null(budget) && inherits(response, "gx_error_jsonld_budget")) {
+        stop(response)
+      }
       problem_code <- gx_resolution_problem(response)
       break
     }
+    gx_jsonld_budget_record(budget, response)
     if (is.na(initial_status)) {
       initial_status <- response$status
     }
@@ -130,6 +135,10 @@ gx_resolve_row <- function(pid_uri, client, follow, max_redirects) {
 #'   redirect chain.
 #' @export
 gx_resolve <- function(uri, follow = TRUE, client = gx_client("pid")) {
+  gx_resolve_impl(uri, follow = follow, client = client)
+}
+
+gx_resolve_impl <- function(uri, follow = TRUE, client = gx_client("pid"), budget = NULL) {
   if (!is.character(uri) || anyNA(uri) || any(!nzchar(uri))) {
     gx_abort(
       "{.arg uri} must be a character vector of non-missing HTTP(S) identifiers.",
@@ -160,7 +169,8 @@ gx_resolve <- function(uri, follow = TRUE, client = gx_client("pid")) {
     gx_resolve_row,
     client = client,
     follow = follow,
-    max_redirects = max_redirects
+    max_redirects = max_redirects,
+    budget = budget
   )
 
   tibble::tibble(
