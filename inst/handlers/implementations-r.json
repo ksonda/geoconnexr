@@ -27,6 +27,7 @@
       "implementation_id": "geoconnexr:dataRetrieval-continuous",
       "availability": "planned",
       "package": "dataRetrieval",
+      "minimum_version": "2.7.22",
       "function": "read_waterdata_continuous",
       "query_semantics": ["monitoring_location_id", "parameter_code", "time", "limit"],
       "missing_package_status": "skipped_missing_pkg"
@@ -88,7 +89,7 @@
     }
   },
   "checked": {
-    "date": "2026-07-12",
+    "date": "2026-07-21",
     "edr4r": {
       "minimum_version": "0.1.1",
       "reference": "https://cran.r-project.org/package=edr4r"
@@ -96,7 +97,7 @@
     "dataRetrieval": {
       "current_functions": ["read_waterdata_continuous", "read_waterdata_daily"],
       "legacy_functions": ["readNWISuv", "readNWISdv"],
-      "reference": "https://doi-usgs.github.io/dataRetrieval/articles/tutorial.html"
+      "reference": "https://doi-usgs.github.io/dataRetrieval/reference/read_waterdata_continuous.html"
     }
   }
 }

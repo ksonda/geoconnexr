@@ -44,13 +44,17 @@ Description: Tools for discovering water-data sites and datasets through the
     all-handler reservation, rechecks its native symbol immediately before
     invocation, performs one DNS-pinned request, and binds strict GeoJSON-to-sf
     normalization to the charged attempt. A cross-handler orchestrator now
-    schedules direct CSV, WQP Result, EDR position, and OGC requests in one
-    global order with shared admission limits, isolated failures, compact
-    evidence, and exact all-distribution status. The EDR slice binds one CRS84
+    schedules direct CSV, WQP Result, EDR position, USGS continuous, and OGC
+    requests in one global order with shared admission limits, isolated
+    failures, compact evidence, and exact all-distribution status. The EDR
+    slice binds one CRS84
     point, parameter, UTC interval, and CoverageJSON response to package-owned
-    transport and strict offline normalization. Graph discovery, public catalog,
-    remaining provider handlers, pagination, replay, and provider-data
-    packaging remain under development.
+    transport and strict offline normalization. The USGS slice
+    capability-checks dataRetrieval, performs one package-owned current Water
+    Data API request for an exact site, parameter, and UTC interval, and
+    preserves string-valued measurements through strict GeoJSON normalization.
+    Graph discovery, public catalog, remaining provider handlers, pagination,
+    replay, and provider-data packaging remain under development.
 License: MIT + file LICENSE
 URL: https://ksonda.github.io/geoconnexr/, https://github.com/ksonda/geoconnexr
 BugReports: https://github.com/ksonda/geoconnexr/issues
@@ -72,7 +76,7 @@ Imports:
     xml2 (>= 1.3.6),
     yaml (>= 2.3.0)
 Suggests:
-    dataRetrieval,
+    dataRetrieval (>= 2.7.22),
     edr4r (>= 0.1.1),
     jsonvalidate,
     knitr,

@@ -90,7 +90,7 @@ test_that("empty catalogs produce a valid selection-only plan", {
     "edr4r", rep("dataRetrieval", 5L), NA_character_, "readr", NA_character_
   ))
   expect_identical(plan$handlers$minimum_version, c(
-    "0.1.1", rep(NA_character_, 8L)
+    "0.1.1", "2.7.22", rep(NA_character_, 7L)
   ))
   expect_identical(plan$handlers$availability, c(
     rep("planned", 8L), "classifier_only"

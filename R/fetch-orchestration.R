@@ -1,4 +1,4 @@
-.gx_fetch_orchestration_contract_version <- "0.3.0"
+.gx_fetch_orchestration_contract_version <- "0.4.0"
 .gx_fetch_orchestration_max_executions <- 32L
 .gx_fetch_orchestration_max_total_bytes <- 64L * 1024L^2
 .gx_fetch_orchestration_max_text_bytes <- 256L * 1024L^2
@@ -50,12 +50,17 @@
   "implementation", "execution", "attempt"
 )
 
+.gx_fetch_orchestration_usgs_continuous_result_fields <- c(
+  "result_id", "response_body", "data", "schema", "parse",
+  "implementation", "execution", "attempt"
+)
+
 .gx_fetch_orchestration_metadata_fields <- c(
   "host_specific", "replayable", "execution_ready", "transport_authorized",
   "execution_completed", "dry_run", "budgets_consumed",
   "provider_responses_observed", "response_candidates_validated",
   "csv_semantics_validated", "edr_semantics_validated",
-  "wqp_semantics_validated",
+  "usgs_continuous_semantics_validated", "wqp_semantics_validated",
   "oaf_semantics_validated",
   "runtime_symbols_checked", "result_contract_bound", "status_reconciled",
   "continue_on_error", "results_compacted", "global_order_enforced",
@@ -64,12 +69,13 @@
 
 .gx_fetch_orchestration_count_fields <- c(
   "distributions", "candidate_requests", "csv_requests", "edr_requests",
-  "wqp_requests", "oaf_requests",
+  "usgs_continuous_requests", "wqp_requests", "oaf_requests",
   "admitted_requests", "batch_limit_deferred", "attempted_requests",
   "successful_requests", "failed_requests", "physical_attempts",
   "encoded_bytes", "decoded_bytes", "handler_deferred",
   "handler_plan_unsupported", "not_selected", "reference_only",
-  "csv_results", "edr_results", "wqp_results", "oaf_results", "results"
+  "csv_results", "edr_results", "usgs_continuous_results", "wqp_results",
+  "oaf_results", "results"
 )
 
 gx_fetch_orchestration_abort <- function(
@@ -95,7 +101,7 @@ gx_fetch_orchestration_input_plan_impl <- function(request_plan) {
   }, error = function(cnd) FALSE, warning = function(cnd) FALSE)
   if (!valid) {
     gx_fetch_orchestration_abort(
-      "M7l construction requires one valid M7d all-handler request plan.",
+      "M7m construction requires one valid M7d all-handler request plan.",
       "gx_error_fetch_orchestration_input"
     )
   }
@@ -106,7 +112,7 @@ gx_fetch_orchestration_flag_impl <- function(x) {
   if (!is.logical(x) || length(x) != 1L || is.na(x) ||
       !is.null(attributes(x))) {
     gx_fetch_orchestration_abort(
-      "The M7l dry-run choice must be one explicit logical value.",
+      "The M7m dry-run choice must be one explicit logical value.",
       "gx_error_fetch_orchestration_policy"
     )
   }
@@ -129,7 +135,7 @@ gx_fetch_orchestration_byte_limit_impl <- function(x) {
       x > .gx_fetch_orchestration_max_total_bytes ||
       !is.null(attributes(x))) {
     gx_fetch_orchestration_abort(
-      "The M7l aggregate response-byte ceiling must be an explicit bounded whole number.",
+      "The M7m aggregate response-byte ceiling must be an explicit bounded whole number.",
       "gx_error_fetch_orchestration_policy"
     )
   }
@@ -143,7 +149,7 @@ gx_fetch_orchestration_policy_impl <- function(
   max_executions <- gx_fetch_orchestration_integer_impl(
     max_executions,
     .gx_fetch_orchestration_max_executions,
-    "The M7l execution ceiling must be an explicit bounded whole number."
+    "The M7m execution ceiling must be an explicit bounded whole number."
   )
   max_total_bytes <- gx_fetch_orchestration_byte_limit_impl(max_total_bytes)
   max_fields <- tryCatch(
@@ -171,12 +177,12 @@ gx_fetch_orchestration_policy_impl <- function(
   if (is.null(max_fields) || is.null(oaf_limit) || is.null(timeout) ||
       is.null(min_interval)) {
     gx_fetch_orchestration_abort(
-      "M7l parser, OGC page, and timing limits must be explicit bounded values.",
+      "M7m parser, OGC page, and timing limits must be explicit bounded values.",
       "gx_error_fetch_orchestration_policy"
     )
   }
   list(
-    slice_id = "cross_handler_orchestration_v3",
+    slice_id = "cross_handler_orchestration_v4",
     execution_mode = if (dry_run) "dry_run" else "sequential_continue",
     dry_run = dry_run,
     scheduling_policy = "global_fetch_order",
@@ -249,7 +255,7 @@ gx_fetch_orchestration_planning_impl <- function(request_plan, policy) {
       }
       if (!inherits(edr_plan, "gx_edr_request_plan")) {
         gx_fetch_orchestration_abort(
-          "M7l could not bind an EDR request to its held reservation.",
+          "M7m could not bind an EDR request to its held reservation.",
           "gx_error_fetch_orchestration_input"
         )
       }
@@ -263,6 +269,48 @@ gx_fetch_orchestration_planning_impl <- function(request_plan, policy) {
         reservation_id = edr_plan$request$reservation_id,
         response_byte_limit = edr_plan$request$response_byte_limit,
         request_status = "edr_request_planned"
+      )
+    }
+  }
+  usgs_continuous_positions <- which(
+    coverage$selected &
+      coverage$handler_id == "usgs_waterdata_continuous" &
+      coverage$request_status == "handler_reserved"
+  )
+  if (length(usgs_continuous_positions)) {
+    for (position in usgs_continuous_positions) {
+      distribution_id <- coverage$distribution_id[[position]]
+      continuous_plan <- tryCatch(
+        gx_usgs_continuous_request_plan_impl(
+          request_plan, distribution_id, max_fields = policy$max_fields
+        ),
+        error = identity
+      )
+      if (inherits(continuous_plan, c(
+        "gx_error_usgs_continuous_plan_url",
+        "gx_error_usgs_continuous_plan_time"
+      ))) {
+        unsupported <- c(unsupported, distribution_id)
+        next
+      }
+      if (!inherits(
+        continuous_plan, "gx_usgs_continuous_request_plan"
+      )) {
+        gx_fetch_orchestration_abort(
+          "M7m could not bind a USGS continuous request to its held reservation.",
+          "gx_error_fetch_orchestration_input"
+        )
+      }
+      rows[[length(rows) + 1L]] <- tibble::tibble(
+        contract_version = .gx_fetch_orchestration_contract_version,
+        request_order = 0L,
+        fetch_order = continuous_plan$request$fetch_order,
+        distribution_id = continuous_plan$request$distribution_id,
+        handler_id = "usgs_waterdata_continuous",
+        logical_request_id = continuous_plan$request$logical_request_id,
+        reservation_id = continuous_plan$request$reservation_id,
+        response_byte_limit = continuous_plan$request$response_byte_limit,
+        request_status = "usgs_continuous_request_planned"
       )
     }
   }
@@ -287,7 +335,7 @@ gx_fetch_orchestration_planning_impl <- function(request_plan, policy) {
       }
       if (!inherits(wqp_plan, "gx_wqp_request_plan")) {
         gx_fetch_orchestration_abort(
-          "M7l could not bind a WQP request to its held reservation.",
+          "M7m could not bind a WQP request to its held reservation.",
           "gx_error_fetch_orchestration_input"
         )
       }
@@ -323,7 +371,7 @@ gx_fetch_orchestration_planning_impl <- function(request_plan, policy) {
       }
       if (!inherits(oaf_plan, "gx_oaf_request_plan")) {
         gx_fetch_orchestration_abort(
-          "M7l could not bind an OGC request to its held reservation.",
+          "M7m could not bind an OGC request to its held reservation.",
           "gx_error_fetch_orchestration_input"
         )
       }
@@ -404,7 +452,7 @@ gx_fetch_orchestration_id_impl <- function(
       ),
       gx_fetch_orchestration_hash_pairs_impl("policy", policy)
     ),
-    namespace = "geoconnexr.fetch-orchestration.v3",
+    namespace = "geoconnexr.fetch-orchestration.v4",
     contract_version = .gx_fetch_orchestration_contract_version
   )
 }
@@ -418,7 +466,7 @@ gx_fetch_orchestration_child_scope_impl <- function(
       "handler_id", handler_id,
       "logical_request_id", logical_request_id
     ),
-    namespace = "geoconnexr.fetch-orchestration-child.v3",
+    namespace = "geoconnexr.fetch-orchestration-child.v4",
     contract_version = .gx_fetch_orchestration_contract_version
   )
 }
@@ -457,7 +505,7 @@ gx_fetch_orchestration_status_impl <- function(
         not_selected = "not_selected",
         reference_only = "reference_only",
         gx_fetch_orchestration_abort(
-          "M7l encountered an unknown M7d coverage status."
+          "M7m encountered an unknown M7d coverage status."
         )
       )
     }
@@ -580,6 +628,40 @@ gx_fetch_orchestration_compact_edr_impl <- function(execution) {
   result
 }
 
+gx_fetch_orchestration_usgs_continuous_result_id_impl <- function(result) {
+  gx_contract_hash(
+    list(
+      "execution_id", result$execution$execution_id,
+      "attempt_id", result$attempt$attempt_id[[1L]],
+      "body_sha256", result$parse$body_sha256,
+      "result_sha256", result$parse$result_sha256,
+      "row_count", result$execution$row_count,
+      "column_count", result$execution$column_count
+    ),
+    namespace = "geoconnexr.usgs-continuous-orchestration-result.v1",
+    contract_version = .gx_fetch_orchestration_contract_version
+  )
+}
+
+gx_fetch_orchestration_compact_usgs_continuous_impl <- function(execution) {
+  result <- structure(
+    list(
+      result_id = "",
+      response_body = execution$response_body,
+      data = execution$data,
+      schema = execution$schema,
+      parse = execution$parse,
+      implementation = execution$implementation,
+      execution = execution$execution,
+      attempt = execution$attempts
+    ),
+    class = "gx_usgs_continuous_orchestration_result"
+  )
+  result$result_id <-
+    gx_fetch_orchestration_usgs_continuous_result_id_impl(result)
+  result
+}
+
 gx_fetch_orchestration_edr_failure_impl <- function(cnd) {
   capability <- inherits(cnd, "gx_error_edr_execution_capability")
   transport <- inherits(cnd, "gx_error_edr_execution_transport")
@@ -622,6 +704,60 @@ gx_fetch_orchestration_edr_failure_impl <- function(cnd) {
   } else {
     status <- "transport_failed"
     error_code <- "edr_transport_failed"
+  }
+  list(
+    status = status,
+    error_code = error_code,
+    physical_attempts = unname(as.integer(physical)),
+    bytes = unname(as.double(charged)),
+    execution_id = unname(execution_id)
+  )
+}
+
+gx_fetch_orchestration_usgs_continuous_failure_impl <- function(cnd) {
+  capability <- inherits(
+    cnd, "gx_error_usgs_continuous_execution_capability"
+  )
+  transport <- inherits(cnd, "gx_error_usgs_continuous_execution_transport")
+  parse <- inherits(cnd, "gx_error_usgs_continuous_execution_parse")
+  if (!capability && !transport && !parse) {
+    gx_fetch_orchestration_abort(
+      "A USGS continuous request failed outside an isolatable capability, transport, or parse phase.",
+      "gx_error_fetch_orchestration_execution"
+    )
+  }
+  attempts <- cnd$attempts
+  physical <- if (is.data.frame(attempts) && nrow(attempts) &&
+      "physical" %in% names(attempts)) {
+    sum(attempts$physical %in% TRUE)
+  } else 0L
+  charged <- if (is.data.frame(attempts) && nrow(attempts) &&
+      "charged_bytes" %in% names(attempts)) {
+    sum(as.double(attempts$charged_bytes), na.rm = TRUE)
+  } else 0
+  execution_id <- cnd$execution_id %||% NA_character_
+  valid_execution <- if (capability) {
+    is.character(execution_id) && length(execution_id) == 1L &&
+      is.na(execution_id)
+  } else {
+    gx_catalog_is_sha256(execution_id)
+  }
+  if (!valid_execution || physical > 1L || !is.finite(charged) ||
+      charged < 0 || (capability && (physical != 0L || charged != 0))) {
+    gx_fetch_orchestration_abort(
+      "A failed USGS continuous request returned invalid redacted attempt facts.",
+      "gx_error_fetch_orchestration_execution"
+    )
+  }
+  if (capability) {
+    status <- "capability_failed"
+    error_code <- "usgs_continuous_capability_failed"
+  } else if (parse) {
+    status <- "parse_failed"
+    error_code <- "usgs_continuous_parse_failed"
+  } else {
+    status <- "transport_failed"
+    error_code <- "usgs_continuous_transport_failed"
   }
   list(
     status = status,
@@ -738,7 +874,8 @@ gx_fetch_orchestration_oaf_failure_impl <- function(cnd) {
 
 gx_fetch_orchestration_run_impl <- function(
     request_plan, policy, requests, orchestration_id, admitted, status,
-    oaf_symbol_resolver, wqp_symbol_resolver, edr_symbol_resolver) {
+    oaf_symbol_resolver, wqp_symbol_resolver, edr_symbol_resolver,
+    usgs_continuous_symbol_resolver) {
   if (policy$dry_run || !any(admitted)) {
     return(list(results = list(), status = status))
   }
@@ -779,6 +916,22 @@ gx_fetch_orchestration_run_impl <- function(
         ),
         error = identity
       )
+    } else if (request$handler_id[[1L]] ==
+        "usgs_waterdata_continuous") {
+      continuous_plan <- gx_usgs_continuous_request_plan_impl(
+        request_plan, request$distribution_id[[1L]],
+        max_fields = policy$max_fields
+      )
+      tryCatch(
+        gx_usgs_continuous_execution_impl(
+          request_plan = continuous_plan,
+          timeout = policy$timeout_seconds,
+          min_interval = policy$min_interval_seconds,
+          execution_scope_id = child_scope,
+          symbol_resolver = usgs_continuous_symbol_resolver
+        ),
+        error = identity
+      )
     } else if (request$handler_id[[1L]] == "wqp") {
       wqp_plan <- gx_wqp_request_plan_impl(
         request_plan, request$distribution_id[[1L]],
@@ -814,6 +967,8 @@ gx_fetch_orchestration_run_impl <- function(
       result <- gx_csv_orchestration_compact_result_impl(outcome)
     } else if (inherits(outcome, "gx_edr_execution")) {
       result <- gx_fetch_orchestration_compact_edr_impl(outcome)
+    } else if (inherits(outcome, "gx_usgs_continuous_execution")) {
+      result <- gx_fetch_orchestration_compact_usgs_continuous_impl(outcome)
     } else if (inherits(outcome, "gx_wqp_execution")) {
       result <- gx_fetch_orchestration_compact_wqp_impl(outcome)
     } else if (inherits(outcome, "gx_oaf_execution")) {
@@ -829,6 +984,9 @@ gx_fetch_orchestration_run_impl <- function(
         )
       } else if (request$handler_id[[1L]] == "edr") {
         gx_fetch_orchestration_edr_failure_impl(outcome)
+      } else if (request$handler_id[[1L]] ==
+          "usgs_waterdata_continuous") {
+        gx_fetch_orchestration_usgs_continuous_failure_impl(outcome)
       } else if (request$handler_id[[1L]] == "wqp") {
         gx_fetch_orchestration_wqp_failure_impl(outcome)
       } else {
@@ -885,6 +1043,9 @@ gx_fetch_orchestration_owned_impl <- function(
 gx_fetch_orchestration_result_handler_impl <- function(result) {
   if (inherits(result, "gx_csv_orchestration_result")) return("csv")
   if (inherits(result, "gx_edr_orchestration_result")) return("edr")
+  if (inherits(result, "gx_usgs_continuous_orchestration_result")) {
+    return("usgs_waterdata_continuous")
+  }
   if (inherits(result, "gx_wqp_orchestration_result")) return("wqp")
   if (inherits(result, "gx_oaf_orchestration_result")) {
     return("ogc_api_features")
@@ -903,6 +1064,9 @@ gx_fetch_orchestration_counts_impl <- function(
     candidate_requests = unname(as.integer(nrow(requests))),
     csv_requests = unname(as.integer(sum(requests$handler_id == "csv"))),
     edr_requests = unname(as.integer(sum(requests$handler_id == "edr"))),
+    usgs_continuous_requests = unname(as.integer(sum(
+      requests$handler_id == "usgs_waterdata_continuous"
+    ))),
     wqp_requests = unname(as.integer(sum(requests$handler_id == "wqp"))),
     oaf_requests = unname(as.integer(sum(
       requests$handler_id == "ogc_api_features"
@@ -941,6 +1105,9 @@ gx_fetch_orchestration_counts_impl <- function(
     ))),
     csv_results = unname(as.integer(sum(handlers == "csv"))),
     edr_results = unname(as.integer(sum(handlers == "edr"))),
+    usgs_continuous_results = unname(as.integer(sum(
+      handlers == "usgs_waterdata_continuous"
+    ))),
     wqp_results = unname(as.integer(sum(handlers == "wqp"))),
     oaf_results = unname(as.integer(sum(handlers == "ogc_api_features"))),
     results = unname(as.integer(length(results)))
@@ -966,6 +1133,9 @@ gx_fetch_orchestration_reasons_impl <- function(
     if (any(unsupported == "edr")) {
       reasons <- c(reasons, "edr_request_plan_unsupported")
     }
+    if (any(unsupported == "usgs_waterdata_continuous")) {
+      reasons <- c(reasons, "usgs_continuous_request_plan_unsupported")
+    }
     if (any(unsupported == "wqp")) {
       reasons <- c(reasons, "wqp_request_plan_unsupported")
     }
@@ -988,12 +1158,17 @@ gx_fetch_orchestration_metadata_impl <- function(
   successful <- which(status$succeeded)
   csv_success <- any(status$handler_id[successful] == "csv")
   edr_success <- any(status$handler_id[successful] == "edr")
+  usgs_continuous_success <- any(
+    status$handler_id[successful] == "usgs_waterdata_continuous"
+  )
   wqp_success <- any(status$handler_id[successful] == "wqp")
   oaf_success <- any(
     status$handler_id[successful] == "ogc_api_features"
   )
   symbol_attempted <- any(
-    status$handler_id %in% c("edr", "wqp", "ogc_api_features") &
+    status$handler_id %in% c(
+      "edr", "usgs_waterdata_continuous", "wqp", "ogc_api_features"
+    ) &
       status$attempted
   )
   list(
@@ -1008,6 +1183,7 @@ gx_fetch_orchestration_metadata_impl <- function(
     response_candidates_validated = counts$successful_requests > 0L,
     csv_semantics_validated = csv_success,
     edr_semantics_validated = edr_success,
+    usgs_continuous_semantics_validated = usgs_continuous_success,
     wqp_semantics_validated = wqp_success,
     oaf_semantics_validated = oaf_success,
     runtime_symbols_checked = symbol_attempted,
@@ -1061,7 +1237,8 @@ gx_fetch_orchestration_impl <- function(
     orchestration_scope_id = NULL,
     oaf_symbol_resolver = NULL,
     wqp_symbol_resolver = NULL,
-    edr_symbol_resolver = NULL) {
+    edr_symbol_resolver = NULL,
+    usgs_continuous_symbol_resolver = NULL) {
   request_plan <- gx_fetch_orchestration_input_plan_impl(request_plan)
   policy <- gx_fetch_orchestration_policy_impl(
     dry_run, max_executions, max_total_bytes, max_fields, oaf_limit,
@@ -1074,7 +1251,7 @@ gx_fetch_orchestration_impl <- function(
   )
   if (is.null(orchestration_scope_id)) {
     gx_fetch_orchestration_abort(
-      "M7l requires one explicit opaque orchestration scope identity.",
+      "M7m requires one explicit opaque orchestration scope identity.",
       "gx_error_fetch_orchestration_policy"
     )
   }
@@ -1089,7 +1266,8 @@ gx_fetch_orchestration_impl <- function(
   )
   run <- gx_fetch_orchestration_run_impl(
     request_plan, policy, requests, orchestration_id, admitted, status,
-    oaf_symbol_resolver, wqp_symbol_resolver, edr_symbol_resolver
+    oaf_symbol_resolver, wqp_symbol_resolver, edr_symbol_resolver,
+    usgs_continuous_symbol_resolver
   )
   orchestration <- gx_fetch_orchestration_owned_impl(
     orchestration_scope_id, orchestration_id, policy, requests, admitted,
@@ -1121,7 +1299,7 @@ gx_fetch_orchestration_validate_policy_impl <- function(policy) {
     policy, function(value) is.null(attributes(value)), logical(1)
   ))) {
     gx_fetch_orchestration_abort(
-      "M7l policy violates its exact bounded contract."
+      "M7m policy violates its exact bounded contract."
     )
   }
   invisible(policy)
@@ -1137,7 +1315,7 @@ gx_fetch_orchestration_validate_oaf_result_impl <- function(
     is.null(attributes(result$response_body))
   if (!valid_shape) {
     gx_fetch_orchestration_abort(
-      "A compact M7l OGC result violates its exact shape."
+      "A compact M7m OGC result violates its exact shape."
     )
   }
   distribution_id <- result$execution$distribution_id %||% NA_character_
@@ -1171,7 +1349,7 @@ gx_fetch_orchestration_validate_oaf_result_impl <- function(
     result$result_id, gx_fetch_orchestration_oaf_result_id_impl(result)
   )) {
     gx_fetch_orchestration_abort(
-      "A compact M7l OGC result no longer rebinds to its retained bytes."
+      "A compact M7m OGC result no longer rebinds to its retained bytes."
     )
   }
   invisible(result)
@@ -1186,7 +1364,7 @@ gx_fetch_orchestration_validate_wqp_result_impl <- function(
     is.raw(result$response_body) && is.null(attributes(result$response_body))
   if (!valid_shape) {
     gx_fetch_orchestration_abort(
-      "A compact M7l WQP result violates its exact shape."
+      "A compact M7m WQP result violates its exact shape."
     )
   }
   distribution_id <- result$execution$distribution_id %||% NA_character_
@@ -1227,7 +1405,7 @@ gx_fetch_orchestration_validate_wqp_result_impl <- function(
     result$result_id, gx_fetch_orchestration_wqp_result_id_impl(result)
   )) {
     gx_fetch_orchestration_abort(
-      "A compact M7l WQP result no longer rebinds to its retained bytes."
+      "A compact M7m WQP result no longer rebinds to its retained bytes."
     )
   }
   invisible(result)
@@ -1242,7 +1420,7 @@ gx_fetch_orchestration_validate_edr_result_impl <- function(
     is.raw(result$response_body) && is.null(attributes(result$response_body))
   if (!valid_shape) {
     gx_fetch_orchestration_abort(
-      "A compact M7l EDR result violates its exact shape."
+      "A compact M7m EDR result violates its exact shape."
     )
   }
   distribution_id <- result$execution$distribution_id %||% NA_character_
@@ -1283,7 +1461,67 @@ gx_fetch_orchestration_validate_edr_result_impl <- function(
     result$result_id, gx_fetch_orchestration_edr_result_id_impl(result)
   )) {
     gx_fetch_orchestration_abort(
-      "A compact M7l EDR result no longer rebinds to its retained bytes."
+      "A compact M7m EDR result no longer rebinds to its retained bytes."
+    )
+  }
+  invisible(result)
+}
+
+gx_fetch_orchestration_validate_usgs_continuous_result_impl <- function(
+    result, request_plan, policy) {
+  valid_shape <- is.list(result) && identical(
+    names(result), .gx_fetch_orchestration_usgs_continuous_result_fields
+  ) && identical(
+    class(result), "gx_usgs_continuous_orchestration_result"
+  ) && gx_csv_orchestration_exact_attributes(
+    result, c("names", "class")
+  ) && is.raw(result$response_body) &&
+    is.null(attributes(result$response_body))
+  if (!valid_shape) {
+    gx_fetch_orchestration_abort(
+      "A compact M7m USGS continuous result violates its exact shape."
+    )
+  }
+  distribution_id <- result$execution$distribution_id %||% NA_character_
+  continuous_plan <- tryCatch(
+    gx_usgs_continuous_request_plan_impl(
+      request_plan, distribution_id, max_fields = policy$max_fields
+    ),
+    error = function(cnd) NULL,
+    warning = function(cnd) NULL
+  )
+  valid <- if (!is.null(continuous_plan)) tryCatch({
+    rebuilt <- list(
+      data = result$data,
+      schema = result$schema,
+      parse = result$parse
+    )
+    execution <- structure(
+      list(
+        contract_version = .gx_usgs_continuous_execution_contract_version,
+        request_plan = continuous_plan,
+        response_body = result$response_body,
+        data = result$data,
+        schema = result$schema,
+        parse = result$parse,
+        implementation = result$implementation,
+        execution = result$execution,
+        attempts = result$attempt,
+        metadata = gx_usgs_continuous_execution_metadata_impl(
+          continuous_plan, rebuilt, length(result$response_body)
+        )
+      ),
+      class = "gx_usgs_continuous_execution"
+    )
+    gx_usgs_continuous_execution_validate_impl(execution)
+    TRUE
+  }, error = function(cnd) FALSE, warning = function(cnd) FALSE) else FALSE
+  if (!valid || !identical(
+    result$result_id,
+    gx_fetch_orchestration_usgs_continuous_result_id_impl(result)
+  )) {
+    gx_fetch_orchestration_abort(
+      "A compact M7m USGS continuous result no longer rebinds to its retained bytes."
     )
   }
   invisible(result)
@@ -1300,11 +1538,17 @@ gx_fetch_orchestration_validate_result_impl <- function(
     }, error = function(cnd) FALSE, warning = function(cnd) FALSE)
     if (!valid) {
       gx_fetch_orchestration_abort(
-        "A compact M7l CSV result failed whole-result validation."
+        "A compact M7m CSV result failed whole-result validation."
       )
     }
   } else if (inherits(result, "gx_edr_orchestration_result")) {
     gx_fetch_orchestration_validate_edr_result_impl(
+      result, request_plan, policy
+    )
+  } else if (inherits(
+    result, "gx_usgs_continuous_orchestration_result"
+  )) {
+    gx_fetch_orchestration_validate_usgs_continuous_result_impl(
       result, request_plan, policy
     )
   } else if (inherits(result, "gx_wqp_orchestration_result")) {
@@ -1317,7 +1561,7 @@ gx_fetch_orchestration_validate_result_impl <- function(
     )
   } else {
     gx_fetch_orchestration_abort(
-      "M7l results must use one supported handler-specific compact contract."
+      "M7m results must use one supported handler-specific compact contract."
     )
   }
   invisible(result)
@@ -1351,7 +1595,7 @@ gx_fetch_orchestration_validate_status_impl <- function(
     "physical_attempts", "encoded_bytes", "decoded_bytes"
   )])) {
     gx_fetch_orchestration_abort(
-      "M7l status violates its exact one-row-per-distribution shape."
+      "M7m status violates its exact one-row-per-distribution shape."
     )
   }
   base <- gx_fetch_orchestration_status_impl(
@@ -1368,7 +1612,7 @@ gx_fetch_orchestration_validate_status_impl <- function(
       any(status$encoded_bytes != status$decoded_bytes) ||
       any(status$succeeded & !status$attempted)) {
     gx_fetch_orchestration_abort(
-      "M7l status identities or bounded attempt facts are invalid."
+      "M7m status identities or bounded attempt facts are invalid."
     )
   }
   nonadmitted <- base$orchestration_status != "execution_pending"
@@ -1384,7 +1628,7 @@ gx_fetch_orchestration_validate_status_impl <- function(
       any(!is.na(status$result_index[nonadmitted])) ||
       any(!is.na(status$error_code[nonadmitted]))) {
     gx_fetch_orchestration_abort(
-      "M7l non-attempted rows overstate execution or budget facts."
+      "M7m non-attempted rows overstate execution or budget facts."
     )
   }
   if (!policy$dry_run) {
@@ -1396,7 +1640,7 @@ gx_fetch_orchestration_validate_status_impl <- function(
     if (any(!status$orchestration_status[live] %in% terminal) ||
         any(!status$attempted[live])) {
       gx_fetch_orchestration_abort(
-        "Every admitted M7l request must reach one terminal status."
+        "Every admitted M7m request must reach one terminal status."
       )
     }
     successful <- which(status$succeeded)
@@ -1411,7 +1655,7 @@ gx_fetch_orchestration_validate_status_impl <- function(
         any(!is.na(status$error_code[successful])) ||
         any(!is.na(status$result_index[failed]))) {
       gx_fetch_orchestration_abort(
-        "M7l terminal rows do not reconcile exactly with compact results."
+        "M7m terminal rows do not reconcile exactly with compact results."
       )
     }
     if (length(failed)) {
@@ -1430,6 +1674,15 @@ gx_fetch_orchestration_validate_status_impl <- function(
           "edr_transport_failed"
         } else if (handler == "edr" && terminal_status == "parse_failed") {
           "edr_parse_failed"
+        } else if (handler == "usgs_waterdata_continuous" &&
+            terminal_status == "capability_failed") {
+          "usgs_continuous_capability_failed"
+        } else if (handler == "usgs_waterdata_continuous" &&
+            terminal_status == "transport_failed") {
+          "usgs_continuous_transport_failed"
+        } else if (handler == "usgs_waterdata_continuous" &&
+            terminal_status == "parse_failed") {
+          "usgs_continuous_parse_failed"
         } else if (handler == "wqp" &&
             terminal_status == "capability_failed") {
           "wqp_capability_failed"
@@ -1464,7 +1717,7 @@ gx_fetch_orchestration_validate_status_impl <- function(
             status$execution_id[other_failures]
           ))) {
         gx_fetch_orchestration_abort(
-          "M7l failure rows do not bind their handler-specific phase."
+          "M7m failure rows do not bind their handler-specific phase."
         )
       }
     }
@@ -1480,7 +1733,7 @@ gx_fetch_orchestration_validate_status_impl <- function(
             status$encoded_bytes[[row]] != result$execution$encoded_bytes ||
             status$decoded_bytes[[row]] != result$execution$decoded_bytes) {
           gx_fetch_orchestration_abort(
-            "M7l successful status rows do not bind their compact results."
+            "M7m successful status rows do not bind their compact results."
           )
         }
       }
@@ -1498,7 +1751,7 @@ gx_fetch_orchestration_validate_status_impl <- function(
       sum(status$decoded_bytes) > request_plan$budgets$reserved_decoded_bytes ||
       sum(status$decoded_bytes) > policy$max_total_bytes) {
     gx_fetch_orchestration_abort(
-      "M7l status exceeds an allocated request or aggregate byte budget.",
+      "M7m status exceeds an allocated request or aggregate byte budget.",
       "gx_error_fetch_orchestration_budget"
     )
   }
@@ -1515,7 +1768,7 @@ gx_fetch_orchestration_validate_impl <- function(x) {
     ) && is.null(attributes(x$contract_version))
   if (!valid_top) {
     gx_fetch_orchestration_abort(
-      "M7l orchestration violates its exact top-level contract."
+      "M7m orchestration violates its exact top-level contract."
     )
   }
   gx_fetch_orchestration_input_plan_impl(x$request_plan)
@@ -1525,7 +1778,7 @@ gx_fetch_orchestration_validate_impl <- function(x) {
   )
   if (!identical(x$requests, planning$requests)) {
     gx_fetch_orchestration_abort(
-      "M7l candidate requests no longer rebind to the shared M7d plan."
+      "M7m candidate requests no longer rebind to the shared M7d plan."
     )
   }
   admitted <- gx_fetch_orchestration_admission_impl(
@@ -1545,13 +1798,13 @@ gx_fetch_orchestration_validate_impl <- function(x) {
     )
   )) {
     gx_fetch_orchestration_abort(
-      "M7l orchestration identity no longer binds its plan and policy."
+      "M7m orchestration identity no longer binds its plan and policy."
     )
   }
   if (!is.list(x$results) || !is.null(attributes(x$results)) ||
       length(x$results) > x$policy$max_executions) {
     gx_fetch_orchestration_abort(
-      "M7l compact results violate their list or cardinality budget."
+      "M7m compact results violate their list or cardinality budget."
     )
   }
   if (length(x$results)) {
@@ -1565,7 +1818,7 @@ gx_fetch_orchestration_validate_impl <- function(x) {
       )
       if (is.na(request_position)) {
         gx_fetch_orchestration_abort(
-          "A compact M7l result has no planned logical request."
+          "A compact M7m result has no planned logical request."
         )
       }
       expected_scope <- gx_fetch_orchestration_child_scope_impl(
@@ -1576,7 +1829,7 @@ gx_fetch_orchestration_validate_impl <- function(x) {
       )
       if (!identical(result$execution$execution_scope_id, expected_scope)) {
         gx_fetch_orchestration_abort(
-          "A compact M7l result has a foreign child execution scope."
+          "A compact M7m result has a foreign child execution scope."
         )
       }
     }
@@ -1590,7 +1843,7 @@ gx_fetch_orchestration_validate_impl <- function(x) {
     )
     if (anyDuplicated(execution_ids) || anyDuplicated(logical_ids)) {
       gx_fetch_orchestration_abort(
-        "M7l compact result identities must be unique."
+        "M7m compact result identities must be unique."
       )
     }
   }
@@ -1617,7 +1870,7 @@ gx_fetch_orchestration_validate_impl <- function(x) {
   if (!identical(orchestration, expected_orchestration) || !valid_metadata ||
       !identical(x$metadata, expected_metadata)) {
     gx_fetch_orchestration_abort(
-      "M7l orchestration metadata or completion facts are inconsistent."
+      "M7m orchestration metadata or completion facts are inconsistent."
     )
   }
   owned_text <- gx_fetch_plan_text_total(
@@ -1626,7 +1879,7 @@ gx_fetch_orchestration_validate_impl <- function(x) {
   if (!is.finite(owned_text) ||
       owned_text > .gx_fetch_orchestration_max_text_bytes) {
     gx_fetch_orchestration_abort(
-      "M7l owned text exceeds its aggregate byte budget.",
+      "M7m owned text exceeds its aggregate byte budget.",
       "gx_error_fetch_orchestration_budget"
     )
   }
@@ -1645,6 +1898,7 @@ print.gx_fetch_orchestration <- function(x, ...) {
     ),
     paste0(
       "* CSV: ", counts$csv_requests, "; EDR: ", counts$edr_requests,
+      "; USGS continuous: ", counts$usgs_continuous_requests,
       "; WQP: ", counts$wqp_requests,
       "; OGC Features: ",
       counts$oaf_requests, "; successful: ", counts$successful_requests
