@@ -196,6 +196,21 @@
   and revalidates it without a later optional-package dependency.
   Pagination, remaining handlers, registration, serialization/replay, a
   public result schema, and `gx_fetch()` remain gated.
+- Added the unexported M7l `gx_edr_request_plan` and `gx_edr_execution`
+  S3 contracts 0.1.0 and upgraded `gx_fetch_orchestration` to 0.3.0. One
+  selected EDR collection `position` URL now binds its held M7d
+  reservation, exact CRS84 WKT point, parameter, UTC interval,
+  CoverageJSON representation, shape limits, and one-attempt byte
+  ceiling. Invocation verifies `edr4r >= 0.1.1` plus `edr_position()`
+  and `covjson_to_tibble()` before provider work; geoconnexr owns the
+  DNS-pinned, cache/redirect/retry-free request and requires the offline
+  external normalizer to exactly match a strict bounded PointSeries
+  table. The shared scheduler now runs CSV, WQP, EDR, and OGC globally,
+  isolates EDR capability/transport/parse failures, and revalidates
+  compact successes without a later optional-package dependency. Other
+  EDR query types, USGS execution, pagination, registration,
+  serialization/replay, a public result schema, and `gx_fetch()` remain
+  gated.
 - Added the unexported M9b catalog-only snapshot writer. It revalidates
   a catalog, creates deterministic redacted UTF-8 CSV views in a sibling
   staging tree, writes a manifest-v1 document last, verifies the closed
