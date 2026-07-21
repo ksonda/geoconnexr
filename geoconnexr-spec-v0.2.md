@@ -32,7 +32,7 @@ makes these changes:
 The target remains an R-first package for discovery, identifier
 crosswalks, and watershed data snapshots across the Geoconnex ecosystem.
 
-### Implementation status (2026-07-20)
+### Implementation status (2026-07-21)
 
 | Module | Status |
 |----|----|
@@ -42,7 +42,7 @@ crosswalks, and watershed data snapshots across the Geoconnex ecosystem.
 | M4 | Partial experimental slices M4a/M4b/M4c: [`gx_gage_to_pid()`](https://ksonda.github.io/geoconnexr/reference/gx_gage_to_pid.md) is implemented, and the v3.2 COMID lookup now has an explicit verified install lifecycle plus internal offline forward and release-scoped inverse mappers; public COMID, HUC12, point, inverse, and currentness contracts remain gated under ADRs 0004, 0008, 0009, and 0015. |
 | M5 | Partial experimental M5a/M5b: an unexported one-logical-request SELECT/ASK substrate provides strict bounded SPARQL 1.1 Results JSON parsing and provenance, while the public local renderer now consumes an exact-byte-pinned render-only v2 template manifest with explicit disabled execution, chunking, and pagination; public graph APIs, endpoint support, and paging remain gated under ADRs 0004, 0012, and 0013. |
 | M6 | Partial M6a/M6b/M6c: [`gx_aoi()`](https://ksonda.github.io/geoconnexr/reference/gx_aoi.md) canonicalizes one custom polygonal `sf`/`sfc` geometry offline, internal bounded hydration reconstructs AOI-only recipes while independently rebinding canonical GeoJSON to their WKB digest, and an internal catalog value object validates typed sites, flattened datasets, problems, requests, and completeness. Public `gx_catalog()`, live discovery/merge, nonempty reference layers, full replay, and upstream-derived AOI modes remain gated under ADRs 0014, 0016, and 0018. |
-| M7 | Partial M7a–M7l: the internal chain selects catalog distributions, records direct-CSV intent, allocates one-attempt reservations, validates response envelopes, and parses bounded results. M7g executes direct CSV; M7h orchestrates CSV; M7i adds one reservation-bound, single-page OGC API Features request; M7j introduces shared global scheduling; M7k adds one WQP Result request with invocation-time [`dataRetrieval::importWQP()`](https://rdrr.io/pkg/dataRetrieval/man/importWQP.html) validation; and M7l adds one EDR position request with exact CRS84 point/parameter/time/CoverageJSON facts and invocation-time [`edr4r::covjson_to_tibble()`](https://rdrr.io/pkg/edr4r/man/covjson_to_tibble.html) agreement. The scheduler now runs CSV, WQP, EDR, and OGC globally with shared admission, isolated failures, compact evidence, and exact all-distribution status. The nested M7a request list remains empty; public fetch, pagination, remaining provider handlers, registration, serialization, and replay remain gated under ADRs 0020–0031. |
+| M7 | Partial M7a–M7m: the internal chain selects catalog distributions, records direct-CSV intent, allocates one-attempt reservations, validates response envelopes, and parses bounded results. M7g executes direct CSV; M7h orchestrates CSV; M7i adds one reservation-bound, single-page OGC API Features request; M7j introduces shared global scheduling; M7k adds one WQP Result request with invocation-time [`dataRetrieval::importWQP()`](https://rdrr.io/pkg/dataRetrieval/man/importWQP.html) validation; M7l adds one EDR position request with exact CRS84 point/parameter/time/CoverageJSON facts and invocation-time [`edr4r::covjson_to_tibble()`](https://rdrr.io/pkg/edr4r/man/covjson_to_tibble.html) agreement; and M7m adds one current USGS `continuous` items page with invocation-time [`dataRetrieval::read_waterdata_continuous()`](https://rdrr.io/pkg/dataRetrieval/man/read_waterdata_continuous.html) capability validation, package-owned transport, fixed GeoJSON normalization, string-preserved measurements, and explicit no-follow truncation. The scheduler now runs CSV, WQP, EDR, USGS continuous, and OGC globally with shared admission, isolated failures, compact evidence, and exact all-distribution status. The nested M7a request list remains empty; public fetch, pagination, current daily/legacy USGS handlers, registration, serialization, and replay remain gated under ADRs 0020–0032. |
 | M8 | Planned. |
 | M9 | Partial M9a/M9b: an unexported offline verifier validates the bounded manifest and embedded request-ledger shape, rebinds AOI identity through M6b, inventories a closed portable resource tree, and verifies exact local bytes; an unexported creation-only writer stages, verifies, and publishes deterministic redacted catalog CSV resources plus manifest-v1. Public packaging/snapshot APIs, overwrite, loading, Frictionless acceptance, authenticity, and replay remain gated under ADRs 0017 and 0019. |
 | M10 | Planned. |
@@ -1013,6 +1013,41 @@ rebuilds the EDR plan and strict result without loading the optional
 package. M7l remains internal, position-only, single-response,
 non-replayable, and not generally execution-ready under ADR 0031.
 
+M7m adds the unexported `gx_usgs_continuous_request_plan` and
+`gx_usgs_continuous_execution` S3 contracts, both version 0.1.0, and
+upgrades `gx_fetch_orchestration` to contract 0.4.0. Planning accepts
+only the official HTTPS `/ogcapi/{version}/collections/continuous/items`
+endpoint with one exact `USGS-{alphanumeric}` monitoring location, one
+five-digit parameter code, and the exact M7d UTC interval. It fixes ten
+requested properties, `skipGeometry=true`, `f=json`, `lang=en-US`, and a
+single-page limit bounded by 50,000 plus the planned row/field ceilings.
+Foreign hosts/paths, fragments, duplicates, extra filters, ambiguous
+values, latest/daily collections, and conflicting inherited options fail
+before host work.
+
+Execution resolves `dataRetrieval >= 2.7.22`, exported
+`read_waterdata_continuous()`, and its reviewed formals immediately
+before provider work. geoconnexr owns one DNS-pinned, identity-encoded,
+cache/redirect/retry-free GET so the exact M7d attempt and byte ledger
+remains authoritative; the optional function is capability-checked but
+does not own transport. The strict parser accepts one bounded GeoJSON
+FeatureCollection with null geometry and the exact requested properties.
+Site, parameter, RFC 3339 times, returned/matched counts, JSON
+structure, and shape limits are checked. Measurement values remain
+character data; only observation and modification times become UTC
+`POSIXct` values. A next link, larger known match count, or full page
+records exact truncation and never causes a second request.
+
+The 0.4.0 scheduler derives USGS continuous at its original fetch order
+and shares one admission pass with CSV, WQP, EDR, and OGC. Missing
+capability charges no attempt; transport and parse failures keep bounded
+redacted evidence and do not stop a later candidate. Compact successes
+retain exact GeoJSON, fixed data/schema, parse/truncation facts,
+implementation, execution, and one attempt. Whole-object validation
+rebuilds the plan and strict result without loading dataRetrieval. M7m
+remains internal, continuous-only, single-page, non-replayable, and not
+generally execution-ready under ADR 0032.
+
 Every handler implements `probe → plan → fetch → normalize`:
 
 - **probe:** determine whether the distribution is compatible;
@@ -1250,13 +1285,33 @@ globally under one count/byte admission pass; forged plan/result/
 ledger/status/metadata facts fail closed; and M7l plus public
 `gx_fetch()` remain unexported.
 
+**M7m acceptance:** one current USGS continuous fixture rebinds to its
+exact M7d held reservation and deterministic
+host/version/collection/site/parameter/time/
+property/representation/limit request snapshot without host work;
+foreign or latest/daily paths, fragments, duplicate or extra query
+fields, ambiguous site or parameter values, and conflicting inherited
+options fail closed; invocation verifies `dataRetrieval >= 2.7.22` and
+exported `read_waterdata_continuous()` capability before DNS and then
+performs exactly one bounded request with no retry, redirect, cache, or
+page follow; the strict fixed GeoJSON table preserves measurement
+strings and binds site, parameter, RFC 3339 times, counts, and
+truncation; missing capability charges no attempt or bytes, while
+transport and parse failures produce one typed redacted terminal row and
+do not prevent later OGC work; compact retained bytes, schema, table,
+parse, scope, execution, and attempt identities fully revalidate without
+the optional package; shared dry-run and live scheduling now orders CSV,
+WQP, EDR, USGS continuous, and OGC candidates globally under one
+count/byte admission pass; forged plan/result/ledger/status/metadata
+facts fail closed; and M7m plus public `gx_fetch()` remain unexported.
+
 **Remaining M7 acceptance:** provider-specific request-plan snapshots
-and fixture tests for current/legacy USGS and other remaining non-CSV
-handlers; optional-package symbol rechecks coupled to invocation;
-multi-provider and paginated execution ledgers; missing-package
-fixtures; handler-specific aggregate page budgets; reviewed registration
-and serialization/replay contracts; and one public fetched-result
-schema.
+and fixture tests for current daily/legacy USGS and other remaining
+non-CSV handlers; optional-package symbol rechecks coupled to
+invocation; multi-provider and paginated execution ledgers;
+missing-package fixtures; handler-specific aggregate page budgets;
+reviewed registration and serialization/replay contracts; and one public
+fetched-result schema.
 
 ### M8 — Harmonization
 
@@ -1485,12 +1540,15 @@ agreement with strict CSV, compact retained evidence, and CSV/WQP/OGC
 status reconciliation. M7l adds one exact EDR position request,
 package-owned transport, strict CoverageJSON PointSeries normalization,
 invocation-time `edr4r` agreement, and CSV/WQP/EDR/OGC reconciliation.
-Later contracts add remaining provider request/query semantics,
-optional-package symbol checks, multi-provider pagination, registration,
-serialization/replay, and a public fetched-result schema. The eventual
-public fetch status may add user-facing elapsed/message fields and
-fetched times without weakening M7h’s identity, attempt, byte, and
-one-to-one reconciliation rules.
+M7m adds one current USGS continuous page, invocation-time dataRetrieval
+capability validation, package-owned transport, strict string-preserving
+GeoJSON normalization, no-follow truncation, and CSV/WQP/EDR/USGS/OGC
+reconciliation. Later contracts add remaining provider request/query
+semantics, optional-package symbol checks, multi-provider pagination,
+registration, serialization/replay, and a public fetched-result schema.
+The eventual public fetch status may add user-facing elapsed/message
+fields and fetched times without weakening M7h’s identity, attempt,
+byte, and one-to-one reconciliation rules.
 
 ### 6.5 Observations
 
