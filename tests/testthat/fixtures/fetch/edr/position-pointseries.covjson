@@ -1,0 +1,37 @@
+{
+  "type": "Coverage",
+  "id": "fixture-point-series",
+  "domain": {
+    "type": "Domain",
+    "domainType": "PointSeries",
+    "axes": {
+      "x": {"values": [-77.5]},
+      "y": {"values": [38.9]},
+      "t": {
+        "values": [
+          "2025-06-01T00:00:00Z",
+          "2025-06-01T01:00:00Z"
+        ]
+      }
+    }
+  },
+  "parameters": {
+    "discharge": {
+      "type": "Parameter",
+      "observedProperty": {
+        "id": "https://example.org/parameter/discharge",
+        "label": {"en": "Discharge"}
+      },
+      "unit": {"symbol": "m3/s"}
+    }
+  },
+  "ranges": {
+    "discharge": {
+      "type": "NdArray",
+      "dataType": "float",
+      "axisNames": ["t"],
+      "shape": [2],
+      "values": [1.25, null]
+    }
+  }
+}
