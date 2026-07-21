@@ -1,4 +1,4 @@
-test_that("M7j dry run plans CSV and OGC globally without host activity", {
+test_that("M7l dry run plans CSV and OGC globally without host activity", {
   touched <- new.env(parent = emptyenv())
   touched$count <- 0L
   forbidden <- function(...) {
@@ -24,8 +24,8 @@ test_that("M7j dry run plans CSV and OGC globally without host activity", {
   expect_identical(touched$count, 0L)
   expect_identical(first, second)
   expect_identical(class(first), "gx_fetch_orchestration")
-  expect_identical(first$contract_version, "0.2.0")
-  expect_identical(first$policy$slice_id, "cross_handler_orchestration_v2")
+  expect_identical(first$contract_version, "0.3.0")
+  expect_identical(first$policy$slice_id, "cross_handler_orchestration_v3")
   expect_identical(names(first), c(
     "contract_version", "request_plan", "policy", "requests",
     "orchestration", "results", "status", "metadata"
@@ -49,7 +49,7 @@ test_that("M7j dry run plans CSV and OGC globally without host activity", {
   )
 })
 
-test_that("M7j executes mixed handlers once in deterministic global order", {
+test_that("M7l executes mixed handlers once in deterministic global order", {
   calls <- new.env(parent = emptyenv())
   calls$handlers <- character()
   calls$requests <- list()
@@ -99,7 +99,175 @@ test_that("M7j executes mixed handlers once in deterministic global order", {
   )
 })
 
-test_that("M7j isolates a CSV failure and still executes OGC", {
+test_that("M7l schedules EDR with CSV, WQP, and OGC in global order", {
+  plan <- fetch_orchestration_test_edr_plan()
+  dry <- fetch_orchestration_test_build(
+    plan = plan,
+    dry_run = TRUE,
+    max_executions = 6L,
+    max_total_bytes = 120000,
+    scope = fetch_orchestration_test_scope("edr-dry-run")
+  )
+  expect_identical(dry$requests$handler_id, c(
+    "csv", "csv", "csv", "wqp", "edr", "ogc_api_features"
+  ))
+  expect_identical(dry$requests$fetch_order, 1:6)
+  expect_identical(dry$metadata$counts$edr_requests, 1L)
+  expect_false(dry$metadata$edr_semantics_validated)
+
+  calls <- new.env(parent = emptyenv())
+  calls$handlers <- character()
+  calls$requests <- list()
+  live <- fetch_orchestration_test_build(
+    plan = plan,
+    performer = fetch_orchestration_test_performer(calls = calls),
+    max_executions = 6L,
+    max_total_bytes = 120000,
+    scope = fetch_orchestration_test_scope("edr-live")
+  )
+  expect_identical(calls$handlers, c(
+    "csv", "csv", "csv", "wqp", "edr", "ogc_api_features"
+  ))
+  expect_identical(vapply(
+    live$results, class, character(1), USE.NAMES = FALSE
+  ), c(
+    rep("gx_csv_orchestration_result", 3L),
+    "gx_wqp_orchestration_result", "gx_edr_orchestration_result",
+    "gx_oaf_orchestration_result"
+  ))
+  edr <- live$results[[5L]]
+  expect_false("request_plan" %in% names(edr))
+  expect_identical(edr$parse$domain_type, "PointSeries")
+  expect_identical(edr$parse$parameter_name, "discharge")
+  expect_identical(live$metadata$counts$edr_results, 1L)
+  expect_true(live$metadata$edr_semantics_validated)
+  expect_identical(
+    gx_fetch_orchestration_validate_impl(live), invisible(live)
+  )
+})
+
+test_that("M7l isolates EDR capability and parse failures from later OGC", {
+  plan <- fetch_orchestration_test_edr_plan()
+  capability_calls <- new.env(parent = emptyenv())
+  capability_calls$handlers <- character()
+  capability_calls$requests <- list()
+  capability <- fetch_orchestration_test_build(
+    plan = plan,
+    performer = fetch_orchestration_test_performer(calls = capability_calls),
+    max_executions = 6L,
+    max_total_bytes = 120000,
+    edr_symbol_resolver = edr_test_resolver(available = FALSE),
+    scope = fetch_orchestration_test_scope("missing-edr-capability")
+  )
+  expect_identical(capability_calls$handlers, c(
+    "csv", "csv", "csv", "wqp", "ogc_api_features"
+  ))
+  edr_row <- which(capability$status$handler_id == "edr")
+  oaf_row <- which(capability$status$handler_id == "ogc_api_features")
+  expect_identical(
+    capability$status$orchestration_status[[edr_row]], "capability_failed"
+  )
+  expect_identical(
+    capability$status$error_code[[edr_row]], "edr_capability_failed"
+  )
+  expect_identical(capability$status$physical_attempts[[edr_row]], 0L)
+  expect_true(capability$status$succeeded[[oaf_row]])
+
+  parse_calls <- new.env(parent = emptyenv())
+  parse_calls$handlers <- character()
+  parse_calls$requests <- list()
+  parsed <- fetch_orchestration_test_build(
+    plan = plan,
+    performer = fetch_orchestration_test_performer(calls = parse_calls),
+    max_executions = 6L,
+    max_total_bytes = 120000,
+    edr_symbol_resolver = edr_test_resolver(mismatch = TRUE),
+    scope = fetch_orchestration_test_scope("edr-parse-failure")
+  )
+  expect_identical(parse_calls$handlers, c(
+    "csv", "csv", "csv", "wqp", "edr", "ogc_api_features"
+  ))
+  edr_row <- which(parsed$status$handler_id == "edr")
+  oaf_row <- which(parsed$status$handler_id == "ogc_api_features")
+  expect_identical(
+    parsed$status$orchestration_status[[edr_row]], "parse_failed"
+  )
+  expect_identical(parsed$status$error_code[[edr_row]], "edr_parse_failed")
+  expect_identical(parsed$status$physical_attempts[[edr_row]], 1L)
+  expect_true(parsed$status$succeeded[[oaf_row]])
+
+  transport_calls <- new.env(parent = emptyenv())
+  transport_calls$handlers <- character()
+  transport_calls$requests <- list()
+  transported <- fetch_orchestration_test_build(
+    plan = plan,
+    performer = fetch_orchestration_test_performer(
+      fail_edr = TRUE, calls = transport_calls
+    ),
+    max_executions = 6L,
+    max_total_bytes = 120000,
+    scope = fetch_orchestration_test_scope("edr-transport-failure")
+  )
+  edr_row <- which(transported$status$handler_id == "edr")
+  oaf_row <- which(transported$status$handler_id == "ogc_api_features")
+  expect_identical(
+    transported$status$orchestration_status[[edr_row]], "transport_failed"
+  )
+  expect_identical(
+    transported$status$error_code[[edr_row]], "edr_transport_failed"
+  )
+  expect_identical(transported$status$physical_attempts[[edr_row]], 1L)
+  expect_true(transported$status$succeeded[[oaf_row]])
+  expect_false(any(grepl(
+    "sensitive EDR transport detail",
+    unlist(transported, recursive = TRUE, use.names = FALSE),
+    fixed = TRUE
+  )))
+})
+
+test_that("M7l compact EDR evidence fails closed on forgery", {
+  result <- fetch_orchestration_test_build(
+    plan = fetch_orchestration_test_edr_plan(),
+    max_executions = 6L,
+    max_total_bytes = 120000,
+    scope = fetch_orchestration_test_scope("edr-compact-forgery")
+  )
+  edr_index <- which(vapply(
+    result$results, inherits, logical(1), what = "gx_edr_orchestration_result"
+  ))
+  mutations <- list(
+    body = function(x) {
+      x$results[[edr_index]]$response_body[[1L]] <- as.raw(bitwXor(
+        as.integer(x$results[[edr_index]]$response_body[[1L]]), 1L
+      ))
+      x
+    },
+    data = function(x) {
+      x$results[[edr_index]]$data$value[[1L]] <- 999
+      x
+    },
+    attempt = function(x) {
+      x$results[[edr_index]]$attempt$encoded_bytes[[1L]] <-
+        x$results[[edr_index]]$attempt$encoded_bytes[[1L]] + 1
+      x
+    },
+    status = function(x) {
+      row <- which(x$status$handler_id == "edr")
+      x$status$encoded_bytes[[row]] <- x$status$encoded_bytes[[row]] + 1
+      x
+    }
+  )
+  for (name in names(mutations)) {
+    forged <- mutations[[name]](fetch_orchestration_test_clone(result))
+    expect_error(
+      gx_fetch_orchestration_validate_impl(forged),
+      class = "gx_error_fetch_orchestration",
+      info = name
+    )
+  }
+})
+
+test_that("M7l isolates a CSV failure and still executes OGC", {
   calls <- new.env(parent = emptyenv())
   calls$handlers <- character()
   calls$requests <- list()
@@ -134,7 +302,7 @@ test_that("M7j isolates a CSV failure and still executes OGC", {
   )
 })
 
-test_that("M7k isolates WQP capability and parse failures from OGC", {
+test_that("M7l isolates WQP capability and parse failures from OGC", {
   capability_calls <- new.env(parent = emptyenv())
   capability_calls$handlers <- character()
   capability_calls$requests <- list()
@@ -176,7 +344,7 @@ test_that("M7k isolates WQP capability and parse failures from OGC", {
   expect_identical(parsed$metadata$counts$physical_attempts, 5L)
 })
 
-test_that("M7j records OGC capability failure without charging transport", {
+test_that("M7l records OGC capability failure without charging transport", {
   calls <- new.env(parent = emptyenv())
   calls$handlers <- character()
   calls$requests <- list()
@@ -203,7 +371,7 @@ test_that("M7j records OGC capability failure without charging transport", {
   )
 })
 
-test_that("M7j records an OGC parse failure as one charged attempt", {
+test_that("M7l records an OGC parse failure as one charged attempt", {
   calls <- new.env(parent = emptyenv())
   calls$handlers <- character()
   calls$requests <- list()
@@ -223,7 +391,7 @@ test_that("M7j records an OGC parse failure as one charged attempt", {
   expect_length(result$results, 4L)
 })
 
-test_that("M7j admission shares count and byte limits across handlers", {
+test_that("M7l admission shares count and byte limits across handlers", {
   plan <- oaf_test_m7d_plan(max_response_bytes = 100L)
   count_limited <- fetch_orchestration_test_build(
     plan = plan, dry_run = TRUE, max_executions = 4L,
@@ -247,7 +415,7 @@ test_that("M7j admission shares count and byte limits across handlers", {
   )
 })
 
-test_that("M7j makes an incompatible OGC URL an explicit terminal row", {
+test_that("M7l makes an incompatible OGC URL an explicit terminal row", {
   plan <- csv_execution_test_plan(max_response_bytes = 100L)
   result <- fetch_orchestration_test_build(
     plan = plan, dry_run = TRUE, max_executions = 4L,
@@ -266,7 +434,7 @@ test_that("M7j makes an incompatible OGC URL an explicit terminal row", {
   )
 })
 
-test_that("M7j accepts an empty plan without touching host state", {
+test_that("M7l accepts an empty plan without touching host state", {
   plan <- csv_request_plan_test_build(
     intent_set = csv_request_plan_test_empty_intent_set(),
     max_response_bytes = 100L,
@@ -289,7 +457,7 @@ test_that("M7j accepts an empty plan without touching host state", {
   expect_identical(result$metadata$counts$distributions, 0L)
 })
 
-test_that("M7j rejects invalid policy before transport", {
+test_that("M7l rejects invalid policy before transport", {
   plan <- oaf_test_m7d_plan()
   touched <- 0L
   performer <- function(request) {
@@ -318,7 +486,7 @@ test_that("M7j rejects invalid policy before transport", {
   expect_identical(touched, 0L)
 })
 
-test_that("M7j whole-object validation fails closed on forged facts", {
+test_that("M7l whole-object validation fails closed on forged facts", {
   result <- fetch_orchestration_test_build(
     scope = fetch_orchestration_test_scope("forgery")
   )
@@ -369,7 +537,7 @@ test_that("M7j whole-object validation fails closed on forged facts", {
   }
 })
 
-test_that("the M7j cross-handler contract remains internal", {
+test_that("the M7l cross-handler contract remains internal", {
   exports <- getNamespaceExports("geoconnexr")
   expect_false(any(c(
     "gx_fetch_orchestration_impl", "gx_fetch_orchestration_validate_impl"

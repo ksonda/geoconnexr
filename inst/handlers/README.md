@@ -123,7 +123,21 @@ bounded response bytes so compact results can be revalidated without loading
 the optional package later. The registry remains portable and planned; this
 internal execution proof does not register or export a public WQP handler.
 
+ADR 0031 adds the internal M7l EDR position slice and upgrades the scheduler to
+contract 0.3.0. Planning admits exactly one safe collection `position` endpoint,
+one two-dimensional WKT `POINT`, one parameter, the exact M7d UTC interval,
+CRS84, and CoverageJSON. At invocation, geoconnexr requires `edr4r >= 0.1.1`
+and resolves both `edr_position` and `covjson_to_tibble` before provider work.
+The package owns one DNS-pinned, byte-capped request with no cache, redirect, or
+retry, then requires the offline external normalizer to exactly match its strict
+bounded CoverageJSON PointSeries table. Capability failure charges no attempt;
+transport or parse failure is isolated from later handlers. Compact results can
+be fully revalidated without loading `edr4r` again. The registry remains
+portable and planned, and no public EDR or fetch API is registered.
+
 Current USGS Water Data API distributions are tested before the generic OGC API
 Features classifier. Legacy NWIS IV/DV URLs are compatibility-only and produce a
-deprecation warning. EDR plans must record the base URL, collection, query verb,
-geometry/location, parameter, datetime, and response format before fetching.
+deprecation warning. The M7l EDR subset records the base URL, collection,
+position query, point, parameter, datetime, CRS, and response format before
+fetching. Other EDR query types and current/legacy USGS execution remain
+planned.
