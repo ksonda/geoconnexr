@@ -187,6 +187,22 @@
   without a later optional-package dependency. Other EDR query types, USGS
   execution, pagination, registration, serialization/replay, a public result
   schema, and `gx_fetch()` remain gated.
+- Added the unexported M7m `gx_usgs_continuous_request_plan` and
+  `gx_usgs_continuous_execution` S3 contracts 0.1.0 and upgraded
+  `gx_fetch_orchestration` to 0.4.0. One current USGS Water Data API
+  `continuous` items URL now binds its held M7d reservation, exact site,
+  five-digit parameter, UTC interval, fixed property set, single-page limit,
+  and one-attempt byte ceiling. Invocation verifies
+  `dataRetrieval >= 2.7.22` and exported
+  `read_waterdata_continuous()` capability before provider work; geoconnexr
+  owns the DNS-pinned, identity-encoded, cache/redirect/retry-free request and
+  strict GeoJSON parser. Measurement values remain strings and an advertised
+  next page becomes explicit truncation without another request. The scheduler
+  now runs CSV, WQP, EDR, USGS continuous, and OGC globally, isolates USGS
+  capability/transport/parse failures, and revalidates compact successes
+  without loading dataRetrieval later. Current daily and legacy USGS execution,
+  pagination, registration, serialization/replay, a public result schema, and
+  `gx_fetch()` remain gated.
 - Added the unexported M9b catalog-only snapshot writer. It revalidates a
   catalog, creates deterministic redacted UTF-8 CSV views in a sibling staging
   tree, writes a manifest-v1 document last, verifies the closed tree through

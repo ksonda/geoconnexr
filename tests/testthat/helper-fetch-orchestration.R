@@ -13,8 +13,10 @@ fetch_orchestration_test_scope <- function(label = "batch") {
 fetch_orchestration_test_performer <- function(
     fail_csv_on = integer(),
     fail_edr = FALSE,
+    fail_usgs_continuous = FALSE,
     fail_wqp = FALSE,
     edr_body = edr_test_body(),
+    usgs_continuous_body = usgs_continuous_test_body(),
     wqp_body = wqp_test_body(),
     oaf_body = oaf_test_body(),
     calls = NULL,
@@ -22,12 +24,18 @@ fetch_orchestration_test_performer <- function(
   csv_position <- 0L
   force(fail_csv_on)
   force(fail_edr)
+  force(fail_usgs_continuous)
   force(fail_wqp)
   force(edr_body)
+  force(usgs_continuous_body)
   force(wqp_body)
   force(oaf_body)
   function(request) {
-    handler <- if (grepl("edr.example.org", request$url, fixed = TRUE)) {
+    handler <- if (grepl(
+      "api.waterdata.usgs.gov", request$url, fixed = TRUE
+    )) {
+      "usgs_waterdata_continuous"
+    } else if (grepl("edr.example.org", request$url, fixed = TRUE)) {
       "edr"
     } else if (grepl("waterqualitydata.us", request$url, fixed = TRUE)) {
       "wqp"
@@ -52,6 +60,20 @@ fetch_orchestration_test_performer <- function(
           `Content-Length` = as.character(length(edr_body))
         ),
         body = edr_body,
+        url = request$url
+      ))
+    }
+    if (handler == "usgs_waterdata_continuous") {
+      if (fail_usgs_continuous) {
+        stop("sensitive USGS continuous transport detail", call. = FALSE)
+      }
+      return(list(
+        status = 200L,
+        headers = list(
+          `Content-Type` = "application/geo+json",
+          `Content-Length` = as.character(length(usgs_continuous_body))
+        ),
+        body = usgs_continuous_body,
         url = request$url
       ))
     }
@@ -139,6 +161,60 @@ fetch_orchestration_test_edr_plan <- function(max_response_bytes = 20000) {
   )
 }
 
+fetch_orchestration_test_usgs_continuous_plan <- function(
+    max_response_bytes = 20000) {
+  catalog <- csv_intents_test_fixture_catalog()
+  oaf_position <- which(catalog$datasets$handler_id == "ogc_api_features")
+  continuous_position <- which(grepl(
+    "/restricted/not-fetchable.csv",
+    catalog$datasets$distribution_url,
+    fixed = TRUE
+  ))
+  deferred_position <- which(grepl(
+    "/overflow/skipped.csv", catalog$datasets$distribution_url, fixed = TRUE
+  ))
+  catalog$datasets$distribution_url[[oaf_position]] <- edr_test_url()
+  catalog$datasets$media_type[[oaf_position]] <-
+    "application/prs.coverage+json"
+  catalog$datasets$handler_id[[oaf_position]] <- "edr"
+  catalog$datasets$conforms_to[[oaf_position]] <-
+    "http://www.opengis.net/spec/ogcapi-edr-1/1.1/conf/core"
+  catalog$datasets$distribution_url[[continuous_position]] <-
+    usgs_continuous_test_url()
+  catalog$datasets$media_type[[continuous_position]] <- "application/geo+json"
+  catalog$datasets$handler_id[[continuous_position]] <-
+    "usgs_waterdata_continuous"
+  catalog$datasets$fetchable[[continuous_position]] <- TRUE
+  catalog$datasets$conforms_to[[continuous_position]] <-
+    "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core"
+  catalog$datasets$distribution_url[[deferred_position]] <-
+    "https://features.example.org/collections/gages/items"
+  catalog$datasets$media_type[[deferred_position]] <- "application/geo+json"
+  catalog$datasets$handler_id[[deferred_position]] <- "ogc_api_features"
+  catalog$datasets$conforms_to[[deferred_position]] <-
+    "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core"
+  catalog <- gx_catalog_new_impl(
+    aoi = catalog$aoi,
+    sites = catalog$sites,
+    datasets = catalog$datasets,
+    reference = catalog$reference,
+    problems = catalog$problems,
+    requests = catalog$requests,
+    metadata = fetch_plan_test_metadata(catalog$sites, catalog$datasets)
+  )
+  intent_set <- csv_request_plan_test_intent_set(
+    catalog = catalog,
+    max_datasets = 7L,
+    max_requests = 7L,
+    max_encoded_bytes = as.double(max_response_bytes) * 7,
+    max_decoded_bytes = as.double(max_response_bytes) * 7
+  )
+  csv_request_plan_test_build(
+    intent_set = intent_set,
+    max_response_bytes = max_response_bytes
+  )
+}
+
 fetch_orchestration_test_build <- function(
     plan = oaf_test_m7d_plan(),
     dry_run = FALSE,
@@ -152,7 +228,8 @@ fetch_orchestration_test_build <- function(
     scope = fetch_orchestration_test_scope(),
     oaf_symbol_resolver = oaf_test_resolver(),
     wqp_symbol_resolver = wqp_test_resolver(),
-    edr_symbol_resolver = edr_test_resolver()) {
+    edr_symbol_resolver = edr_test_resolver(),
+    usgs_continuous_symbol_resolver = usgs_continuous_test_resolver()) {
   if (!dry_run) oaf_test_options(performer)
   gx_fetch_orchestration_impl(
     request_plan = plan,
@@ -166,6 +243,7 @@ fetch_orchestration_test_build <- function(
     orchestration_scope_id = scope,
     oaf_symbol_resolver = oaf_symbol_resolver,
     wqp_symbol_resolver = wqp_symbol_resolver,
-    edr_symbol_resolver = edr_symbol_resolver
+    edr_symbol_resolver = edr_symbol_resolver,
+    usgs_continuous_symbol_resolver = usgs_continuous_symbol_resolver
   )
 }

@@ -139,5 +139,17 @@ Current USGS Water Data API distributions are tested before the generic OGC API
 Features classifier. Legacy NWIS IV/DV URLs are compatibility-only and produce a
 deprecation warning. The M7l EDR subset records the base URL, collection,
 position query, point, parameter, datetime, CRS, and response format before
-fetching. Other EDR query types and current/legacy USGS execution remain
-planned.
+fetching.
+
+ADR 0032 adds the internal M7m current USGS continuous slice and upgrades the
+scheduler to contract 0.4.0. It accepts only the official HTTPS
+`/ogcapi/{version}/collections/continuous/items` endpoint with one exact USGS
+site, one five-digit parameter code, and the M7d UTC interval. Planning fixes
+the property list, GeoJSON representation, omitted geometry, language, and a
+bounded single-page limit. Invocation checks `dataRetrieval >= 2.7.22` and the
+exported `read_waterdata_continuous()` function before provider work, but
+geoconnexr owns the one DNS-pinned, identity-encoded, no-cache/no-redirect/
+no-retry request and strict parser so the M7d ledger remains authoritative.
+Measurement values stay strings, next-page presence is explicit truncation,
+and no next link is followed. The current daily, latest, and legacy USGS paths,
+other EDR queries, registration, replay, and a public fetch API remain planned.

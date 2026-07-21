@@ -318,10 +318,10 @@ test_that("shared requirements probe once and unique packages use byte order", {
   expect_true(all(
     shared$handlers$selected_distributions[positions] == 1L
   ))
-  expect_true(all(
-    shared$handlers$package_status[positions] ==
-      "present_requirement_unpinned"
-  ))
+  expect_identical(
+    shared$handlers$package_status[positions],
+    c("version_satisfied", rep("present_requirement_unpinned", 4L))
+  )
   expect_true(all(
     shared$handlers$preflight_status[positions] ==
       "blocked_implementation_planned"

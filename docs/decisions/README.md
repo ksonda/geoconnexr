@@ -37,6 +37,7 @@ and link both records rather than rewriting history.
 | [0029](0029-cross-handler-orchestration.md) | Accepted internal substrate | Orchestrate CSV and OGC handlers under one bounded status contract |
 | [0030](0030-single-response-wqp-handler.md) | Accepted internal substrate | Execute one WQP Result response under the held M7d reservation |
 | [0031](0031-single-response-edr-position-handler.md) | Accepted internal substrate | Execute one EDR position CoverageJSON response under the held M7d reservation |
+| [0032](0032-single-page-usgs-continuous-handler.md) | Accepted internal substrate | Execute one current USGS continuous-data page under the held M7d reservation |
 
 Each ADR states its context, decision, consequences, and status. Proposed ADRs
 may change; accepted ADRs govern implementation until superseded.

@@ -82,18 +82,22 @@ attr(location, "diagnostics")
 
 ### Fetch roadmap progress
 
-The internal M7l checkpoint now schedules direct CSV, WQP Result, EDR position,
-and OGC API Features in one deterministic global order. They share explicit
-request-count and byte admission limits, continue after typed handler failures,
+The internal M7m checkpoint now schedules direct CSV, WQP Result, EDR position,
+current USGS continuous data, and OGC API Features in one deterministic global
+order. They share explicit request-count and byte admission limits, continue
+after typed handler failures,
 and reconcile one exact terminal status per distribution. Dry run performs the
 same planning without host or provider work. OGC next-page links remain
 reported as truncation and are not followed. WQP performs one bounded request
 and requires `dataRetrieval::importWQP()` to match the strict package parser.
 EDR performs one bounded collection `position` request for an exact CRS84 point,
 parameter, and UTC interval, then requires `edr4r::covjson_to_tibble()` to match
-the package's strict CoverageJSON PointSeries result. This remains tested
-infrastructure for the future `gx_fetch()` workflow, not a newly exported fetch
-API. See
+the package's strict CoverageJSON PointSeries result. USGS continuous checks
+the current `dataRetrieval` capability before one package-owned request for an
+exact site, parameter, and UTC interval. It preserves measurement strings in a
+strict fixed GeoJSON table and reports, but never follows, a next page. This
+remains tested infrastructure for the future `gx_fetch()` workflow, not a newly
+exported fetch API. See
 [ADR 0027](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0027-bounded-direct-csv-orchestration.md)
 and
 [ADR 0028](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0028-single-page-oaf-handler.md),
@@ -103,6 +107,8 @@ The WQP boundary is specified in
 [ADR 0030](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0030-single-response-wqp-handler.md).
 The EDR boundary is specified in
 [ADR 0031](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0031-single-response-edr-position-handler.md).
+The current USGS continuous boundary is specified in
+[ADR 0032](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0032-single-page-usgs-continuous-handler.md).
 
 <div class="gx-status">
   <strong>Experimental status.</strong> The intended end-to-end catalog, fetch,

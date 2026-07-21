@@ -24,8 +24,8 @@ test_that("M7l dry run plans CSV and OGC globally without host activity", {
   expect_identical(touched$count, 0L)
   expect_identical(first, second)
   expect_identical(class(first), "gx_fetch_orchestration")
-  expect_identical(first$contract_version, "0.3.0")
-  expect_identical(first$policy$slice_id, "cross_handler_orchestration_v3")
+  expect_identical(first$contract_version, "0.4.0")
+  expect_identical(first$policy$slice_id, "cross_handler_orchestration_v4")
   expect_identical(names(first), c(
     "contract_version", "request_plan", "policy", "requests",
     "orchestration", "results", "status", "metadata"
