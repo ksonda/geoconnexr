@@ -106,6 +106,23 @@ M7i remains internal; provider filters, queryables, pagination, cross-handler
 orchestration, registration, serialization/replay, and public fetch remain
 planned.
 
+ADR 0029 joins direct CSV and OGC API Features in the internal M7j global
+scheduler with shared count/byte admission, continue-on-error execution,
+handler-specific compact evidence, and one exact status per distribution.
+
+ADR 0030 adds the internal M7k WQP Result slice and upgrades that scheduler to
+contract 0.2.0. WQP planning admits only one exact `siteid`, optional
+`characteristicName`, and `mimeType=csv`, then records the selected Result/
+`narrowResult` service profile and the exact M7d UTC interval. geoconnexr owns
+one DNS-pinned request with no cache, redirect, or retry. At invocation it
+resolves the exported optional `dataRetrieval::importWQP` parser and applies it
+offline with type conversion disabled; its normalized character table must
+equal the package's strict bounded CSV result. Missing capability occurs before
+transport, while charged transport/parse failures remain isolated. M7k retains
+bounded response bytes so compact results can be revalidated without loading
+the optional package later. The registry remains portable and planned; this
+internal execution proof does not register or export a public WQP handler.
+
 Current USGS Water Data API distributions are tested before the generic OGC API
 Features classifier. Legacy NWIS IV/DV URLs are compatibility-only and produce a
 deprecation warning. EDR plans must record the base URL, collection, query verb,

@@ -71,9 +71,13 @@ Successful results retain compact execution and character-table evidence
 without raw bodies or repeated plan chains. M7i adds the first non-CSV handler
 slice: one held-reservation OGC API Features request, an invocation-time native
 symbol check, strict single-page GeoJSON-to-`sf` normalization, and one exact
-charged attempt. M7j schedules both implemented handlers in one global order,
-applies shared count and byte admission limits, isolates handler failures, and
-reconciles one exact terminal status for every distribution.
+charged attempt. M7j introduced shared global scheduling. M7k now schedules
+all three implemented paths in one global order, applies shared count and byte
+admission limits, isolates handler failures, and reconciles one exact terminal
+status for every distribution. The WQP slice records Result/`narrowResult`,
+site, optional characteristic, and UTC time facts; performs one package-owned
+bounded request; and requires invocation-time `dataRetrieval::importWQP()`
+output to match the strict internal CSV parser.
 
 These are internal substrates, not exported discovery, fetch, package,
 snapshot, loading, or replay APIs. Public graph
@@ -327,21 +331,25 @@ join OGC results to M7h, map provider filters, paginate, register plugins,
 serialize/replay, or expose `gx_fetch()`. See
 [ADR 0028](docs/decisions/0028-single-page-oaf-handler.md).
 
-The internal M7j `gx_fetch_orchestration` S3 object implements contract 0.1.0.
-It derives direct-CSV and compatible OGC API Features candidates from one M7d
-plan, keeps their original global fetch order, and admits both handlers under
-one explicit request-count and aggregate reserved-response budget. Live work is
-sequential and continues after typed CSV or OGC failures; every M7d coverage
-row receives one exact terminal status. A missing OGC symbol charges no
-physical attempt, while transport and parse failures retain only bounded
-redacted evidence. Dry run performs the same planning and status projection
-without DNS, transport, clocks, throttling, cache, writes, or symbol
-resolution. CSV successes reuse the M7h compact contract. OGC successes omit
-the repeated plan chain but retain their bounded GeoJSON body so validation can
-rebuild M7i and reparse the exact `sf` result. M7j remains unexported and does
-not implement the remaining handlers, pagination, registration,
-serialization/replay, a public fetched-result schema, or `gx_fetch()`. See
-[ADR 0029](docs/decisions/0029-cross-handler-orchestration.md).
+The internal M7k `gx_fetch_orchestration` S3 object implements contract 0.2.0.
+It derives direct-CSV, compatible WQP Result, and OGC API Features candidates
+from one M7d plan, keeps their original global fetch order, and admits all three
+handlers under one explicit request-count and aggregate reserved-response
+budget. Live work is sequential and continues after typed CSV, WQP, or OGC
+failures; every M7d coverage row receives one exact terminal status. A missing
+OGC symbol or WQP parser charges no physical attempt, while transport and parse
+failures retain only bounded redacted evidence. Dry run performs the same
+planning and status projection without DNS, transport, clocks, throttling,
+cache, writes, or symbol resolution. CSV successes reuse the M7h compact
+contract. WQP successes retain the bounded CSV body, exact character table and
+schema, parse hashes, and attempt facts so strict validation does not require
+the optional package later. OGC successes retain their bounded GeoJSON body so
+validation can rebuild M7i and reparse the exact `sf` result. M7k remains
+unexported and does not implement the remaining provider handlers, pagination,
+registration, serialization/replay, a public fetched-result schema, or
+`gx_fetch()`. See
+[ADR 0029](docs/decisions/0029-cross-handler-orchestration.md) and
+[ADR 0030](docs/decisions/0030-single-response-wqp-handler.md).
 
 `gx_resolve()`, `gx_jsonld()`, and the `gx_ref_*()` functions make bounded
 network requests, account for every physical retry, and validate DNS and every

@@ -12,14 +12,20 @@ fetch_orchestration_test_scope <- function(label = "batch") {
 
 fetch_orchestration_test_performer <- function(
     fail_csv_on = integer(),
+    fail_wqp = FALSE,
+    wqp_body = wqp_test_body(),
     oaf_body = oaf_test_body(),
     calls = NULL,
     events = NULL) {
   csv_position <- 0L
   force(fail_csv_on)
+  force(fail_wqp)
+  force(wqp_body)
   force(oaf_body)
   function(request) {
-    handler <- if (grepl("/collections/", request$url, fixed = TRUE)) {
+    handler <- if (grepl("waterqualitydata.us", request$url, fixed = TRUE)) {
+      "wqp"
+    } else if (grepl("/collections/", request$url, fixed = TRUE)) {
       "ogc_api_features"
     } else {
       "csv"
@@ -29,6 +35,20 @@ fetch_orchestration_test_performer <- function(
       calls$requests <- c(calls$requests %||% list(), list(request))
     }
     if (is.environment(events)) events$values <- c(events$values, handler)
+    if (handler == "wqp") {
+      if (fail_wqp) {
+        stop("sensitive WQP transport detail", call. = FALSE)
+      }
+      return(list(
+        status = 200L,
+        headers = list(
+          `Content-Type` = "text/csv",
+          `Content-Length` = as.character(length(wqp_body))
+        ),
+        body = wqp_body,
+        url = request$url
+      ))
+    }
     if (handler == "csv") {
       csv_position <<- csv_position + 1L
       if (csv_position %in% fail_csv_on) {
@@ -61,14 +81,15 @@ fetch_orchestration_test_build <- function(
     plan = oaf_test_m7d_plan(),
     dry_run = FALSE,
     performer = fetch_orchestration_test_performer(),
-    max_executions = 4L,
-    max_total_bytes = 80000,
+    max_executions = 5L,
+    max_total_bytes = 100000,
     max_fields = 1000L,
     oaf_limit = 2L,
     timeout = 15,
     min_interval = 0,
     scope = fetch_orchestration_test_scope(),
-    oaf_symbol_resolver = oaf_test_resolver()) {
+    oaf_symbol_resolver = oaf_test_resolver(),
+    wqp_symbol_resolver = wqp_test_resolver()) {
   if (!dry_run) oaf_test_options(performer)
   gx_fetch_orchestration_impl(
     request_plan = plan,
@@ -80,6 +101,7 @@ fetch_orchestration_test_build <- function(
     timeout = timeout,
     min_interval = min_interval,
     orchestration_scope_id = scope,
-    oaf_symbol_resolver = oaf_symbol_resolver
+    oaf_symbol_resolver = oaf_symbol_resolver,
+    wqp_symbol_resolver = wqp_symbol_resolver
   )
 }

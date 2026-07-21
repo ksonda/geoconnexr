@@ -1,0 +1,3 @@
+OrganizationIdentifier,MonitoringLocationIdentifier,CharacteristicName,ResultMeasureValue,ResultMeasure/MeasureUnitCode
+USGS,USGS-01234567,Dissolved oxygen,8.4,mg/l
+USGS,USGS-01234567,Temperature,NA,deg C

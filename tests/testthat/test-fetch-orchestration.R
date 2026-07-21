@@ -15,31 +15,33 @@ test_that("M7j dry run plans CSV and OGC globally without host activity", {
   plan <- oaf_test_m7d_plan(max_response_bytes = 100L)
   scope <- fetch_orchestration_test_scope("deterministic")
   first <- fetch_orchestration_test_build(
-    plan = plan, dry_run = TRUE, max_total_bytes = 400, scope = scope
+    plan = plan, dry_run = TRUE, max_total_bytes = 500, scope = scope
   )
   second <- fetch_orchestration_test_build(
-    plan = plan, dry_run = TRUE, max_total_bytes = 400, scope = scope
+    plan = plan, dry_run = TRUE, max_total_bytes = 500, scope = scope
   )
 
   expect_identical(touched$count, 0L)
   expect_identical(first, second)
   expect_identical(class(first), "gx_fetch_orchestration")
+  expect_identical(first$contract_version, "0.2.0")
+  expect_identical(first$policy$slice_id, "cross_handler_orchestration_v2")
   expect_identical(names(first), c(
     "contract_version", "request_plan", "policy", "requests",
     "orchestration", "results", "status", "metadata"
   ))
   expect_identical(first$request_plan, plan)
-  expect_identical(first$requests$fetch_order, c(1L, 2L, 3L, 5L))
+  expect_identical(first$requests$fetch_order, 1:5)
   expect_identical(first$requests$handler_id, c(
-    "csv", "csv", "csv", "ogc_api_features"
+    "csv", "csv", "csv", "wqp", "ogc_api_features"
   ))
   expect_identical(first$status$orchestration_status, c(
-    rep("dry_run_planned", 3L), "handler_unimplemented",
-    "dry_run_planned", rep("not_selected", 3L)
+    rep("dry_run_planned", 5L), rep("not_selected", 3L)
   ))
   expect_false(any(first$status$attempted))
   expect_identical(first$results, list())
-  expect_identical(first$metadata$counts$candidate_requests, 4L)
+  expect_identical(first$metadata$counts$candidate_requests, 5L)
+  expect_identical(first$metadata$counts$wqp_requests, 1L)
   expect_identical(first$metadata$counts$oaf_requests, 1L)
   expect_true(first$metadata$global_order_enforced)
   expect_identical(
@@ -57,30 +59,36 @@ test_that("M7j executes mixed handlers once in deterministic global order", {
   )
 
   expect_identical(calls$handlers, c(
-    "csv", "csv", "csv", "ogc_api_features"
+    "csv", "csv", "csv", "wqp", "ogc_api_features"
   ))
-  expect_length(calls$requests, 4L)
-  expect_true(endsWith(calls$requests[[4L]]$url, "f=json&limit=2"))
+  expect_length(calls$requests, 5L)
+  expect_match(calls$requests[[4L]]$url, "dataProfile=narrowResult", fixed = TRUE)
+  expect_true(endsWith(calls$requests[[5L]]$url, "f=json&limit=2"))
   expect_true(all(vapply(
     calls$requests, function(request) request$retries == 0L, logical(1)
   )))
-  expect_identical(result$status$orchestration_status[c(1:3, 5)], rep(
-    "provider_response_validated_and_parsed", 4L
+  expect_identical(result$status$orchestration_status[1:5], rep(
+    "provider_response_validated_and_parsed", 5L
   ))
-  expect_identical(result$status$result_index[c(1:3, 5)], 1:4)
+  expect_identical(result$status$result_index[1:5], 1:5)
   expect_identical(vapply(
     result$results, class, character(1), USE.NAMES = FALSE
   ), c(
     rep("gx_csv_orchestration_result", 3L),
+    "gx_wqp_orchestration_result",
     "gx_oaf_orchestration_result"
   ))
-  oaf <- result$results[[4L]]
+  wqp <- result$results[[4L]]
+  expect_false("request_plan" %in% names(wqp))
+  expect_identical(nrow(wqp$data), 2L)
+  oaf <- result$results[[5L]]
   expect_false("request_plan" %in% names(oaf))
   expect_true(is.raw(oaf$response_body))
   expect_s3_class(oaf$result, "sf")
   expect_identical(nrow(oaf$result), 2L)
-  expect_identical(result$metadata$counts$physical_attempts, 4L)
+  expect_identical(result$metadata$counts$physical_attempts, 5L)
   expect_identical(result$metadata$counts$csv_results, 3L)
+  expect_identical(result$metadata$counts$wqp_results, 1L)
   expect_identical(result$metadata$counts$oaf_results, 1L)
   expect_true(result$metadata$runtime_symbols_checked)
   expect_identical(
@@ -103,16 +111,17 @@ test_that("M7j isolates a CSV failure and still executes OGC", {
   )
 
   expect_identical(calls$handlers, c(
-    "csv", "csv", "csv", "ogc_api_features"
+    "csv", "csv", "csv", "wqp", "ogc_api_features"
   ))
-  expect_identical(result$status$orchestration_status[c(1:3, 5)], c(
+  expect_identical(result$status$orchestration_status[1:5], c(
     "provider_response_validated_and_parsed", "transport_failed",
+    "provider_response_validated_and_parsed",
     "provider_response_validated_and_parsed",
     "provider_response_validated_and_parsed"
   ))
   expect_identical(result$status$error_code[[2L]], "csv_transport_failed")
   expect_true(result$status$succeeded[[5L]])
-  expect_length(result$results, 3L)
+  expect_length(result$results, 4L)
   expect_identical(result$metadata$counts$failed_requests, 1L)
   expect_false(any(grepl(
     "sensitive cross-handler transport detail",
@@ -125,6 +134,48 @@ test_that("M7j isolates a CSV failure and still executes OGC", {
   )
 })
 
+test_that("M7k isolates WQP capability and parse failures from OGC", {
+  capability_calls <- new.env(parent = emptyenv())
+  capability_calls$handlers <- character()
+  capability_calls$requests <- list()
+  capability <- fetch_orchestration_test_build(
+    performer = fetch_orchestration_test_performer(calls = capability_calls),
+    wqp_symbol_resolver = wqp_test_resolver(available = FALSE),
+    scope = fetch_orchestration_test_scope("missing-wqp-symbol")
+  )
+  expect_identical(
+    capability_calls$handlers,
+    c(rep("csv", 3L), "ogc_api_features")
+  )
+  expect_identical(
+    capability$status$orchestration_status[[4L]], "capability_failed"
+  )
+  expect_identical(
+    capability$status$error_code[[4L]], "wqp_capability_failed"
+  )
+  expect_identical(capability$status$physical_attempts[[4L]], 0L)
+  expect_true(capability$status$succeeded[[5L]])
+  expect_identical(capability$metadata$counts$physical_attempts, 4L)
+
+  parse_calls <- new.env(parent = emptyenv())
+  parse_calls$handlers <- character()
+  parse_calls$requests <- list()
+  parsed <- fetch_orchestration_test_build(
+    performer = fetch_orchestration_test_performer(calls = parse_calls),
+    wqp_symbol_resolver = wqp_test_resolver(mismatch = TRUE),
+    scope = fetch_orchestration_test_scope("wqp-parse-failure")
+  )
+  expect_identical(
+    parse_calls$handlers,
+    c(rep("csv", 3L), "wqp", "ogc_api_features")
+  )
+  expect_identical(parsed$status$orchestration_status[[4L]], "parse_failed")
+  expect_identical(parsed$status$error_code[[4L]], "wqp_parse_failed")
+  expect_identical(parsed$status$physical_attempts[[4L]], 1L)
+  expect_true(parsed$status$succeeded[[5L]])
+  expect_identical(parsed$metadata$counts$physical_attempts, 5L)
+})
+
 test_that("M7j records OGC capability failure without charging transport", {
   calls <- new.env(parent = emptyenv())
   calls$handlers <- character()
@@ -135,7 +186,7 @@ test_that("M7j records OGC capability failure without charging transport", {
     scope = fetch_orchestration_test_scope("missing-oaf-symbol")
   )
 
-  expect_identical(calls$handlers, rep("csv", 3L))
+  expect_identical(calls$handlers, c(rep("csv", 3L), "wqp"))
   expect_identical(
     result$status$orchestration_status[[5L]], "capability_failed"
   )
@@ -145,7 +196,7 @@ test_that("M7j records OGC capability failure without charging transport", {
   expect_identical(result$status$physical_attempts[[5L]], 0L)
   expect_identical(result$status$encoded_bytes[[5L]], 0)
   expect_true(is.na(result$status$execution_id[[5L]]))
-  expect_identical(result$metadata$counts$physical_attempts, 3L)
+  expect_identical(result$metadata$counts$physical_attempts, 4L)
   expect_true(result$metadata$runtime_symbols_checked)
   expect_identical(
     gx_fetch_orchestration_validate_impl(result), invisible(result)
@@ -163,36 +214,36 @@ test_that("M7j records an OGC parse failure as one charged attempt", {
     scope = fetch_orchestration_test_scope("oaf-parse-failure")
   )
 
-  expect_length(calls$requests, 4L)
+  expect_length(calls$requests, 5L)
   expect_identical(result$status$orchestration_status[[5L]], "parse_failed")
   expect_identical(result$status$error_code[[5L]], "oaf_parse_failed")
   expect_identical(result$status$physical_attempts[[5L]], 1L)
   expect_gt(result$status$encoded_bytes[[5L]], 0)
-  expect_identical(result$metadata$counts$physical_attempts, 4L)
-  expect_length(result$results, 3L)
+  expect_identical(result$metadata$counts$physical_attempts, 5L)
+  expect_length(result$results, 4L)
 })
 
 test_that("M7j admission shares count and byte limits across handlers", {
   plan <- oaf_test_m7d_plan(max_response_bytes = 100L)
   count_limited <- fetch_orchestration_test_build(
-    plan = plan, dry_run = TRUE, max_executions = 3L,
-    max_total_bytes = 400
+    plan = plan, dry_run = TRUE, max_executions = 4L,
+    max_total_bytes = 500
   )
   byte_limited <- fetch_orchestration_test_build(
-    plan = plan, dry_run = TRUE, max_executions = 4L,
+    plan = plan, dry_run = TRUE, max_executions = 5L,
     max_total_bytes = 350
   )
 
   expect_identical(
-    count_limited$status$orchestration_status[c(1:3, 5)],
-    c(rep("dry_run_planned", 3L), "batch_limit_deferred")
+    count_limited$status$orchestration_status[1:5],
+    c(rep("dry_run_planned", 4L), "batch_limit_deferred")
   )
   expect_identical(
-    byte_limited$status$orchestration_status[c(1:3, 5)],
-    c(rep("dry_run_planned", 3L), "batch_limit_deferred")
+    byte_limited$status$orchestration_status[1:5],
+    c(rep("dry_run_planned", 3L), rep("batch_limit_deferred", 2L))
   )
   expect_identical(
-    byte_limited$metadata$counts$batch_limit_deferred, 1L
+    byte_limited$metadata$counts$batch_limit_deferred, 2L
   )
 })
 
@@ -203,7 +254,7 @@ test_that("M7j makes an incompatible OGC URL an explicit terminal row", {
     max_total_bytes = 400
   )
 
-  expect_identical(nrow(result$requests), 3L)
+  expect_identical(nrow(result$requests), 4L)
   expect_identical(
     result$status$orchestration_status[[5L]], "handler_plan_unsupported"
   )
@@ -285,17 +336,17 @@ test_that("M7j whole-object validation fails closed on forged facts", {
       x
     },
     oaf_body = function(x) {
-      body <- x$results[[4L]]$response_body
+      body <- x$results[[5L]]$response_body
       body[[1L]] <- as.raw(bitwXor(as.integer(body[[1L]]), 1L))
-      x$results[[4L]]$response_body <- body
+      x$results[[5L]]$response_body <- body
       x
     },
     oaf_result = function(x) {
-      x$results[[4L]]$result$feature_id[[1L]] <- "forged"
+      x$results[[5L]]$result$feature_id[[1L]] <- "forged"
       x
     },
     child_scope = function(x) {
-      x$results[[4L]]$execution$execution_scope_id <-
+      x$results[[5L]]$execution$execution_scope_id <-
         fetch_orchestration_test_scope("foreign")
       x
     },
@@ -329,4 +380,5 @@ test_that("the M7j cross-handler contract remains internal", {
   output <- capture.output(print(result), type = "message")
   expect_true(any(grepl("dry_run", output, fixed = TRUE)))
   expect_true(any(grepl("OGC Features", output, fixed = TRUE)))
+  expect_true(any(grepl("WQP", output, fixed = TRUE)))
 })
