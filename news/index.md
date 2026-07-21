@@ -180,6 +180,22 @@
   attempts, statuses, result indexes, counts, bytes, and authority.
   Remaining handlers, pagination, registration, serialization/replay, a
   public fetched-result schema, and `gx_fetch()` remain gated.
+- Added the unexported M7k `gx_wqp_request_plan` and `gx_wqp_execution`
+  S3 contracts 0.1.0 and upgraded `gx_fetch_orchestration` to 0.2.0. One
+  selected WQP Result URL now binds its exact held M7d reservation,
+  fixed Result/ `narrowResult` service profile, site, optional
+  characteristic, UTC date interval, shape limits, and one-attempt byte
+  ceiling. geoconnexr performs the sole DNS-pinned, identity-encoded,
+  no-cache/no-redirect/no-retry request, resolves
+  [`dataRetrieval::importWQP()`](https://rdrr.io/pkg/dataRetrieval/man/importWQP.html)
+  immediately before transport, invokes it only on the retained response
+  bytes with type conversion disabled, and requires its character table
+  to equal the independently strict CSV result. The shared scheduler now
+  runs CSV, WQP, and OGC in global order, isolates WQP
+  capability/transport/parse failures, compacts successful WQP evidence,
+  and revalidates it without a later optional-package dependency.
+  Pagination, remaining handlers, registration, serialization/replay, a
+  public result schema, and `gx_fetch()` remain gated.
 - Added the unexported M9b catalog-only snapshot writer. It revalidates
   a catalog, creates deterministic redacted UTF-8 CSV views in a sibling
   staging tree, writes a manifest-v1 document last, verifies the closed

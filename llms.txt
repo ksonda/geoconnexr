@@ -93,19 +93,26 @@ attr(location, "diagnostics")
 
 ### Fetch roadmap progress
 
-The internal M7j checkpoint now schedules the implemented direct-CSV and
-OGC API Features paths in one deterministic global order. They share
-explicit request-count and byte admission limits, continue after typed
-handler failures, and reconcile one exact terminal status per
-distribution. Dry run performs the same planning without host or
-provider work. OGC next-page links remain reported as truncation and are
-not followed. This remains tested infrastructure for the future
-`gx_fetch()` workflow, not a newly exported fetch API. See [ADR
+The internal M7k checkpoint now schedules the implemented direct-CSV,
+WQP Result, and OGC API Features paths in one deterministic global
+order. They share explicit request-count and byte admission limits,
+continue after typed handler failures, and reconcile one exact terminal
+status per distribution. Dry run performs the same planning without host
+or provider work. OGC next-page links remain reported as truncation and
+are not followed. WQP performs one bounded request, records
+Result/`narrowResult` plus site, optional characteristic, and UTC time,
+and requires the invocation-time
+[`dataRetrieval::importWQP()`](https://rdrr.io/pkg/dataRetrieval/man/importWQP.html)
+result to match the strict package parser. This remains tested
+infrastructure for the future `gx_fetch()` workflow, not a newly
+exported fetch API. See [ADR
 0027](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0027-bounded-direct-csv-orchestration.md)
 and [ADR
 0028](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0028-single-page-oaf-handler.md),
 then [ADR
 0029](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0029-cross-handler-orchestration.md).
+The WQP boundary is specified in [ADR
+0030](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0030-single-response-wqp-handler.md).
 
 **Experimental status.** The intended end-to-end catalog, fetch,
 harmonize, and snapshot workflow is still being implemented. The
