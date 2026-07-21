@@ -31,14 +31,14 @@ The target remains an R-first package for discovery, identifier crosswalks, and 
 | M4 | Partial experimental slices M4a/M4b/M4c: `gx_gage_to_pid()` is implemented, and the v3.2 COMID lookup now has an explicit verified install lifecycle plus internal offline forward and release-scoped inverse mappers; public COMID, HUC12, point, inverse, and currentness contracts remain gated under ADRs 0004, 0008, 0009, and 0015. |
 | M5 | Partial experimental M5a/M5b: an unexported one-logical-request SELECT/ASK substrate provides strict bounded SPARQL 1.1 Results JSON parsing and provenance, while the public local renderer now consumes an exact-byte-pinned render-only v2 template manifest with explicit disabled execution, chunking, and pagination; public graph APIs, endpoint support, and paging remain gated under ADRs 0004, 0012, and 0013. |
 | M6 | Partial M6a/M6b/M6c: `gx_aoi()` canonicalizes one custom polygonal `sf`/`sfc` geometry offline, internal bounded hydration reconstructs AOI-only recipes while independently rebinding canonical GeoJSON to their WKB digest, and an internal catalog value object validates typed sites, flattened datasets, problems, requests, and completeness. Public `gx_catalog()`, live discovery/merge, nonempty reference layers, full replay, and upstream-derived AOI modes remain gated under ADRs 0014, 0016, and 0018. |
-| M7 | Partial M7a–M7j: the internal chain selects catalog distributions, records direct-CSV intent, allocates one-attempt reservations, validates response envelopes, and parses strict character tables. M7g executes direct CSV; M7h orchestrates CSV; M7i adds one reservation-bound, single-page OGC API Features request; and M7j schedules both implemented handlers in global order with shared admission, isolated failures, compact evidence, and exact all-distribution status. The nested M7a request list remains empty; public fetch, pagination, remaining provider handlers, registration, serialization, and replay remain gated under ADRs 0020–0029. |
+| M7 | Partial M7a–M7k: the internal chain selects catalog distributions, records direct-CSV intent, allocates one-attempt reservations, validates response envelopes, and parses strict character tables. M7g executes direct CSV; M7h orchestrates CSV; M7i adds one reservation-bound, single-page OGC API Features request; M7j introduces shared global scheduling; and M7k adds one reservation-bound WQP Result request with explicit service/profile/site/characteristic/time facts, package-owned transport, and invocation-time `dataRetrieval::importWQP()` validation. The scheduler now runs CSV, WQP, and OGC in global order with shared admission, isolated failures, compact evidence, and exact all-distribution status. The nested M7a request list remains empty; public fetch, pagination, remaining provider handlers, registration, serialization, and replay remain gated under ADRs 0020–0030. |
 | M8 | Planned. |
 | M9 | Partial M9a/M9b: an unexported offline verifier validates the bounded manifest and embedded request-ledger shape, rebinds AOI identity through M6b, inventories a closed portable resource tree, and verifies exact local bytes; an unexported creation-only writer stages, verifies, and publishes deterministic redacted catalog CSV resources plus manifest-v1. Public packaging/snapshot APIs, overwrite, loading, Frictionless acceptance, authenticity, and replay remain gated under ADRs 0017 and 0019. |
 | M10 | Planned. |
 
 ## 1. Validation ledger
 
-These observations were checked against production or current primary package documentation on 2026-07-12 and 2026-07-13. They are evidence for this plan, not permanent API guarantees.
+These observations were checked against production or current primary package documentation on 2026-07-12, 2026-07-13, and 2026-07-20. They are evidence for this plan, not permanent API guarantees.
 
 | Surface | Observation | Planning consequence |
 |---|---|---|
@@ -765,6 +765,37 @@ handler work. Remaining handlers, pagination, registration,
 serialization/replay, a public fetched-result schema, and `gx_fetch()` remain
 gated.
 
+M7k adds the unexported `gx_wqp_request_plan` and `gx_wqp_execution` S3
+contracts, both version 0.1.0, and upgrades `gx_fetch_orchestration` to contract
+0.2.0. Planning accepts one selected WQP Result endpoint whose M7d
+`handler_reserved` row binds a held one-attempt reservation. It admits only the
+reviewed inherited query fields `siteid`, optional `characteristicName`, and
+`mimeType=csv`; rejects fragments, duplicates, extra filters, and partial-day
+time ranges; and records Result service, `narrowResult` profile, exact site,
+characteristic status, UTC interval, WQP date filters, redacted targets, shape
+limits, and the held byte/attempt ceilings. When no characteristic is present,
+the plan records that absence rather than guessing a mapping.
+
+Execution resolves exported `dataRetrieval::importWQP()` immediately before
+provider work. geoconnexr—not `readWQPdata()`—owns the DNS-pinned, identity-
+encoded, cache/redirect/retry-free GET, because the external retrieval helper's
+transport and retry policy cannot satisfy the exact M7d attempt ledger. The
+bounded response is parsed offline by `importWQP(convertType = FALSE)` and by
+the package's strict UTF-8 CSV parser. Both exact character tables must agree,
+including WQP slash-to-dot column-name normalization, before one successful
+attempt and result can be recorded. Missing parser capability occurs before
+DNS/transport; response-envelope, transport, strict-parser, or parser-
+disagreement failures retain only typed redacted evidence.
+
+The 0.2.0 scheduler derives WQP at its original global fetch order and shares
+the same count and aggregate reserved-byte admission with CSV and OGC.
+Successful WQP evidence removes the repeated M7d chain but retains the bounded
+CSV bytes, character table, schema, parse hashes, external-parser invocation
+facts, execution, and attempt. Whole-object validation rebuilds the WQP plan
+and strict result without requiring the optional package after execution.
+WQP failures do not prevent later OGC work. M7k remains internal, single-
+response, non-replayable, and not generally execution-ready under ADR 0030.
+
 Every handler implements `probe → plan → fetch → normalize`:
 
 - **probe:** determine whether the distribution is compatible;
@@ -939,6 +970,21 @@ whole-object validation rebuilds M7i and rejects forged candidate, plan, scope,
 CSV data, OGC body/result, status, byte, index, error, count, or metadata facts;
 and M7j plus public `gx_fetch()` remain unexported.
 
+**M7k acceptance:** one WQP Result fixture rebinds to its exact M7d held
+reservation and deterministic service/profile/site/characteristic/time request
+snapshot without host work; ambiguous endpoints, extra or duplicate query
+fields, non-CSV intent, and partial-day filters fail closed; invocation checks
+the `dataRetrieval::importWQP` symbol before DNS, then performs exactly one
+bounded request with no retry, redirect, cache, or attribute follow-up; the
+external character parser must match the independently strict parsed table;
+missing-symbol failure charges no attempt or bytes, while transport and parser
+failures produce one typed redacted terminal row and do not prevent later OGC
+work; compact retained bytes, schema, table, parse, scope, execution, and
+attempt identities fully revalidate; shared dry-run and live scheduling now
+orders CSV, WQP, and OGC candidates globally under one count/byte admission
+pass; forged plan/result/ledger/status/metadata facts fail closed; and M7k plus
+public `gx_fetch()` remain unexported.
+
 **Remaining M7 acceptance:** provider-specific request-plan snapshots and
 fixture tests for the remaining non-CSV handlers; optional-package symbol
 rechecks coupled to invocation; multi-provider and paginated execution ledgers;
@@ -1111,9 +1157,11 @@ direct-CSV requests sequentially, continues after isolatable transport/parse
 failures, compacts successful evidence, and reconciles one exact status row for
 every distribution; its dry run performs no host or provider work. Later M7
 contracts build on M7i's first reservation-bound single-page OGC API Features
-handler and native invocation-time symbol check. M7j now adds shared CSV/OGC
-admission, global scheduling, cross-handler failure isolation, compact evidence,
-and exact status reconciliation. Later contracts add remaining provider
+handler and native invocation-time symbol check. M7j adds shared CSV/OGC
+admission and global scheduling. M7k adds the first optional-package provider
+path: one exact WQP Result request, package-owned transport, offline
+`dataRetrieval::importWQP` agreement with strict CSV, compact retained evidence,
+and CSV/WQP/OGC status reconciliation. Later contracts add remaining provider
 request/query semantics, optional-package symbol checks, multi-provider
 pagination, registration, serialization/replay, and a public fetched-result
 schema. The

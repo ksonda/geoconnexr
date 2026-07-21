@@ -61,7 +61,7 @@
       "implementation_id": "geoconnexr:dataRetrieval-wqp",
       "availability": "planned",
       "package": "dataRetrieval",
-      "function": "readWQPdata",
+      "function": "importWQP",
       "plan_must_record": ["service", "profile", "site", "characteristic", "time"],
       "missing_package_status": "skipped_missing_pkg"
     },
