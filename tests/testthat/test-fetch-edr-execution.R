@@ -264,6 +264,53 @@ test_that("M7l accepts the installed official normalizer when compatible", {
   expect_identical(result$parse$column_count, 9L)
 })
 
+test_that("M7l accepts the reviewed pygeoapi CoverageJSON profile", {
+  skip_if_not_installed("edr4r", minimum_version = "0.1.1")
+  url <- httr2::url_modify_query(
+    "https://demo.pygeoapi.io/master/collections/icoads-sst/position",
+    coords = "POINT(-29 31)",
+    `parameter-name` = "SST",
+    crs = "http://www.opengis.net/def/crs/OGC/1.3/CRS84",
+    f = "json"
+  )
+  catalog <- edr_test_catalog(url)
+  position <- which(catalog$datasets$handler_id == "edr")
+  time <- as.POSIXct(
+    c("2000-01-16 06:00:00", "2000-02-16 06:00:00"), tz = "UTC"
+  )
+  catalog$datasets$temporal_coverage[position] <-
+    "2000-01-16T06:00:00Z/2000-02-16T06:00:00Z"
+  catalog$datasets$temporal_start[position] <- time[[1L]]
+  catalog$datasets$temporal_end[position] <- time[[2L]]
+  gx_catalog_validate_impl(catalog)
+  plan <- csv_request_plan_test_build(
+    csv_request_plan_test_intent_set(
+      catalog = catalog,
+      time = time,
+      max_encoded_bytes = 2 * 1024^2,
+      max_decoded_bytes = 2 * 1024^2
+    ),
+    max_response_bytes = 2 * 1024^2,
+    max_rows = 1000L,
+    max_columns = 100L
+  )
+  request_plan <- gx_edr_request_plan_impl(
+    plan, edr_test_distribution_id(plan), max_fields = 10000L
+  )
+  result <- gx_edr_result_impl(
+    edr_test_body("pygeoapi-position-pointseries.covjson"),
+    request_plan,
+    parser = edr4r::covjson_to_tibble
+  )
+
+  expect_identical(request_plan$request$crs,
+    "http://www.opengis.net/def/crs/OGC/1.3/CRS84")
+  expect_identical(result$parse$coverage_id, "1")
+  expect_identical(result$parse$row_count, 2L)
+  expect_identical(result$data$parameter, c("SST", "SST"))
+  expect_equal(result$data$value, c(18.932044982910156, 17.774076461791992))
+})
+
 test_that("the M7l EDR handler contract remains internal", {
   exports <- getNamespaceExports("geoconnexr")
   expect_false(any(c(

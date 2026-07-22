@@ -30,7 +30,7 @@ The target remains an R-first package for discovery, identifier crosswalks, and 
 | M3 | Experimental native reference-client slice implemented with typed schemas, bounded pagination, and identity-checked fallbacks; cross-vintage and full large-geometry evidence remain open under ADR 0004. |
 | M4 | Partial experimental slices M4a/M4b/M4c: `gx_gage_to_pid()` is implemented, and the v3.2 COMID lookup now has an explicit verified install lifecycle plus internal offline forward and release-scoped inverse mappers; public COMID, HUC12, point, inverse, and currentness contracts remain gated under ADRs 0004, 0008, 0009, and 0015. |
 | M5 | Partial experimental M5a/M5b: an unexported one-logical-request SELECT/ASK substrate provides strict bounded SPARQL 1.1 Results JSON parsing and provenance, while the public local renderer now consumes an exact-byte-pinned render-only v2 template manifest with explicit disabled execution, chunking, and pagination; public graph APIs, endpoint support, and paging remain gated under ADRs 0004, 0012, and 0013. |
-| M6 | Partial M6a/M6b/M6c: `gx_aoi()` canonicalizes one custom polygonal `sf`/`sfc` geometry offline, internal bounded hydration reconstructs AOI-only recipes while independently rebinding canonical GeoJSON to their WKB digest, and an internal catalog value object validates typed sites, flattened datasets, problems, requests, and completeness. Public `gx_catalog()`, live discovery/merge, nonempty reference layers, full replay, and upstream-derived AOI modes remain gated under ADRs 0014, 0016, and 0018. |
+| M6 | Public bounded slice under ADR 0035: `gx_aoi()` canonicalizes identifiers and custom polygonal geometry; `gx_catalog()` populates the strict catalog value object from one graph page, explicit PID profiles, or named caller-supplied local JSON-LD. Automatic graph discovery remains upstream-dependent, and nonempty reference layers, general merge, full replay, and upstream-derived AOI modes remain gated. |
 | M7 | Complete for the supported subset under ADR 0034. `gx_fetch_plan()` publishes deterministic catalog selection, and `gx_fetch()` returns a validated `gx_fetched` object over direct CSV, WQP Result, EDR position, current USGS continuous, current USGS daily, and OGC API Features. Execution is sequential, bounded, single-page, failure-isolating, and provenance-preserving. Latest/legacy USGS, other EDR queries, pagination, registration, serialization, and replay are deferred enhancements and do not reopen M7. |
 | M8 | Next: harmonization may now target the frozen `gx_fetched` 0.1.0 boundary. |
 | M9 | Partial M9a/M9b: an unexported offline verifier validates the bounded manifest and embedded request-ledger shape, rebinds AOI identity through M6b, inventories a closed portable resource tree, and verifies exact local bytes; an unexported creation-only writer stages, verifies, and publishes deterministic redacted catalog CSV resources plus manifest-v1. Public packaging/snapshot APIs, overwrite, loading, Frictionless acceptance, authenticity, and replay remain gated under ADRs 0017 and 0019. |
@@ -348,8 +348,7 @@ An AOI or other selective filter is required unless a finite low limit is suppli
 
 ```r
 gx_aoi(x, type = c("auto", "huc", "county", "state", "sf"))
-gx_catalog(aoi, include = c("sites", "datasets", "reference"),
-           providers = NULL, variables = NULL, progress = interactive())
+gx_catalog(aoi, site_uri = NULL, profiles = NULL, max_sites = 25L)
 ```
 
 Auto-dispatch rules are ordered and deterministic:
@@ -375,8 +374,7 @@ little-endian WKB, with an independent 8 MiB ceiling on each representation.
 `gx_aoi()` performs no network, graph, catalog, mainstem-basin, or
 point-upstream work. Its pipeline fields describe the intended replay boundary,
 not a completed catalog. `mainstem_basin` and `point_upstream` remain excluded
-pending their own evidence and provenance contracts, and public `gx_catalog()`
-remains gated under ADR 0014.
+pending their own evidence and provenance contracts.
 
 The internal M6b hydration boundary accepts only the exact three-field AOI
 recipe emitted by `gx_aoi()`, either as a decoded list or literal bounded JSON.
@@ -390,8 +388,8 @@ unexported and does not authorize catalog or full recipe replay under ADR 0016.
 
 `gx_catalog` returns `gx_catalog` with `sites`, flattened dataset records, selected reference layers, `problems`, `requests`, AOI, and metadata. `problems` has `stage`, `source_uri`, `code`, `severity`, `message`, `recoverable`, and timestamp. Metadata includes per-stage completeness/truncation flags. Invalid input and contract corruption abort; provider-specific recoverable failures do not.
 
-The internal M6c checkpoint implements this as a strict offline value object,
-not a live orchestrator. Sites are typed CRS84 points, dataset rows retain
+The M6c checkpoint implements the strict value object populated by the public
+ADR 0035 orchestrator. Sites are typed CRS84 points, dataset rows retain
 their distribution-by-variable cardinality, problems and request attempts have
 exact typed schemas, and procedural completeness must reconcile its counts.
 Contract 0.1.0 requires an empty reference-layer list while portable reference
@@ -399,8 +397,10 @@ serialization remains unresolved. Fixed cardinality, text, list-entry, and
 geometry budgets fail before serialization. Deterministic export views redact
 URI credentials and query/fragment values across schemes without mutating the
 catalog, while namespace-bound SHA-256 site and variable fingerprints preserve
-identity and site/dataset joins after display redaction. Public `gx_catalog()` and
-all discovery/merge adapters remain gated under ADR 0018.
+identity and site/dataset joins after display redaction. `gx_catalog()` now
+performs one bounded graph page plus sequential profile adaptation, exact PID
+profile adaptation, or local caller-supplied profile adaptation. Nonempty
+reference layers and general graph/profile merge remain gated under ADR 0018.
 
 Graph results are preferred for discovery. JSON-LD fallback is bounded and its attempted/skipped/failed counts are recorded. Merge precedence and field-level provenance are deterministic.
 

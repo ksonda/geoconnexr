@@ -47,9 +47,13 @@ Planning requires one valid M7d plan and one selected `wqp` distribution with:
   widening the request.
 
 The source must canonicalize safely to
-`https://[www.]waterqualitydata.us/data/Result/search`. Fragments, duplicate
+`https://[www.]waterqualitydata.us/data/Result/search` or the WQX3 route still
+advertised by current Geoconnex profiles. A WQX3 source is translated to the
+stable `/data/Result/search` route before the owned request is built. Fragments, duplicate
 query names, and every inherited query field except `siteid`, optional
-`characteristicName`, and `mimeType=csv` are rejected. M7k accepts one site and
+`characteristicName`, `mimeType=csv`, and a reviewed `dataProfile` value are
+rejected. Current profile-advertised `fullPhysChem` is replaced by the owned
+`narrowResult` request. M7k accepts one site and
 at most one characteristic. It does not copy credentials, arbitrary provider
 filters, or an opaque query into its owned request facts.
 
@@ -87,17 +91,22 @@ ceiling, and bound to the exact canonical target.
 
 The retained raw body is parsed twice after the response envelope is admitted:
 
-1. `dataRetrieval::importWQP(obs_url = <retained text>, csv = TRUE,
+1. `dataRetrieval::importWQP(obs_url = list(<retained text>), csv = TRUE,
    convertType = FALSE, tz = "UTC")`; and
 2. geoconnexr's strict bounded UTF-8 CSV parser.
 
-The external parser receives response text, not a URL or connection, so it
-cannot initiate provider transport. Messages are suppressed and warnings or
-errors fail the parse phase. Its result must be a bounded, character-only table.
-Literal WQP `NA` values normalize back to the exact character `"NA"` because
-M7k disables type inference and missing-value inference. Both results apply
-WQP's slash-to-dot column-name normalization, rejecting any resulting empty or
-duplicate name, and must be byte-for-byte identical as tibbles.
+The external parser receives response text in a one-element inert literal-data
+container, not a URL or connection, so it cannot initiate provider transport.
+The container is required because `importWQP()` otherwise interprets any
+character input containing an HTTPS-valued cell as a URL. Messages are
+suppressed and warnings or errors fail the parse phase. Its result must be a
+bounded, character-only table.
+Because `importWQP()` maps both blank fields and literal WQP `NA` fields to R
+missing values, parser agreement compares those two spellings as one missing
+equivalence class. The retained strict result still preserves the exact source
+spelling. Both results apply WQP's slash-to-dot column-name normalization,
+rejecting any resulting empty or duplicate name, and all nonmissing cells must
+be byte-for-byte identical as tibbles.
 
 Parser disagreement, malformed UTF-8/CSV, excessive rows, columns, fields, or
 field bytes, and non-character external output fail as one charged parse-phase

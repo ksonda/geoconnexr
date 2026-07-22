@@ -154,7 +154,8 @@ gx_edr_policy_impl <- function(max_fields) {
     cache_policy = "bypass",
     success_status = 200L,
     response_media_types = c(
-      "application/prs.coverage+json", "application/json"
+      "application/prs.coverage+json", "application/vnd.cov+json",
+      "application/json"
     ),
     response_content_encoding = "identity",
     parser_encoding = "UTF-8",
@@ -349,13 +350,18 @@ gx_edr_target_impl <- function(source_url, distribution) {
       "gx_error_edr_plan_time"
     )
   }
+  crs84_values <- c(
+    "CRS84",
+    "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
+  )
   crs_position <- match("crs", query_names)
-  if (!is.na(crs_position) && !identical(query[[crs_position]], "CRS84")) {
+  if (!is.na(crs_position) && !query[[crs_position]] %in% crs84_values) {
     gx_edr_abort(
       "M7l accepts only the reviewed CRS84 position coordinate reference system.",
       "gx_error_edr_plan_url"
     )
   }
+  crs <- if (is.na(crs_position)) "CRS84" else query[[crs_position]]
   format_position <- match("f", query_names)
   if (!is.na(format_position) &&
       !query[[format_position]] %in% c("CoverageJSON", "json")) {
@@ -363,6 +369,11 @@ gx_edr_target_impl <- function(source_url, distribution) {
       "M7l accepts only a CoverageJSON EDR response format.",
       "gx_error_edr_plan_url"
     )
+  }
+  format <- if (is.na(format_position)) {
+    "CoverageJSON"
+  } else {
+    query[[format_position]]
   }
   collection <- gx_edr_bounded_text_impl(path_parts[[3L]], "collection")
   endpoint_path <- sub("/$", "", parsed$path)
@@ -377,8 +388,8 @@ gx_edr_target_impl <- function(source_url, distribution) {
     coords = point$wkt,
     `parameter-name` = parameter,
     datetime = time$datetime,
-    crs = "CRS84",
-    f = "CoverageJSON"
+    crs = crs,
+    f = format
   )
   target <- do.call(httr2::url_modify_query, arguments)
   list(
@@ -388,6 +399,8 @@ gx_edr_target_impl <- function(source_url, distribution) {
     collection = collection,
     point = point,
     parameter = parameter,
+    crs = crs,
+    format = format,
     time = time
   )
 }
@@ -410,7 +423,7 @@ gx_edr_request_id_impl <- function(source, policy, row) {
       "time_start", source$time$time_start,
       "time_end", source$time$time_end,
       "datetime", source$time$datetime,
-      "crs", "CRS84",
+      "crs", source$crs,
       "response_format", policy$response_format,
       "implementation_id", policy$implementation_id,
       "minimum_version", policy$minimum_version,
@@ -454,7 +467,7 @@ gx_edr_request_impl <- function(row, source, policy) {
     time_start = source$time$time_start,
     time_end = source$time$time_end,
     datetime = source$time$datetime,
-    crs = "CRS84",
+    crs = source$crs,
     response_format = policy$response_format,
     source_url_redacted = gx_redact_url(source$source),
     canonical_url_redacted = gx_redact_url(source$target),
@@ -731,7 +744,18 @@ gx_edr_axis_values_impl <- function(axis, name) {
 
 gx_edr_datetime_impl <- function(value) {
   if (!gx_edr_scalar_text(value)) return(NA_real_)
-  normalized <- sub("Z$", "+0000", value)
+  normalized <- if (grepl("(?:Z|[+-][0-9]{2}:[0-9]{2})$", value)) {
+    value
+  } else if (grepl(
+    "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:[.][0-9]+)?$",
+    value,
+    perl = TRUE
+  )) {
+    paste0(value, "+00:00")
+  } else {
+    value
+  }
+  normalized <- sub("Z$", "+0000", normalized)
   normalized <- sub("([+-][0-9]{2}):([0-9]{2})$", "\\1\\2", normalized)
   parsed <- suppressWarnings(as.numeric(as.POSIXct(
     normalized,
@@ -756,12 +780,16 @@ gx_edr_schema_impl <- function(data) {
 gx_edr_position_result_impl <- function(document, request_plan) {
   request <- request_plan$request
   if (!identical(document$type, "Coverage") ||
-      !gx_edr_scalar_text(document$id)) {
+      (!is.null(document$id) && !gx_edr_scalar_text(document$id))) {
     gx_edr_abort(
-      "M7l requires one explicitly identified CoverageJSON Coverage.",
+      "M7l requires one CoverageJSON Coverage with a valid optional identifier.",
       "gx_error_edr_payload"
     )
   }
+  # edr4r assigns the stable within-document identifier "1" to a single
+  # Coverage whose optional id member is absent. Mirror that normalization so
+  # strict package parsing can agree with conforming pygeoapi responses.
+  coverage_id <- document$id %||% "1"
   parameters <- gx_edr_json_object_impl(document$parameters, "parameters")
   ranges <- gx_edr_json_object_impl(document$ranges, "ranges")
   if (!identical(names(parameters), request$parameter_name) ||
@@ -835,11 +863,19 @@ gx_edr_position_result_impl <- function(document, request_plan) {
   values <- gx_edr_json_array_impl(
     range$values, "range values", allow_null = TRUE
   )
+  temporal_shape <- identical(axis_names, "t") && length(shape) == 1L &&
+    is.numeric(shape) && all(is.finite(shape)) &&
+    identical(as.numeric(shape), as.numeric(length(time_values)))
+  pointseries_shape <- identical(axis_names, c("t", "y", "x")) &&
+    length(shape) == 3L && is.numeric(shape) && all(is.finite(shape)) &&
+    identical(
+      as.numeric(shape),
+      c(as.numeric(length(time_values)), 1, 1)
+    )
   valid_range <- identical(range$type, "NdArray") &&
     gx_edr_scalar_text(range$dataType) &&
     range$dataType %in% c("float", "integer") &&
-    identical(axis_names, "t") && length(shape) == 1L &&
-    is.numeric(shape) && is.finite(shape) && shape == length(time_values) &&
+    (temporal_shape || pointseries_shape) &&
     length(values) == length(time_values)
   if (!valid_range) {
     gx_edr_abort(
@@ -862,7 +898,7 @@ gx_edr_position_result_impl <- function(document, request_plan) {
     )
   }
   data <- tibble::tibble(
-    coverage_id = rep(unname(document$id), length(value)),
+    coverage_id = rep(unname(coverage_id), length(value)),
     parameter = rep(request$parameter_name, length(value)),
     parameter_label = rep(label, length(value)),
     unit = rep(unit_label, length(value)),
@@ -883,7 +919,7 @@ gx_edr_position_result_impl <- function(document, request_plan) {
   }
   list(
     data = data,
-    coverage_id = unname(document$id),
+    coverage_id = unname(coverage_id),
     domain_type = "PointSeries",
     field_count = field_count
   )

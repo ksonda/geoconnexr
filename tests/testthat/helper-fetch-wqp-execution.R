@@ -36,11 +36,12 @@ wqp_test_scope <- function(label = "execution") {
 wqp_test_parser <- function(events = NULL, mismatch = FALSE) {
   function(obs_url, tz, csv, convertType) {
     if (is.environment(events)) events$values <- c(events$values, "parse")
+    stopifnot(is.list(obs_url), length(obs_url) == 1L)
     parsed <- utils::read.csv(
-      text = obs_url,
+      text = obs_url[[1L]],
       colClasses = "character",
       check.names = FALSE,
-      na.strings = NULL,
+      na.strings = c("", "NA"),
       stringsAsFactors = FALSE
     )
     if (mismatch) parsed[[1L]][[1L]] <- "forged"

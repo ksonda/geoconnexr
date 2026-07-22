@@ -40,6 +40,7 @@ and link both records rather than rewriting history.
 | [0032](0032-single-page-usgs-continuous-handler.md) | Accepted internal substrate | Execute one current USGS continuous-data page under the held M7d reservation |
 | [0033](0033-single-page-usgs-daily-handler.md) | Accepted internal substrate | Execute one current USGS daily-values page under the held M7d reservation |
 | [0034](0034-freeze-m7-supported-fetch-subset.md) | Accepted public boundary | Freeze the supported M7 subset, publish fetched results, and open M8 |
+| [0035](0035-public-bounded-catalog-discovery.md) | Accepted experimental policy | Publish bounded catalog discovery without reopening M7 |
 
 Each ADR states its context, decision, consequences, and status. Proposed ADRs
 may change; accepted ADRs govern implementation until superseded.

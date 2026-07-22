@@ -260,7 +260,7 @@ gx_wqp_target_impl <- function(source_url, distribution) {
   parsed <- tryCatch(httr2::url_parse(canonical), error = function(cnd) NULL)
   if (is.null(parsed) || !is.null(parsed$fragment) ||
       !parsed$hostname %in% c("waterqualitydata.us", "www.waterqualitydata.us") ||
-      parsed$path != "/data/Result/search") {
+      !parsed$path %in% c("/data/Result/search", "/wqx3/Result/search")) {
     gx_wqp_abort(
       "M7k accepts only the WQP Result search endpoint.",
       "gx_error_wqp_plan_url"
@@ -268,13 +268,21 @@ gx_wqp_target_impl <- function(source_url, distribution) {
   }
   query <- parsed$query %||% list()
   query_names <- names(query) %||% character()
-  allowed <- c("siteid", "characteristicName", "mimeType")
+  allowed <- c("siteid", "characteristicName", "mimeType", "dataProfile")
   if (!length(query) || any(!query_names %in% allowed) ||
       anyDuplicated(query_names) || sum(query_names == "siteid") != 1L ||
       sum(query_names == "mimeType") != 1L ||
       !identical(query[[match("mimeType", query_names)]], "csv")) {
     gx_wqp_abort(
       "The inherited WQP query must contain one siteid and mimeType=csv and no unreviewed filters.",
+      "gx_error_wqp_plan_url"
+    )
+  }
+  profile_position <- match("dataProfile", query_names)
+  if (!is.na(profile_position) &&
+      !query[[profile_position]] %in% c("fullPhysChem", "narrowResult")) {
+    gx_wqp_abort(
+      "The inherited WQP data profile is not a reviewed Result profile.",
       "gx_error_wqp_plan_url"
     )
   }
@@ -300,6 +308,11 @@ gx_wqp_target_impl <- function(source_url, distribution) {
     )
   }
   time <- gx_wqp_time_impl(distribution)
+  # Current Geoconnex WQP profiles still advertise the WQX3 beta route. The
+  # reviewed narrowResult request contract is served by the stable /data route,
+  # so retain only the allowlisted source facts and build the owned request
+  # against that route.
+  parsed$path <- "/data/Result/search"
   parsed$query <- list()
   parsed$fragment <- NULL
   base <- httr2::url_build(parsed)
@@ -575,7 +588,11 @@ gx_wqp_external_data_impl <- function(parser, body, request_plan) {
   parsed <- tryCatch(
     suppressMessages(withCallingHandlers(
       do.call(parser, list(
-        obs_url = text,
+        # importWQP() treats any character input containing an HTTPS substring
+        # as a URL. A WQP CSV commonly contains URL-valued cells, so pass one
+        # inert literal record container: readr accepts it as inline data while
+        # importWQP's URL branch remains unreachable.
+        obs_url = list(text),
         tz = "UTC",
         csv = TRUE,
         convertType = FALSE
@@ -594,7 +611,7 @@ gx_wqp_external_data_impl <- function(parser, body, request_plan) {
     )
   }
   columns <- lapply(parsed, function(column) {
-    column[is.na(column)] <- "NA"
+    column[is.na(column)] <- ""
     unname(column)
   })
   names(columns) <- names(parsed)
@@ -626,7 +643,12 @@ gx_wqp_result_impl <- function(body, request_plan, parser = NULL) {
   strict <- gx_wqp_strict_result_impl(body, request_plan)
   if (!is.null(parser)) {
     external <- gx_wqp_external_data_impl(parser, body, request_plan)
-    if (!identical(external, strict$data)) {
+    comparison <- strict$data
+    comparison[] <- lapply(comparison, function(column) {
+      column[column %in% c("", "NA")] <- ""
+      column
+    })
+    if (!identical(external, comparison)) {
       gx_wqp_abort(
         "The optional WQP parser disagreed with the strict bounded CSV result.",
         "gx_error_wqp_payload"
