@@ -676,6 +676,6 @@ test_that("the M7a fetch-plan contract remains internal", {
   )
   exports <- getNamespaceExports("geoconnexr")
   expect_false(any(internal %in% exports))
-  expect_false("gx_fetch_plan" %in% exports)
-  expect_false("gx_fetch" %in% exports)
+  expect_true("gx_fetch_plan" %in% exports)
+  expect_true("gx_fetch" %in% exports)
 })

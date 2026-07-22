@@ -319,7 +319,7 @@ test_that("the M7h orchestration contract remains internal", {
   exports <- getNamespaceExports("geoconnexr")
   expect_false("gx_csv_orchestration_impl" %in% exports)
   expect_false("gx_csv_orchestration_validate_impl" %in% exports)
-  expect_false("gx_fetch" %in% exports)
+  expect_true("gx_fetch" %in% exports)
 
   result <- csv_orchestration_test_build(dry_run = TRUE)
   output <- capture.output(print(result), type = "message")

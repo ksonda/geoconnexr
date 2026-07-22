@@ -21,7 +21,7 @@ The product concept is worth building and the layered architecture is sound. The
 
 The target remains an R-first package for discovery, identifier crosswalks, and watershed data snapshots across the Geoconnex ecosystem.
 
-### Implementation status (2026-07-21)
+### Implementation status (2026-07-22)
 
 | Module | Status |
 |---|---|
@@ -31,8 +31,8 @@ The target remains an R-first package for discovery, identifier crosswalks, and 
 | M4 | Partial experimental slices M4a/M4b/M4c: `gx_gage_to_pid()` is implemented, and the v3.2 COMID lookup now has an explicit verified install lifecycle plus internal offline forward and release-scoped inverse mappers; public COMID, HUC12, point, inverse, and currentness contracts remain gated under ADRs 0004, 0008, 0009, and 0015. |
 | M5 | Partial experimental M5a/M5b: an unexported one-logical-request SELECT/ASK substrate provides strict bounded SPARQL 1.1 Results JSON parsing and provenance, while the public local renderer now consumes an exact-byte-pinned render-only v2 template manifest with explicit disabled execution, chunking, and pagination; public graph APIs, endpoint support, and paging remain gated under ADRs 0004, 0012, and 0013. |
 | M6 | Partial M6a/M6b/M6c: `gx_aoi()` canonicalizes one custom polygonal `sf`/`sfc` geometry offline, internal bounded hydration reconstructs AOI-only recipes while independently rebinding canonical GeoJSON to their WKB digest, and an internal catalog value object validates typed sites, flattened datasets, problems, requests, and completeness. Public `gx_catalog()`, live discovery/merge, nonempty reference layers, full replay, and upstream-derived AOI modes remain gated under ADRs 0014, 0016, and 0018. |
-| M7 | Partial M7a–M7n: the internal chain selects catalog distributions, records direct-CSV intent, allocates one-attempt reservations, validates response envelopes, and parses bounded results. M7g executes direct CSV; M7h orchestrates CSV; M7i adds one reservation-bound, single-page OGC API Features request; M7j introduces shared global scheduling; M7k adds one WQP Result request with invocation-time `dataRetrieval::importWQP()` validation; M7l adds one EDR position request with exact CRS84 point/parameter/time/CoverageJSON facts and invocation-time `edr4r::covjson_to_tibble()` agreement; M7m adds one current USGS `continuous` page; and M7n adds one current USGS `daily` page with an exact statistic, local-date interval, string-preserved measurements, and explicit no-follow truncation. The scheduler now runs CSV, WQP, EDR, USGS continuous, USGS daily, and OGC globally with shared admission, isolated failures, compact evidence, and exact all-distribution status. The nested M7a request list remains empty; public fetch, pagination, latest/legacy USGS handlers, registration, serialization, and replay remain gated under ADRs 0020–0033. |
-| M8 | Planned. |
+| M7 | Complete for the supported subset under ADR 0034. `gx_fetch_plan()` publishes deterministic catalog selection, and `gx_fetch()` returns a validated `gx_fetched` object over direct CSV, WQP Result, EDR position, current USGS continuous, current USGS daily, and OGC API Features. Execution is sequential, bounded, single-page, failure-isolating, and provenance-preserving. Latest/legacy USGS, other EDR queries, pagination, registration, serialization, and replay are deferred enhancements and do not reopen M7. |
+| M8 | Next: harmonization may now target the frozen `gx_fetched` 0.1.0 boundary. |
 | M9 | Partial M9a/M9b: an unexported offline verifier validates the bounded manifest and embedded request-ledger shape, rebinds AOI identity through M6b, inventories a closed portable resource tree, and verifies exact local bytes; an unexported creation-only writer stages, verifies, and publishes deterministic redacted catalog CSV resources plus manifest-v1. Public packaging/snapshot APIs, overwrite, loading, Frictionless acceptance, authenticity, and replay remain gated under ADRs 0017 and 0019. |
 | M10 | Planned. |
 
@@ -887,6 +887,23 @@ fully rebind from retained bytes without loading dataRetrieval. M7n remains
 internal, current-daily-only, single-page, non-replayable, and not generally
 execution-ready under ADR 0033.
 
+ADR 0034 closes M7 without adding another provider checkpoint. The public
+`gx_fetch_plan()` wrapper exposes M7a selection with the exact built-in
+registry and one aggregate byte ceiling. Public `gx_fetch()` composes the
+existing intent, reservation, and six-family scheduler boundaries under fixed
+limits and returns `gx_fetched` contract 0.1.0. Its public status has one row
+per distribution; its result index retains handler-native tabular or `sf`
+payloads plus bounded raw bodies where the compact execution contract retains
+them; and its provenance embeds the fully validated M7n execution. The
+validator re-derives every public projection from that provenance.
+
+This is the frozen supported subset: sequential execution, at most 32 admitted
+requests, 64 MiB per call, 8 MiB per response, bounded table shape, and no
+redirect, retry, cache, added credential, or page follow. Latest/legacy USGS,
+other EDR query types, pagination, registration, and serialization/replay move
+to later fetch enhancements. They are not M8 prerequisites and may not expand
+M7 retroactively.
+
 Every handler implements `probe → plan → fetch → normalize`:
 
 - **probe:** determine whether the distribution is compatible;
@@ -1127,13 +1144,14 @@ shared dry-run and live scheduling orders all six handler families globally;
 forged plan/result/ledger/status/metadata facts fail closed; and M7n plus public
 `gx_fetch()` remain unexported.
 
-**Remaining M7 acceptance:** provider-specific request-plan snapshots and
-fixture tests for latest/legacy USGS and other remaining non-CSV handlers;
-optional-package symbol
-rechecks coupled to invocation; multi-provider and paginated execution ledgers;
-missing-package fixtures; handler-specific aggregate page budgets;
-reviewed registration and serialization/replay contracts; and one public
-fetched-result schema.
+**M7 closure acceptance:** `gx_fetch_plan()` binds the built-in registry and
+budgets without provider work; `gx_fetch()` accepts only sequential execution,
+provides a deterministic no-host dry run, and returns `gx_fetched` 0.1.0 with
+one status row per distribution, one handler-native payload row per success,
+and the validated M7n provenance. Public projection or nested provenance
+forgery fails closed. Latest/legacy providers, other EDR queries, pagination,
+registration, and serialization/replay are explicitly deferred enhancements,
+not M8 gates.
 
 ### M8 — Harmonization
 
@@ -1312,13 +1330,12 @@ validation, package-owned transport, strict string-preserving GeoJSON
 normalization, and no-follow truncation. M7n adds one current USGS daily page,
 an exact statistic/local-date contract, `Date` normalization, conservative
 missing-match handling, and CSV/WQP/EDR/continuous/daily/OGC reconciliation.
-Later contracts add remaining provider request/query semantics, optional-package
-symbol checks, multi-provider
-pagination, registration, serialization/replay, and a public fetched-result
-schema. The
-eventual public fetch status may add user-facing
-elapsed/message fields and fetched times without weakening M7h's identity,
-attempt, byte, and one-to-one reconciliation rules.
+ADR 0034 freezes those six families as the supported M7 subset and publishes
+`gx_fetch_plan()`, `gx_fetch()`, and the `gx_fetched` 0.1.0 result boundary.
+Remaining provider breadth, pagination, registration, and replay are later
+enhancements rather than prerequisites for M8. Future result-contract versions
+may add user-facing elapsed/message fields and fetched times without weakening
+M7h's identity, attempt, byte, and one-to-one reconciliation rules.
 
 ### 6.5 Observations
 

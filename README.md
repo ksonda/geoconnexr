@@ -88,10 +88,12 @@ calendar dates as `Date`, and keep last-modified instants in UTC. Both strict
 single-page GeoJSON parsers preserve measurement values as strings and report,
 but never follow, a next page.
 
-These are internal substrates, not exported discovery, fetch, package,
-snapshot, loading, or replay APIs. Public graph
-discovery, catalog and fetch APIs, remaining handlers, pagination, and general
-provider data retrieval remain gated on fixture-backed production evidence.
+ADR 0034 freezes those six paths as the supported M7 subset. Public
+`gx_fetch_plan()` now exposes deterministic planning for a validated
+`gx_catalog`, and public `gx_fetch()` returns a validated `gx_fetched` status,
+payload, and provenance object. Public graph and catalog discovery, provider
+variants beyond the supported subset, pagination, packaging, loading, and
+replay remain separate experimental work.
 
 ## Intended workflow
 
@@ -104,8 +106,9 @@ harmonized <- gx_harmonize(fetched)
 gx_snapshot(harmonized, dir = "potomac-snapshot")
 ```
 
-This workflow is the target API, not a claim that every function above is
-implemented in the P0 scaffold.
+`gx_fetch_plan()` and `gx_fetch()` are now implemented for the frozen supported
+subset. Public `gx_catalog()`, harmonization, and snapshot composition remain
+target APIs rather than implemented end-to-end workflow claims.
 
 ## Available in the P0 scaffold
 
@@ -170,6 +173,10 @@ gx_classify_distribution(
   "https://reference.geoconnex.us/collections/gages/items"
 )
 gx_unit_conversions()
+
+# Given a validated gx_catalog from the current catalog boundary:
+# plan <- gx_fetch_plan(catalog, time = fetch_window, max_bytes = 64 * 1024^2)
+# gx_fetch(plan, dry_run = TRUE)
 ```
 
 For custom geometry, `gx_aoi()` accepts exactly one valid, non-empty XY
@@ -361,15 +368,18 @@ table/schema, string-valued measurements, parse hashes, truncation facts, and
 one attempt. Daily successes retain the same evidence shape while preserving
 observation dates as `Date`, binding an exact statistic code, and allowing an
 absent `numberMatched` only as unknown completeness. Validation does not load
-dataRetrieval later. M7n remains unexported and does not implement other EDR
-queries, latest or legacy USGS execution, pagination, registration,
-serialization/replay, a public
-fetched-result schema, or `gx_fetch()`. See
+dataRetrieval later. M7n remains the internal execution substrate. ADR 0034
+publishes `gx_fetch_plan()` and `gx_fetch()` over this exact supported subset,
+returning `gx_fetched` 0.1.0 with one public status row per distribution,
+handler-native payloads, and the validated orchestration provenance. Other EDR
+queries, latest or legacy USGS execution, pagination, registration, and
+serialization/replay are deferred enhancements rather than M8 gates. See
 [ADR 0029](docs/decisions/0029-cross-handler-orchestration.md) and
 [ADR 0030](docs/decisions/0030-single-response-wqp-handler.md), then
 [ADR 0031](docs/decisions/0031-single-response-edr-position-handler.md) and
 [ADR 0032](docs/decisions/0032-single-page-usgs-continuous-handler.md), then
-[ADR 0033](docs/decisions/0033-single-page-usgs-daily-handler.md).
+[ADR 0033](docs/decisions/0033-single-page-usgs-daily-handler.md) and
+[ADR 0034](docs/decisions/0034-freeze-m7-supported-fetch-subset.md).
 
 `gx_resolve()`, `gx_jsonld()`, and the `gx_ref_*()` functions make bounded
 network requests, account for every physical retry, and validate DNS and every

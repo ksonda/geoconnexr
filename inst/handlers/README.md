@@ -160,4 +160,12 @@ Invocation checks exported `read_waterdata_daily()` before the same single
 package-owned request boundary. The fixed table preserves measurement strings,
 stores observation time as `Date`, stores `last_modified` as UTC `POSIXct`, and
 treats an absent `numberMatched` as unknown. Latest and legacy USGS paths,
-other EDR queries, registration, replay, and a public fetch API remain planned.
+other EDR queries, registration, and replay remain planned.
+
+ADR 0034 freezes the six implemented families as the supported M7 subset and
+publishes `gx_fetch_plan()` plus `gx_fetch()`. The portable implementation
+asset retains its historical `planned` value because M7a contract 0.1.0 binds
+that exact asset state; public execution authority comes only from the reviewed
+wrapper and its fixed limits, never from classifier metadata. Latest/legacy
+USGS, other EDR query types, pagination, registration, and replay are deferred
+extensions and do not reopen M7 or block M8.

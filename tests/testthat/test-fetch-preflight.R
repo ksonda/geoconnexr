@@ -1050,6 +1050,6 @@ test_that("M7b package preflight remains internal and exports no execution API",
   exports <- getNamespaceExports("geoconnexr")
   expect_false(any(internal %in% exports))
   expect_false("gx_fetch_preflight" %in% exports)
-  expect_false("gx_fetch_plan" %in% exports)
-  expect_false("gx_fetch" %in% exports)
+  expect_true("gx_fetch_plan" %in% exports)
+  expect_true("gx_fetch" %in% exports)
 })

@@ -365,5 +365,5 @@ test_that("the M7g execution contract remains internal", {
   exports <- getNamespaceExports("geoconnexr")
   expect_false(any(internal %in% exports))
   expect_false("gx_csv_execution" %in% exports)
-  expect_false("gx_fetch" %in% exports)
+  expect_true("gx_fetch" %in% exports)
 })

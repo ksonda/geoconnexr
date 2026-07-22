@@ -726,6 +726,6 @@ test_that("the M7c direct-CSV intent contract remains internal", {
   exports <- getNamespaceExports("geoconnexr")
   expect_false(any(internal %in% exports))
   expect_false("gx_csv_get_intents" %in% exports)
-  expect_false("gx_fetch" %in% exports)
+  expect_true("gx_fetch" %in% exports)
   expect_false("gx_fetch_request" %in% exports)
 })
