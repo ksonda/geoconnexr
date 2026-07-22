@@ -91,24 +91,34 @@ but never follow, a next page.
 ADR 0034 freezes those six paths as the supported M7 subset. Public
 `gx_fetch_plan()` now exposes deterministic planning for a validated
 `gx_catalog`, and public `gx_fetch()` returns a validated `gx_fetched` status,
-payload, and provenance object. Public graph and catalog discovery, provider
-variants beyond the supported subset, pagination, packaging, loading, and
-replay remain separate experimental work.
+payload, and provenance object. Public `gx_catalog()` now builds the validated
+catalog from one bounded graph page, explicit site PIDs, or caller-supplied
+local JSON-LD profiles. Automatic graph discovery remains dependent on an
+upstream service that can time out; provider variants beyond the supported
+subset, pagination, packaging, loading, and replay remain separate work.
 
 ## Intended workflow
 
 ```r
-aoi <- gx_aoi("02070010", type = "huc")
-catalog <- gx_catalog(aoi)
-plan <- gx_fetch_plan(catalog, time = c("2025-01-01", "2025-01-31"))
+aoi <- gx_aoi("VA", type = "state")
+catalog <- gx_catalog(
+  aoi,
+  site_uri = "https://geoconnex.us/iow/wqp/21VASWCB-WMPO001",
+  max_sites = 1L
+)
+fetch_window <- as.POSIXct(
+  c("2017-01-01 00:00:00", "2017-12-30 23:59:59"),
+  tz = "UTC"
+)
+plan <- gx_fetch_plan(
+  catalog, time = fetch_window, max_datasets = 1L, max_bytes = 1024^2
+)
 fetched <- gx_fetch(plan)
-harmonized <- gx_harmonize(fetched)
-gx_snapshot(harmonized, dir = "potomac-snapshot")
+fetched$results$data[[1L]]
 ```
 
-`gx_fetch_plan()` and `gx_fetch()` are now implemented for the frozen supported
-subset. Public `gx_catalog()`, harmonization, and snapshot composition remain
-target APIs rather than implemented end-to-end workflow claims.
+Catalog → plan → fetch is now public for the frozen supported subset.
+Harmonization and snapshot composition remain target APIs.
 
 ## Available in the P0 scaffold
 
@@ -174,9 +184,20 @@ gx_classify_distribution(
 )
 gx_unit_conversions()
 
-# Given a validated gx_catalog from the current catalog boundary:
-# plan <- gx_fetch_plan(catalog, time = fetch_window, max_bytes = 64 * 1024^2)
-# gx_fetch(plan, dry_run = TRUE)
+# Discover one known PID and preview its fetch without provider work
+catalog <- gx_catalog(
+  gx_aoi("VA"),
+  site_uri = "https://geoconnex.us/iow/wqp/21VASWCB-WMPO001",
+  max_sites = 1L
+)
+fetch_window <- as.POSIXct(
+  c("2017-01-01 00:00:00", "2017-12-30 23:59:59"),
+  tz = "UTC"
+)
+plan <- gx_fetch_plan(
+  catalog, time = fetch_window, max_datasets = 1L, max_bytes = 1024^2
+)
+gx_fetch(plan, dry_run = TRUE)
 ```
 
 For custom geometry, `gx_aoi()` accepts exactly one valid, non-empty XY
@@ -208,14 +229,16 @@ unsigned manifest—not authenticity or historical request provenance—and rema
 an unexported prerequisite for future `gx_replay(refresh = FALSE)`. See
 [ADR 0017](docs/decisions/0017-offline-snapshot-verification.md).
 
-The internal M6c catalog is a separately validated value object rather than an
-alias for any protocol response. It requires typed CRS84 point sites,
+The M6c catalog is a separately validated value object rather than an alias for
+any protocol response. It requires typed CRS84 point sites,
 site-linked flattened datasets, explicit recoverable problems,
 manifest-shaped physical/cache attempts, and count-reconciled procedural
 completeness. Its export views redact sensitive URI components for all schemes
 and add stable site/variable fingerprints so redacted displays cannot corrupt
-identity joins. Its first contract intentionally permits no reference layers and
-does not implement graph/profile merge or live discovery. The internal M9b
+identity joins. Its first contract intentionally permits no reference layers
+and is now populated publicly by one bounded graph page, explicit PID profiles,
+or caller-supplied local profiles under ADR 0035. Reference-layer population
+and general graph/profile merge remain deferred. The internal M9b
 writer accepts only that revalidated object, writes redacted deterministic CSV
 views and manifest-v1 through a sibling staging directory, verifies the closed
 tree before and after publication, and refuses any existing destination. The

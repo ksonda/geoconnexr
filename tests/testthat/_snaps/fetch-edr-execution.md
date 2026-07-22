@@ -27,7 +27,7 @@
         ..$ max_physical_attempts    : int 1
         ..$ cache_policy             : chr "bypass"
         ..$ success_status           : int 200
-        ..$ response_media_types     : chr [1:2] "application/prs.coverage+json" "application/json"
+        ..$ response_media_types     : chr [1:3] "application/prs.coverage+json" "application/vnd.cov+json" "application/json"
         ..$ response_content_encoding: chr "identity"
         ..$ parser_encoding          : chr "UTF-8"
         ..$ type_inference           : chr "bounded_position_subset"

@@ -1,0 +1,44 @@
+{
+  "@context": {
+    "schema": "https://schema.org/",
+    "hyf": "https://www.opengis.net/def/schema/hy_features/hyf/",
+    "gsp": "http://www.opengis.net/ont/geosparql#",
+    "sf": "http://www.opengis.net/ont/sf#"
+  },
+  "@id": "https://example.org/geoconnexr/icoads-sst",
+  "@type": [
+    "schema:Place",
+    "hyf:HY_HydrometricFeature"
+  ],
+  "schema:name": "ICOADS example point",
+  "schema:description": "Caller-supplied example profile for a live EDR position request.",
+  "gsp:hasGeometry": {
+    "@type": "sf:Point",
+    "gsp:asWKT": "POINT (-29 31)"
+  },
+  "schema:provider": {
+    "@id": "https://pygeoapi.io/",
+    "@type": "schema:Organization",
+    "schema:name": "pygeoapi demonstration service",
+    "schema:url": "https://demo.pygeoapi.io/master"
+  },
+  "schema:subjectOf": {
+    "@id": "https://example.org/geoconnexr/datasets/icoads-sst",
+    "@type": "schema:Dataset",
+    "schema:name": "ICOADS sea-surface temperature example",
+    "schema:description": "A narrow live interoperability example; this is not a Geoconnex provider claim.",
+    "schema:temporalCoverage": "2000-01-16T06:00:00Z/2000-02-16T06:00:00Z",
+    "schema:variableMeasured": {
+      "@id": "https://example.org/geoconnexr/variables/SST",
+      "@type": "schema:PropertyValue",
+      "schema:name": "SST",
+      "schema:unitText": "K"
+    },
+    "schema:distribution": {
+      "@type": "schema:DataDownload",
+      "schema:encodingFormat": "application/vnd.cov+json",
+      "schema:conformsTo": "http://www.opengis.net/spec/ogcapi-edr-1/1.1/conf/core",
+      "schema:contentUrl": "https://demo.pygeoapi.io/master/collections/icoads-sst/position?coords=POINT%28-29%2031%29&parameter-name=SST&datetime=2000-01-16T06%3A00%3A00Z%2F2000-02-16T06%3A00%3A00Z&crs=http%3A%2F%2Fwww.opengis.net%2Fdef%2Fcrs%2FOGC%2F1.3%2FCRS84&f=json"
+    }
+  }
+}

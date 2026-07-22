@@ -72,7 +72,7 @@ handlers:
           values: [https, http]
         - fact: access_url
           operator: regex
-          value: '^https?://(www\.)?waterqualitydata\.us/(data/[^/?#]+/search|[^?#]*WQP)([/?#]|$)'
+          value: '^https?://(www\.)?waterqualitydata\.us/((data|wqx3)/[^/?#]+/search|[^?#]*WQP)([/?#]|$)'
   - id: ogc_api_features
     precedence: 70
     classifier:

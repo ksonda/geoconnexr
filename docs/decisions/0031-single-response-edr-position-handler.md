@@ -39,13 +39,15 @@ ambiguous multi-parameter values fail closed.
 
 M7l accepts one finite, two-dimensional WKT `POINT(longitude latitude)` in
 CRS84. An inherited `datetime` must exactly equal the M7d UTC interval; an
-inherited CRS must be `CRS84`; and an inherited representation must be
+inherited CRS must be either `CRS84` or its canonical OGC URI
+`http://www.opengis.net/def/crs/OGC/1.3/CRS84`; and an inherited representation must be
 CoverageJSON or JSON. The deterministic request always records and binds:
 
 - the redacted base URL, collection, and `position` query type;
 - canonical WKT, longitude, latitude, and one exact parameter name;
 - the exact UTC interval and interval-form `datetime`;
-- `crs=CRS84` and `f=CoverageJSON`;
+- the accepted CRS84 spelling and `f=CoverageJSON` or `f=json` inherited from
+  the reviewed source (defaulting to `CRS84` and `CoverageJSON`);
 - GET with CoverageJSON/JSON acceptance and identity encoding;
 - no added credentials, body, redirect, retry, cache, or pagination follow;
 - one physical attempt and the held byte, row, column, and field ceilings; and
@@ -61,7 +63,8 @@ consume no attempt or bytes.
 geoconnexr owns the HTTP request. It revalidates and pins public DNS, enforces
 the held transfer ceiling, bypasses cache, rejects redirects or a changed final
 URL, and retries zero times. A response must be status 200, CoverageJSON or
-JSON, identity encoded, internally length-consistent, and within all byte
+JSON (`application/prs.coverage+json`, `application/vnd.cov+json`, or
+`application/json`), identity encoded, internally length-consistent, and within all byte
 ceilings before parsing. `edr_position()` is capability-checked but not invoked,
 because its transport is outside the M7d attempt ledger.
 
@@ -69,11 +72,16 @@ because its transport is outside the M7d attempt ledger.
 
 M7l deliberately implements one small CoverageJSON subset:
 
-- one explicitly identified `Coverage`;
+- one `Coverage`, whose optional identifier defaults to the stable
+  within-document identifier `"1"` used by `edr4r`;
 - one inline `Domain` with `domainType=PointSeries`;
-- exact `x`, `y`, and RFC 3339 `t` axes, with the planned point coordinates;
+- exact `x`, `y`, and `t` axes, with the planned point coordinates; RFC 3339
+  UTC is preferred, while pygeoapi's timezone-less ISO date-times are treated
+  as UTC to match the reviewed normalizer;
 - exactly the planned parameter in both `parameters` and `ranges`;
-- one numeric/integer t-axis `NdArray` whose shape equals the time axis; and
+- one numeric/integer `NdArray`, either on `t` alone or on the exact
+  `t`, `y`, `x` PointSeries axes with singleton spatial dimensions, whose
+  value count equals the time axis; and
 - bounded localized parameter/unit labels and numeric or null values.
 
 The package parser normalizes that subset to a fixed nine-column tibble:

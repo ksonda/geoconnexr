@@ -229,3 +229,57 @@ test_that("live pinned mainstem asset exposes the checked bounded redirect", {
   expect_true(nzchar(location))
   expect_true(tolower(httr2::url_parse(location)$hostname) %in% spec$allowed_hosts)
 })
+
+test_that("live public WQP catalog-to-fetch path returns bounded data", {
+  live_guard()
+  testthat::skip_if_not_installed("dataRetrieval", minimum_version = "2.7.22")
+
+  catalog <- gx_catalog(
+    gx_aoi("VA"),
+    site_uri = "https://geoconnex.us/iow/wqp/21VASWCB-WMPO001",
+    max_sites = 1L,
+    client = gx_client("pid", retries = 0L, cache = FALSE)
+  )
+  time <- as.POSIXct(
+    c("2017-01-01 00:00:00", "2017-12-30 23:59:59"), tz = "UTC"
+  )
+  fetched <- gx_fetch(gx_fetch_plan(
+    catalog, time = time, max_datasets = 1L, max_bytes = 1024^2
+  ))
+
+  position <- which(fetched$status$handler_id == "wqp" &
+                      fetched$status$attempted)
+  expect_length(position, 1L)
+  expect_true(fetched$status$succeeded[[position]])
+  expect_identical(fetched$status$physical_attempts[[position]], 1L)
+  expect_identical(fetched$results$handler_id, "wqp")
+  expect_true(fetched$results$row_count[[1L]] >= 1L)
+})
+
+test_that("live public caller-profile EDR path returns bounded data", {
+  live_guard()
+  testthat::skip_if_not_installed("edr4r", minimum_version = "0.1.1")
+
+  uri <- "https://example.org/geoconnexr/icoads-sst"
+  path <- system.file(
+    "extdata", "icoads-sst-profile.json", package = "geoconnexr"
+  )
+  expect_true(nzchar(path))
+  profile <- jsonlite::fromJSON(path, simplifyVector = FALSE)
+  catalog <- gx_catalog(
+    gx_aoi("VA"), site_uri = uri,
+    profiles = stats::setNames(list(profile), uri), max_sites = 1L
+  )
+  time <- as.POSIXct(
+    c("2000-01-16 06:00:00", "2000-02-16 06:00:00"), tz = "UTC"
+  )
+  fetched <- gx_fetch(gx_fetch_plan(
+    catalog, time = time, max_datasets = 1L, max_bytes = 1024^2
+  ))
+
+  expect_identical(fetched$status$handler_id, "edr")
+  expect_true(fetched$status$succeeded)
+  expect_identical(fetched$status$physical_attempts, 1L)
+  expect_identical(fetched$results$row_count, 2L)
+  expect_identical(fetched$results$column_count, 9L)
+})

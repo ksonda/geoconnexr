@@ -229,6 +229,24 @@ test_that("M7k accepts the installed official parser without provider work", {
   expect_identical(result$parse$column_count, 5L)
 })
 
+test_that("M7k keeps URL-valued WQP cells inside the offline parser", {
+  skip_if_not_installed("dataRetrieval")
+  body <- charToRaw(paste0(
+    "MonitoringLocationIdentifier,SourceUrl,ResultMeasureValue,Note\n",
+    paste0(
+      "PYRAMIDLAKE-TRMPD,https://example.org/result/1,8.4,",
+      "__GEOCONNEXR_WQP_HTTPS_0__\n"
+    )
+  ))
+  result <- gx_wqp_result_impl(
+    body, wqp_test_request_plan(), parser = dataRetrieval::importWQP
+  )
+
+  expect_identical(result$parse$row_count, 1L)
+  expect_identical(result$data$SourceUrl, "https://example.org/result/1")
+  expect_identical(result$data$Note, "__GEOCONNEXR_WQP_HTTPS_0__")
+})
+
 test_that("the M7k WQP handler contract remains internal", {
   exports <- getNamespaceExports("geoconnexr")
   expect_false(any(c(

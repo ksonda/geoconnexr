@@ -698,7 +698,7 @@ test_that("catalog export views redact HTTP-bearing copies without mutation", {
   ))
 })
 
-test_that("the M6c catalog contract remains internal", {
+test_that("the M6c constructor internals remain private", {
   internal <- c(
     "gx_catalog_empty_sites", "gx_catalog_empty_datasets",
     "gx_catalog_empty_problems", "gx_catalog_empty_requests",
@@ -708,5 +708,5 @@ test_that("the M6c catalog contract remains internal", {
   )
   exports <- getNamespaceExports("geoconnexr")
   expect_false(any(internal %in% exports))
-  expect_false("gx_catalog" %in% exports)
+  expect_true("gx_catalog" %in% exports)
 })

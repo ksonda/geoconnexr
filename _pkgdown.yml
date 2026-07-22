@@ -96,6 +96,7 @@ reference:
 - title: Plan and fetch data
   desc: Build bounded plans and execute the frozen six-handler M7 subset.
   contents:
+  - gx_catalog
   - gx_fetch_plan
   - gx_fetch
 
@@ -112,6 +113,7 @@ articles:
   navbar: ~
   contents:
   - geoconnexr
+  - end-to-end-fetch
 - title: Design and operation
   navbar: ~
   contents:

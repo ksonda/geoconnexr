@@ -56,10 +56,13 @@ Description: Tools for discovering water-data sites and datasets through the
     and preserve string-valued measurements through strict GeoJSON
     normalization. Public bounded fetch planning and sequential execution now
     return a validated supported-subset result with exact all-distribution
-    status, handler-native payloads, and retained execution provenance. Graph
-    discovery, public catalog discovery, provider variants outside the frozen
-    subset, pagination, harmonization, replay, and provider-data packaging
-    remain under development.
+    status, handler-native payloads, and retained execution provenance. Public
+    bounded catalog construction supports one graph page, explicit PID
+    profiles, or caller-supplied local JSON-LD while retaining problems,
+    request evidence, and completeness. Automatic graph discovery remains
+    upstream-dependent; provider variants outside the frozen subset,
+    pagination, harmonization, replay, and provider-data packaging remain
+    under development.
 License: MIT + file LICENSE
 URL: https://ksonda.github.io/geoconnexr/, https://github.com/ksonda/geoconnexr
 BugReports: https://github.com/ksonda/geoconnexr/issues
