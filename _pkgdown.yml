@@ -93,6 +93,12 @@ reference:
   - gx_classify_distribution
   - gx_unit_conversions
 
+- title: Plan and fetch data
+  desc: Build bounded plans and execute the frozen six-handler M7 subset.
+  contents:
+  - gx_fetch_plan
+  - gx_fetch
+
 - title: Infrastructure and package internals
   desc: Cache controls and versioned identity primitives for advanced use.
   contents:

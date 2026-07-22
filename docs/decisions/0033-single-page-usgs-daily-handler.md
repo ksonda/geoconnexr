@@ -121,7 +121,9 @@ result schema, or harmonization.
 - Daily local-date semantics are preserved rather than incorrectly converted
   to UTC instants.
 - Latest and legacy USGS variants, paging, registration, replay, and the public
-  fetched-result contract remain gates before M8 begins.
+  fetched-result contract were initially recorded as gates before M8. ADR 0034
+  supersedes that sequencing decision: the public supported-subset result
+  closes M7, while those independent fetch extensions move to later work.
 
 ## Primary references
 

@@ -924,6 +924,6 @@ test_that("the M7e direct-CSV response contract remains internal", {
   exports <- getNamespaceExports("geoconnexr")
   expect_false(any(internal %in% exports))
   expect_false("gx_csv_validated_response" %in% exports)
-  expect_false("gx_fetch" %in% exports)
+  expect_true("gx_fetch" %in% exports)
   expect_false("gx_fetch_response" %in% exports)
 })

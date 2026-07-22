@@ -218,7 +218,19 @@
   capability/transport/parse failures, never follows the next page, and
   revalidates compact successes without loading dataRetrieval later. Latest
   and legacy USGS execution, pagination, registration, serialization/replay,
-  a public result schema, and `gx_fetch()` remain gated.
+  a public result schema, and `gx_fetch()` remained gated at that checkpoint.
+- Closed M7 at the reviewed six-family supported subset under ADR 0034 instead
+  of extending the milestone through every provider variant. Public
+  `gx_fetch_plan()` now exposes deterministic built-in-registry selection and
+  public `gx_fetch()` composes the existing bounded request pipeline into a
+  validated `gx_fetched` 0.1.0 object. Its exact status table retains one row
+  per distribution; its result table exposes handler-native tabular or `sf`
+  payloads and bounded raw bodies where retained; and its provenance embeds
+  the fully revalidated M7n orchestration. Execution remains sequential,
+  single-page, retry/redirect/cache-free, and failure-isolating under fixed
+  count, byte, shape, timeout, and per-host limits. Latest/legacy USGS, other
+  EDR queries, pagination, registration, serialization, and replay are now
+  explicit later enhancements rather than M8 gates.
 - Added the unexported M9b catalog-only snapshot writer. It revalidates a
   catalog, creates deterministic redacted UTF-8 CSV views in a sibling staging
   tree, writes a manifest-v1 document last, verifies the closed tree through

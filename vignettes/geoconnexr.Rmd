@@ -14,8 +14,9 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
 
 `geoconnexr` helps R users navigate connected water data without discarding
 identifier identity or the evidence needed to interpret a result. This guide
-uses only the package's current public functions. The larger catalog, fetch,
-harmonization, and snapshot workflow remains under active development.
+uses only the package's current public functions. Fetch planning and execution
+are available for the frozen supported subset; public catalog discovery,
+harmonization, and snapshot composition remain under active development.
 
 ## Install
 
@@ -144,6 +145,37 @@ query
 ```
 
 Rendering is local. It does not execute the query.
+
+## Plan and fetch the supported subset
+
+When a workflow has a validated `gx_catalog`, build the bounded plan before
+performing provider work. Public catalog discovery is not yet available, so
+this boundary currently serves catalog objects produced by the validated
+experimental catalog pipeline.
+
+```{r fetch}
+plan <- gx_fetch_plan(
+  catalog,
+  time = as.POSIXct(c(
+    "2025-01-01 00:00:00", "2025-01-31 23:59:59"
+  ), tz = "UTC"),
+  max_datasets = 20L,
+  max_bytes = 64 * 1024^2
+)
+
+preview <- gx_fetch(plan, dry_run = TRUE)
+preview$status
+
+fetched <- gx_fetch(plan)
+fetched$status
+fetched$results[c("handler_id", "payload_class", "row_count")]
+```
+
+The frozen M7 contract is sequential and single-page. It supports direct CSV,
+WQP Result, EDR position, current USGS continuous and daily data, and OGC API
+Features. Inspect every status row: one failed or unsupported distribution does
+not abort later work. `fetched$results$data` retains handler-native tables or
+`sf`; `fetched$provenance` retains the validated bounded execution evidence.
 
 ## Where to go next
 

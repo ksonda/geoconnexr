@@ -542,7 +542,7 @@ test_that("the M7l cross-handler contract remains internal", {
   expect_false(any(c(
     "gx_fetch_orchestration_impl", "gx_fetch_orchestration_validate_impl"
   ) %in% exports))
-  expect_false("gx_fetch" %in% exports)
+  expect_true("gx_fetch" %in% exports)
 
   result <- fetch_orchestration_test_build(dry_run = TRUE)
   output <- capture.output(print(result), type = "message")
