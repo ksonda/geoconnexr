@@ -90,32 +90,25 @@ attr(location, "diagnostics")
 - Explicit installation and verification of the optional NHDPlus lookup.
 - Typed SPARQL template rendering and portable distribution
   classification.
+- Bounded public fetch planning and sequential six-family execution from
+  a validated catalog.
 
 ### Fetch roadmap progress
 
-The internal M7n checkpoint now schedules direct CSV, WQP Result, EDR
-position, current USGS continuous and daily data, and OGC API Features
-in one deterministic global order. They share explicit request-count and
-byte admission limits, continue after typed handler failures, and
-reconcile one exact terminal status per distribution. Dry run performs
-the same planning without host or provider work. OGC next-page links
-remain reported as truncation and are not followed. WQP performs one
-bounded request and requires
-[`dataRetrieval::importWQP()`](https://rdrr.io/pkg/dataRetrieval/man/importWQP.html)
-to match the strict package parser. EDR performs one bounded collection
-`position` request for an exact CRS84 point, parameter, and UTC
-interval, then requires
-[`edr4r::covjson_to_tibble()`](https://rdrr.io/pkg/edr4r/man/covjson_to_tibble.html)
-to match the package’s strict CoverageJSON PointSeries result. USGS
-continuous checks the current `dataRetrieval` capability before one
-package-owned request for an exact site, parameter, and UTC interval. It
-preserves measurement strings in a strict fixed GeoJSON table and
-reports, but never follows, a next page. The USGS daily path adds an
-exact statistic code and closed local-date interval, preserves
-observation dates as `Date`, and treats a missing match count as unknown
-rather than complete. It also performs only one page and never follows
-the advertised next link. This remains tested infrastructure for the
-future `gx_fetch()` workflow, not a newly exported fetch API. See [ADR
+M7 is complete for a frozen supported subset. Public
+[`gx_fetch_plan()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch_plan.md)
+builds a deterministic bounded plan from a validated catalog, and public
+[`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+returns `gx_fetched` 0.1.0 with one status row per distribution, one
+handler-native payload per success, and validated execution provenance.
+The sequential scheduler supports direct CSV, WQP Result, EDR position,
+current USGS continuous and daily data, and OGC API Features in one
+global order. It shares count and byte admission limits, continues after
+typed handler failures, and offers a deterministic no-host dry run.
+Every provider path is single-page; advertised next links are reported
+as truncation and never followed. Latest and legacy USGS, other EDR
+queries, pagination, registration, and replay are later fetch
+enhancements rather than blockers for M8 harmonization. See [ADR
 0027](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0027-bounded-direct-csv-orchestration.md)
 and [ADR
 0028](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0028-single-page-oaf-handler.md),
@@ -129,6 +122,8 @@ The current USGS continuous boundary is specified in [ADR
 0032](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0032-single-page-usgs-continuous-handler.md).
 The current USGS daily boundary is specified in [ADR
 0033](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0033-single-page-usgs-daily-handler.md).
+The M7 scope freeze and public result boundary are specified in [ADR
+0034](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0034-freeze-m7-supported-fetch-subset.md).
 
 **Experimental status.** The intended end-to-end catalog, fetch,
 harmonize, and snapshot workflow is still being implemented. The

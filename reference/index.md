@@ -67,6 +67,15 @@ Inspect safe query templates, handlers, and reviewed conversion rules.
 - [`gx_unit_conversions()`](https://ksonda.github.io/geoconnexr/reference/gx_unit_conversions.md)
   : Read reviewed unit conversion rules
 
+## Plan and fetch data
+
+Build bounded plans and execute the frozen six-handler M7 subset.
+
+- [`gx_fetch_plan()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch_plan.md)
+  : Build a bounded fetch plan
+- [`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+  : Fetch the supported M7 data subset
+
 ## Infrastructure and package internals
 
 Cache controls and versioned identity primitives for advanced use.

@@ -101,9 +101,12 @@ reproducible.</p>
 <li>inspecting cache state; and</li>
 <li>checking whether the optional mainstem lookup is installed.</li>
 </ul>
-<p>PID resolution, JSON-LD retrieval, reference-feature discovery, and
-live crosswalks use the package request layer. Their reference pages
-document the relevant request, redirect, byte, row, and time limits.</p>
+<p>PID resolution, JSON-LD retrieval, reference-feature discovery, live
+crosswalks, and <code>gx_fetch(..., dry_run = FALSE)</code> use the
+package request layer. Their reference pages document the relevant
+request, redirect, byte, row, and time limits.
+<code>gx_fetch(..., dry_run = TRUE)</code> derives and admits requests
+without host or provider work.</p>
 </div>
 <div class="section level2">
 <h2 id="preserve-identity-across-redirects-and-crosswalks">Preserve identity across redirects and crosswalks<a class="anchor" aria-label="anchor" href="#preserve-identity-across-redirects-and-crosswalks"></a>
@@ -133,7 +136,10 @@ states rather than turning them into silent empty success.</p>
 <span></span>
 <span><span class="va">document</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gx_jsonld.html">gx_jsonld</a></span><span class="op">(</span><span class="st">"https://geoconnex.us/ref/gages/1000001"</span><span class="op">)</span></span>
 <span><span class="va">location</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gx_parse_location.html">gx_parse_location</a></span><span class="op">(</span><span class="va">document</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">location</span>, <span class="st">"diagnostics"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">location</span>, <span class="st">"diagnostics"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">preview</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gx_fetch.html">gx_fetch</a></span><span class="op">(</span><span class="va">plan</span>, dry_run <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">preview</span><span class="op">$</span><span class="va">status</span></span></code></pre></div>
 <p>Before using a result downstream, check flags such as
 <code>complete</code>, <code>truncated</code>, <code>stop_reason</code>,
 request counts, problem codes, and diagnostics where the class provides
@@ -186,8 +192,9 @@ offline validation with fresh provider observation.</li>
 </h2>
 <p>The package remains in an architecture-spike phase. Public functions
 on the <a href="../reference/index.html">reference page</a> are
-implemented, but the documented end-to-end catalog, fetch, harmonize,
-package, and replay API is still a target. Use the <a href="https://github.com/ksonda/geoconnexr/blob/main/geoconnexr-spec-v0.2.md" class="external-link">roadmap</a>
+implemented. M7 fetch planning and the frozen six-family execution
+subset are available, but end-to-end public catalog discovery,
+harmonization, packaging, and replay are still targets. Use the <a href="https://github.com/ksonda/geoconnexr/blob/main/geoconnexr-spec-v0.2.md" class="external-link">roadmap</a>
 and <a href="https://github.com/ksonda/geoconnexr/tree/main/docs/decisions" class="external-link">architecture
 decisions</a> to evaluate maturity before operational use.</p>
 </div>

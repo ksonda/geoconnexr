@@ -32,7 +32,7 @@ makes these changes:
 The target remains an R-first package for discovery, identifier
 crosswalks, and watershed data snapshots across the Geoconnex ecosystem.
 
-### Implementation status (2026-07-21)
+### Implementation status (2026-07-22)
 
 | Module | Status |
 |----|----|
@@ -42,8 +42,8 @@ crosswalks, and watershed data snapshots across the Geoconnex ecosystem.
 | M4 | Partial experimental slices M4a/M4b/M4c: [`gx_gage_to_pid()`](https://ksonda.github.io/geoconnexr/reference/gx_gage_to_pid.md) is implemented, and the v3.2 COMID lookup now has an explicit verified install lifecycle plus internal offline forward and release-scoped inverse mappers; public COMID, HUC12, point, inverse, and currentness contracts remain gated under ADRs 0004, 0008, 0009, and 0015. |
 | M5 | Partial experimental M5a/M5b: an unexported one-logical-request SELECT/ASK substrate provides strict bounded SPARQL 1.1 Results JSON parsing and provenance, while the public local renderer now consumes an exact-byte-pinned render-only v2 template manifest with explicit disabled execution, chunking, and pagination; public graph APIs, endpoint support, and paging remain gated under ADRs 0004, 0012, and 0013. |
 | M6 | Partial M6a/M6b/M6c: [`gx_aoi()`](https://ksonda.github.io/geoconnexr/reference/gx_aoi.md) canonicalizes one custom polygonal `sf`/`sfc` geometry offline, internal bounded hydration reconstructs AOI-only recipes while independently rebinding canonical GeoJSON to their WKB digest, and an internal catalog value object validates typed sites, flattened datasets, problems, requests, and completeness. Public `gx_catalog()`, live discovery/merge, nonempty reference layers, full replay, and upstream-derived AOI modes remain gated under ADRs 0014, 0016, and 0018. |
-| M7 | Partial M7a–M7n: the internal chain selects catalog distributions, records direct-CSV intent, allocates one-attempt reservations, validates response envelopes, and parses bounded results. M7g executes direct CSV; M7h orchestrates CSV; M7i adds one reservation-bound, single-page OGC API Features request; M7j introduces shared global scheduling; M7k adds one WQP Result request with invocation-time [`dataRetrieval::importWQP()`](https://rdrr.io/pkg/dataRetrieval/man/importWQP.html) validation; M7l adds one EDR position request with exact CRS84 point/parameter/time/CoverageJSON facts and invocation-time [`edr4r::covjson_to_tibble()`](https://rdrr.io/pkg/edr4r/man/covjson_to_tibble.html) agreement; M7m adds one current USGS `continuous` page; and M7n adds one current USGS `daily` page with an exact statistic, local-date interval, string-preserved measurements, and explicit no-follow truncation. The scheduler now runs CSV, WQP, EDR, USGS continuous, USGS daily, and OGC globally with shared admission, isolated failures, compact evidence, and exact all-distribution status. The nested M7a request list remains empty; public fetch, pagination, latest/legacy USGS handlers, registration, serialization, and replay remain gated under ADRs 0020–0033. |
-| M8 | Planned. |
+| M7 | Complete for the supported subset under ADR 0034. [`gx_fetch_plan()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch_plan.md) publishes deterministic catalog selection, and [`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md) returns a validated `gx_fetched` object over direct CSV, WQP Result, EDR position, current USGS continuous, current USGS daily, and OGC API Features. Execution is sequential, bounded, single-page, failure-isolating, and provenance-preserving. Latest/legacy USGS, other EDR queries, pagination, registration, serialization, and replay are deferred enhancements and do not reopen M7. |
+| M8 | Next: harmonization may now target the frozen `gx_fetched` 0.1.0 boundary. |
 | M9 | Partial M9a/M9b: an unexported offline verifier validates the bounded manifest and embedded request-ledger shape, rebinds AOI identity through M6b, inventories a closed portable resource tree, and verifies exact local bytes; an unexported creation-only writer stages, verifies, and publishes deterministic redacted catalog CSV resources plus manifest-v1. Public packaging/snapshot APIs, overwrite, loading, Frictionless acceptance, authenticity, and replay remain gated under ADRs 0017 and 0019. |
 | M10 | Planned. |
 
@@ -854,7 +854,9 @@ observation, transport authorization, attempt/budget consumption, and
 successful parsing while remaining non-replayable and
 non-execution-ready. It closes the direct-CSV attempt, response-origin,
 timeout, and transport-adapter blockers without making other handlers
-executable or exporting `gx_fetch()` under ADR 0026.
+executable or exporting
+[`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+under ADR 0026.
 
 M7h adds the unexported `gx_csv_orchestration` S3 value object with
 contract version 0.1.0. It embeds M7d once, binds an explicit
@@ -884,7 +886,8 @@ validation/execution/attempt/parse/result identities, exact data,
 statuses, indexes, counts, budgets, metadata, and blockers under ADR
 0027. M7h remains internal and does not implement non-CSV handlers,
 runtime symbol preflight coupled to invocation, registration,
-serialization/replay, or public `gx_fetch()`.
+serialization/replay, or public
+[`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md).
 
 M7i adds the unexported `gx_oaf_request_plan` and `gx_oaf_execution` S3
 value objects, both contract version 0.1.0. Planning requires one
@@ -908,7 +911,9 @@ whole-object validation reparses the bytes and recomputes request,
 execution, attempt, result, truncation, implementation, and metadata
 facts under ADR 0028. Provider filters, queryables, multi-page budgets,
 cross-handler scheduling, optional-package invocation, registration,
-serialization/replay, and public `gx_fetch()` remain gated.
+serialization/replay, and public
+[`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+remain gated.
 
 M7j adds the unexported `gx_fetch_orchestration` S3 value object with
 contract version 0.1.0. It embeds M7d once, derives direct-CSV and
@@ -939,7 +944,9 @@ bytes, counts, metadata, and blockers under ADR 0029. Dry run performs
 the same planning and status projection without performer, DNS, clock,
 throttle, cache, filesystem, symbol resolution, or handler work.
 Remaining handlers, pagination, registration, serialization/replay, a
-public fetched-result schema, and `gx_fetch()` remain gated.
+public fetched-result schema, and
+[`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+remain gated.
 
 M7k adds the unexported `gx_wqp_request_plan` and `gx_wqp_execution` S3
 contracts, both version 0.1.0, and upgrades `gx_fetch_orchestration` to
@@ -1076,6 +1083,27 @@ candidates. Compact successes fully rebind from retained bytes without
 loading dataRetrieval. M7n remains internal, current-daily-only,
 single-page, non-replayable, and not generally execution-ready under ADR
 0033.
+
+ADR 0034 closes M7 without adding another provider checkpoint. The
+public
+[`gx_fetch_plan()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch_plan.md)
+wrapper exposes M7a selection with the exact built-in registry and one
+aggregate byte ceiling. Public
+[`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+composes the existing intent, reservation, and six-family scheduler
+boundaries under fixed limits and returns `gx_fetched` contract 0.1.0.
+Its public status has one row per distribution; its result index retains
+handler-native tabular or `sf` payloads plus bounded raw bodies where
+the compact execution contract retains them; and its provenance embeds
+the fully validated M7n execution. The validator re-derives every public
+projection from that provenance.
+
+This is the frozen supported subset: sequential execution, at most 32
+admitted requests, 64 MiB per call, 8 MiB per response, bounded table
+shape, and no redirect, retry, cache, added credential, or page follow.
+Latest/legacy USGS, other EDR query types, pagination, registration, and
+serialization/replay move to later fetch enhancements. They are not M8
+prerequisites and may not expand M7 retroactively.
 
 Every handler implements `probe → plan → fetch → normalize`:
 
@@ -1234,8 +1262,9 @@ bytes while storing only a redacted URL; unsafe DNS, changed URL,
 invalid status/media/ encoding/length, oversized body, invalid CSV,
 malformed inputs, and forged nested or owned facts fail under typed
 trace-redacted conditions; failure never retries or exposes body/query
-values; no cache or file is used; and M7g plus `gx_fetch()` remain
-unexported.
+values; no cache or file is used; and M7g plus
+[`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+remain unexported.
 
 **M7h acceptance:** empty and mixed M7d plans produce exact bounded
 objects with one status row per coverage row while the embedded
@@ -1251,7 +1280,9 @@ identity facts without raw bodies or repeated plan chains; deferred and
 attempted rows, result indexes, error codes, charged bytes, counts,
 budgets, authority flags, and blockers reconcile exactly; forged plan,
 child-scope, result, status, byte, or metadata facts fail whole-object
-validation; and M7h plus `gx_fetch()` remain unexported.
+validation; and M7h plus
+[`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+remain unexported.
 
 **M7i acceptance:** one selected query-free OGC items distribution
 rebinds offline to its exact M7d held reservation and deterministic
@@ -1262,7 +1293,9 @@ link as truncation; missing-symbol failure occurs before DNS/transport;
 changed final URLs, over-limit pages, malformed payloads, and forged
 bytes/result/invocation/ledger/metadata facts fail under typed
 trace-redacted conditions; retained bytes and all identities revalidate;
-no M7i API or public `gx_fetch()` is exported.
+no M7i API or public
+[`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+is exported.
 
 **M7j acceptance:** mixed CSV and OGC fixtures derive deterministic
 candidates in original global fetch order and share explicit count and
@@ -1276,7 +1309,9 @@ parse-failure row without discarding CSV successes; successful status
 rows map one-to-one to handler-specific compact results; whole-object
 validation rebuilds M7i and rejects forged candidate, plan, scope, CSV
 data, OGC body/result, status, byte, index, error, count, or metadata
-facts; and M7j plus public `gx_fetch()` remain unexported.
+facts; and M7j plus public
+[`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+remain unexported.
 
 **M7k acceptance:** one WQP Result fixture rebinds to its exact M7d held
 reservation and deterministic service/profile/site/characteristic/time
@@ -1293,7 +1328,9 @@ work; compact retained bytes, schema, table, parse, scope, execution,
 and attempt identities fully revalidate; shared dry-run and live
 scheduling now orders CSV, WQP, and OGC candidates globally under one
 count/byte admission pass; forged plan/result/ledger/status/metadata
-facts fail closed; and M7k plus public `gx_fetch()` remain unexported.
+facts fail closed; and M7k plus public
+[`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+remain unexported.
 
 **M7l acceptance:** one EDR position fixture rebinds to its exact M7d
 held reservation and deterministic
@@ -1312,7 +1349,8 @@ identities fully revalidate without the optional package; shared dry-run
 and live scheduling now orders CSV, WQP, EDR, and OGC candidates
 globally under one count/byte admission pass; forged plan/result/
 ledger/status/metadata facts fail closed; and M7l plus public
-`gx_fetch()` remain unexported.
+[`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+remain unexported.
 
 **M7m acceptance:** one current USGS continuous fixture rebinds to its
 exact M7d held reservation and deterministic
@@ -1332,7 +1370,9 @@ parse, scope, execution, and attempt identities fully revalidate without
 the optional package; shared dry-run and live scheduling now orders CSV,
 WQP, EDR, USGS continuous, and OGC candidates globally under one
 count/byte admission pass; forged plan/result/ledger/status/metadata
-facts fail closed; and M7m plus public `gx_fetch()` remain unexported.
+facts fail closed; and M7m plus public
+[`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+remain unexported.
 
 **M7n acceptance:** one current USGS daily fixture rebinds to its exact
 M7d held reservation and deterministic
@@ -1350,15 +1390,21 @@ or bytes, while transport and parse failures do not prevent later OGC
 work; compact retained evidence fully revalidates without the optional
 package; shared dry-run and live scheduling orders all six handler
 families globally; forged plan/result/ledger/status/metadata facts fail
-closed; and M7n plus public `gx_fetch()` remain unexported.
+closed; and M7n plus public
+[`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+remain unexported.
 
-**Remaining M7 acceptance:** provider-specific request-plan snapshots
-and fixture tests for latest/legacy USGS and other remaining non-CSV
-handlers; optional-package symbol rechecks coupled to invocation;
-multi-provider and paginated execution ledgers; missing-package
-fixtures; handler-specific aggregate page budgets; reviewed registration
-and serialization/replay contracts; and one public fetched-result
-schema.
+**M7 closure acceptance:**
+[`gx_fetch_plan()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch_plan.md)
+binds the built-in registry and budgets without provider work;
+[`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+accepts only sequential execution, provides a deterministic no-host dry
+run, and returns `gx_fetched` 0.1.0 with one status row per
+distribution, one handler-native payload row per success, and the
+validated M7n provenance. Public projection or nested provenance forgery
+fails closed. Latest/legacy providers, other EDR queries, pagination,
+registration, and serialization/replay are explicitly deferred
+enhancements, not M8 gates.
 
 ### M8 — Harmonization
 
@@ -1592,13 +1638,15 @@ capability validation, package-owned transport, strict string-preserving
 GeoJSON normalization, and no-follow truncation. M7n adds one current
 USGS daily page, an exact statistic/local-date contract, `Date`
 normalization, conservative missing-match handling, and
-CSV/WQP/EDR/continuous/daily/OGC reconciliation. Later contracts add
-remaining provider request/query semantics, optional-package symbol
-checks, multi-provider pagination, registration, serialization/replay,
-and a public fetched-result schema. The eventual public fetch status may
-add user-facing elapsed/message fields and fetched times without
-weakening M7h’s identity, attempt, byte, and one-to-one reconciliation
-rules.
+CSV/WQP/EDR/continuous/daily/OGC reconciliation. ADR 0034 freezes those
+six families as the supported M7 subset and publishes
+[`gx_fetch_plan()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch_plan.md),
+[`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md),
+and the `gx_fetched` 0.1.0 result boundary. Remaining provider breadth,
+pagination, registration, and replay are later enhancements rather than
+prerequisites for M8. Future result-contract versions may add
+user-facing elapsed/message fields and fetched times without weakening
+M7h’s identity, attempt, byte, and one-to-one reconciliation rules.
 
 ### 6.5 Observations
 

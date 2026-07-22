@@ -15,9 +15,11 @@ Some operations are entirely local:
 - inspecting cache state; and
 - checking whether the optional mainstem lookup is installed.
 
-PID resolution, JSON-LD retrieval, reference-feature discovery, and live
-crosswalks use the package request layer. Their reference pages document
-the relevant request, redirect, byte, row, and time limits.
+PID resolution, JSON-LD retrieval, reference-feature discovery, live
+crosswalks, and `gx_fetch(..., dry_run = FALSE)` use the package request
+layer. Their reference pages document the relevant request, redirect,
+byte, row, and time limits. `gx_fetch(..., dry_run = TRUE)` derives and
+admits requests without host or provider work.
 
 ## Preserve identity across redirects and crosswalks
 
@@ -50,6 +52,9 @@ attr(gages, "gx_crosswalk")
 document <- gx_jsonld("https://geoconnex.us/ref/gages/1000001")
 location <- gx_parse_location(document)
 attr(location, "diagnostics")
+
+preview <- gx_fetch(plan, dry_run = TRUE)
+preview$status
 ```
 
 Before using a result downstream, check flags such as `complete`,
@@ -109,8 +114,9 @@ For reproducible work:
 The package remains in an architecture-spike phase. Public functions on
 the [reference
 page](https://ksonda.github.io/geoconnexr/reference/index.md) are
-implemented, but the documented end-to-end catalog, fetch, harmonize,
-package, and replay API is still a target. Use the
+implemented. M7 fetch planning and the frozen six-family execution
+subset are available, but end-to-end public catalog discovery,
+harmonization, packaging, and replay are still targets. Use the
 [roadmap](https://github.com/ksonda/geoconnexr/blob/main/geoconnexr-spec-v0.2.md)
 and [architecture
 decisions](https://github.com/ksonda/geoconnexr/tree/main/docs/decisions)

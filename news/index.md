@@ -135,7 +135,9 @@
   physical-attempt ledger row. Outer metadata now records provider
   observation and budget consumption while keeping replay, multi-request
   orchestration, non-CSV handlers, registration, serialization, and
-  public `gx_fetch()` gated.
+  public
+  [`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+  gated.
 - Added the unexported M7h `gx_csv_orchestration` S3 contract 0.1.0. It
   admits direct-CSV logical requests in deterministic global order under
   explicit count and 64-MiB aggregate reserved-response ceilings, then
@@ -150,7 +152,9 @@
   validation rebinds child scopes, identities, results, statuses,
   indexes, counts, budgets, and authority metadata. Non-CSV handlers,
   runtime invocation preflight, registration, serialization/replay, and
-  public `gx_fetch()` remain gated.
+  public
+  [`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+  remain gated.
 - Added the unexported M7i `gx_oaf_request_plan` and `gx_oaf_execution`
   S3 contracts 0.1.0 plus the internal native `gx_handler_oaf`
   implementation. One selected query-free OGC API Features items URL is
@@ -164,7 +168,8 @@
   snapshots, poisoned-redirect, over-limit-page, missing-symbol, and
   forged-object tests keep provider filters, pagination, cross-handler
   orchestration, registration, serialization/replay, and public
-  `gx_fetch()` gated.
+  [`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+  gated.
 - Added the unexported M7j `gx_fetch_orchestration` S3 contract 0.1.0.
   It derives direct-CSV and compatible OGC API Features candidates from
   one M7d plan, admits them together under shared count and 64-MiB
@@ -179,7 +184,9 @@
   validation can rebuild M7i, reparse exact `sf`, and rebind scopes,
   attempts, statuses, result indexes, counts, bytes, and authority.
   Remaining handlers, pagination, registration, serialization/replay, a
-  public fetched-result schema, and `gx_fetch()` remain gated.
+  public fetched-result schema, and
+  [`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+  remain gated.
 - Added the unexported M7k `gx_wqp_request_plan` and `gx_wqp_execution`
   S3 contracts 0.1.0 and upgraded `gx_fetch_orchestration` to 0.2.0. One
   selected WQP Result URL now binds its exact held M7d reservation,
@@ -195,7 +202,9 @@
   capability/transport/parse failures, compacts successful WQP evidence,
   and revalidates it without a later optional-package dependency.
   Pagination, remaining handlers, registration, serialization/replay, a
-  public result schema, and `gx_fetch()` remain gated.
+  public result schema, and
+  [`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+  remain gated.
 - Added the unexported M7l `gx_edr_request_plan` and `gx_edr_execution`
   S3 contracts 0.1.0 and upgraded `gx_fetch_orchestration` to 0.3.0. One
   selected EDR collection `position` URL now binds its held M7d
@@ -209,8 +218,9 @@
   isolates EDR capability/transport/parse failures, and revalidates
   compact successes without a later optional-package dependency. Other
   EDR query types, USGS execution, pagination, registration,
-  serialization/replay, a public result schema, and `gx_fetch()` remain
-  gated.
+  serialization/replay, a public result schema, and
+  [`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+  remain gated.
 - Added the unexported M7m `gx_usgs_continuous_request_plan` and
   `gx_usgs_continuous_execution` S3 contracts 0.1.0 and upgraded
   `gx_fetch_orchestration` to 0.4.0. One current USGS Water Data API
@@ -226,7 +236,9 @@
   capability/transport/parse failures, and revalidates compact successes
   without loading dataRetrieval later. Current daily and legacy USGS
   execution, pagination, registration, serialization/replay, a public
-  result schema, and `gx_fetch()` remain gated.
+  result schema, and
+  [`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+  remain gated.
 - Added the unexported M7n `gx_usgs_daily_request_plan` and
   `gx_usgs_daily_execution` S3 contracts 0.1.0 and upgraded
   `gx_fetch_orchestration` to 0.5.0. One current USGS Water Data API
@@ -243,7 +255,25 @@
   failures, never follows the next page, and revalidates compact
   successes without loading dataRetrieval later. Latest and legacy USGS
   execution, pagination, registration, serialization/replay, a public
-  result schema, and `gx_fetch()` remain gated.
+  result schema, and
+  [`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+  remained gated at that checkpoint.
+- Closed M7 at the reviewed six-family supported subset under ADR 0034
+  instead of extending the milestone through every provider variant.
+  Public
+  [`gx_fetch_plan()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch_plan.md)
+  now exposes deterministic built-in-registry selection and public
+  [`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+  composes the existing bounded request pipeline into a validated
+  `gx_fetched` 0.1.0 object. Its exact status table retains one row per
+  distribution; its result table exposes handler-native tabular or `sf`
+  payloads and bounded raw bodies where retained; and its provenance
+  embeds the fully revalidated M7n orchestration. Execution remains
+  sequential, single-page, retry/redirect/cache-free, and
+  failure-isolating under fixed count, byte, shape, timeout, and
+  per-host limits. Latest/legacy USGS, other EDR queries, pagination,
+  registration, serialization, and replay are now explicit later
+  enhancements rather than M8 gates.
 - Added the unexported M9b catalog-only snapshot writer. It revalidates
   a catalog, creates deterministic redacted UTF-8 CSV views in a sibling
   staging tree, writes a manifest-v1 document last, verifies the closed
