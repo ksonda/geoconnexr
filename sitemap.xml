@@ -5,6 +5,7 @@
 <url><loc>https://ksonda.github.io/geoconnexr/LICENSE-text.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/LICENSE.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/SECURITY.html</loc></url>
+<url><loc>https://ksonda.github.io/geoconnexr/articles/end-to-end-fetch.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/articles/geoconnexr.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/articles/index.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/articles/safety-and-reproducibility.html</loc></url>
@@ -17,6 +18,7 @@
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_aoi.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_cache_clear.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_cache_info.html</loc></url>
+<url><loc>https://ksonda.github.io/geoconnexr/reference/gx_catalog.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_classify_distribution.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_client.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_contract_hash.html</loc></url>

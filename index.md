@@ -16,7 +16,8 @@ functions](https://ksonda.github.io/geoconnexr/reference/index.md)
 [Geoconnex](https://internetofwater.org/about-geoconnex/) ecosystem. Its
 current public surface focuses on persistent-identifier resolution,
 bounded JSON-LD profiles, OGC API Features reference data, provider-gage
-crosswalks, spatial areas of interest, and safe query assets.
+crosswalks, spatial areas of interest, public bounded catalogs, and
+provider fetches.
 
 ### Identity first
 
@@ -78,6 +79,28 @@ resolution[c("pid_uri", "landing_url", "problem_code")]
 attr(location, "diagnostics")
 ```
 
+Build a catalog from a known Water Quality Portal PID, preview the
+bounded plan, and fetch one distribution:
+
+``` r
+
+wqp_catalog <- gx_catalog(
+  gx_aoi("VA"),
+  site_uri = "https://geoconnex.us/iow/wqp/21VASWCB-WMPO001",
+  max_sites = 1L
+)
+
+wqp_time <- as.POSIXct(
+  c("2017-01-01 00:00:00", "2017-12-30 23:59:59"),
+  tz = "UTC"
+)
+wqp_plan <- gx_fetch_plan(
+  wqp_catalog, time = wqp_time, max_datasets = 1L, max_bytes = 1024^2
+)
+wqp_fetched <- gx_fetch(wqp_plan)
+wqp_fetched$results$data[[1L]]
+```
+
 ## What works today
 
 - Offline AOI recipes for HUC, COMID, PID, and canonical custom polygon
@@ -90,6 +113,8 @@ attr(location, "diagnostics")
 - Explicit installation and verification of the optional NHDPlus lookup.
 - Typed SPARQL template rendering and portable distribution
   classification.
+- Bounded public catalog construction from one graph page, explicit
+  PIDs, or caller-supplied local JSON-LD profiles.
 - Bounded public fetch planning and sequential six-family execution from
   a validated catalog.
 
@@ -125,17 +150,19 @@ The current USGS daily boundary is specified in [ADR
 The M7 scope freeze and public result boundary are specified in [ADR
 0034](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0034-freeze-m7-supported-fetch-subset.md).
 
-**Experimental status.** The intended end-to-end catalog, fetch,
-harmonize, and snapshot workflow is still being implemented. The
-reference pages distinguish the public functions available now from
-internal roadmap substrates; do not treat the target API as released
-behavior.
+**Experimental status.** Catalog → plan → fetch is public now. Automatic
+spatial graph discovery can still time out upstream, so explicit PIDs
+are the reliable path for known sites. Harmonization and snapshot
+composition remain roadmap work.
 
 ## Choose your path
 
 - [Get
   started](https://ksonda.github.io/geoconnexr/articles/geoconnexr.md)
   with installation and practical workflows.
+- [Fetch WQP and EDR
+  data](https://ksonda.github.io/geoconnexr/articles/end-to-end-fetch.md)
+  through the complete public path.
 - Read about [safety and
   reproducibility](https://ksonda.github.io/geoconnexr/articles/safety-and-reproducibility.md).
 - Browse the complete [function

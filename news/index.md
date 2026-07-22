@@ -12,6 +12,22 @@
   homepage, curated function reference, getting-started and safety
   guides, searchable light/dark themes, and automatic deployment to
   GitHub Pages from `main`.
+- Exported bounded
+  [`gx_catalog()`](https://ksonda.github.io/geoconnexr/reference/gx_catalog.md)
+  construction from one spatial graph page, explicit PID profiles, or
+  named caller-supplied local JSON-LD. The catalog preserves typed
+  sites, flattened distributions, diagnostics, request evidence, and
+  count-reconciled completeness; explicit inputs record that AOI
+  membership or provider provenance was not independently established.
+- Updated live WQP compatibility for current `/wqx3/Result/search`
+  profile URLs while executing the stable narrow `/data/Result/search`
+  CSV route, and fixed
+  [`dataRetrieval::importWQP()`](https://rdrr.io/pkg/dataRetrieval/man/importWQP.html)
+  agreement without a second provider request. Updated EDR compatibility
+  for `edr4r` 0.1.1, pygeoapi’s CoverageJSON media type, full CRS84 URI,
+  timezone-less UTC timestamps, and valid PointSeries `t,y,x` ranges.
+- Added a complete catalog → plan → fetch guide with verified WQP and
+  EDR examples and explicit upstream graph/profile limitations.
 - Recorded CRAN and r-universe as the intended stable and development
   release channels, respectively.
 - Documented the unresolved mainstem-vintage and SPARQL endpoint
@@ -29,7 +45,7 @@
   over-100,000-coordinate, or over-8-MiB representations fail closed
   without repair or upstream work; antimeridian rings require explicit
   pre-cut geometry. Recipe pipeline fields remain intended replay
-  metadata; public `gx_catalog()` is still gated.
+  metadata; catalog execution is a separate public boundary.
 - Added the unexported M6b AOI hydration boundary for decoded recipes
   and literal JSON text/bytes. It applies strict UTF-8,
   duplicate-member, structure, depth, member, coordinate, and byte
@@ -54,8 +70,7 @@
   query/fragment values for every URI scheme while retaining stable
   site/variable identity fingerprints; early aggregate accounting and
   bounded count arithmetic close resource and overflow escapes. Nonempty
-  reference layers, live discovery/merge policy, and public
-  `gx_catalog()` remain gated.
+  reference layers and general graph/profile merge policy remain gated.
 - Added the unexported M7a deterministic selection-only fetch plan. A
   strict dual-asset loader binds portable classifiers to R
   implementation metadata; plans collapse catalog variables into one row

@@ -1,0 +1,177 @@
+# Fetch WQP and EDR data end to end
+
+This guide exercises the complete public path available today:
+
+``` text
+AOI -> catalog -> fetch plan -> provider response -> typed result
+```
+
+The examples are deliberately narrow. Each selected distribution gets at
+most one physical request, the scheduler is sequential, and no next page
+is followed. Install the two optional provider adapters before running
+both examples:
+
+``` r
+
+install.packages(c("dataRetrieval", "edr4r"))
+library(geoconnexr)
+```
+
+## Fetch WQP data from a Geoconnex PID
+
+This example starts with a real Water Quality Portal monitoring-location
+PID. Supplying `site_uri` avoids a spatial graph query and retrieves
+that exact JSON-LD profile. The resulting catalog records that its
+membership in the Virginia AOI was not rechecked.
+
+``` r
+
+wqp_pid <- "https://geoconnex.us/iow/wqp/21VASWCB-WMPO001"
+
+wqp_catalog <- gx_catalog(
+  gx_aoi("VA"),
+  site_uri = wqp_pid,
+  max_sites = 1L
+)
+
+wqp_catalog$sites[c("site_uri", "name")]
+wqp_catalog$datasets[
+  wqp_catalog$datasets$fetchable,
+  c("variable_name", "distribution_url", "handler_id")
+]
+wqp_catalog$problems[c("code", "severity", "message")]
+```
+
+Use exact UTC bounds. The end date below is December 30 because this
+profile’s published temporal coverage ends at the start of December 31;
+the planner does not silently expand or reinterpret that boundary.
+
+``` r
+
+wqp_time <- as.POSIXct(
+  c("2017-01-01 00:00:00", "2017-12-30 23:59:59"),
+  tz = "UTC"
+)
+
+wqp_plan <- gx_fetch_plan(
+  wqp_catalog,
+  time = wqp_time,
+  max_datasets = 1L,
+  max_bytes = 1024^2
+)
+
+# Verify selection without probing packages, DNS, or providers.
+gx_fetch(wqp_plan, dry_run = TRUE)$status
+
+wqp_fetched <- gx_fetch(wqp_plan)
+wqp_fetched$status
+
+wqp_data <- wqp_fetched$results$data[[1L]]
+wqp_data
+```
+
+On July 22, 2026, that request returned one row and 78 columns from
+2,403 response bytes. Those dimensions are an observation, not a
+permanent provider guarantee. Check `wqp_fetched$status` every time
+before using the payload.
+
+## Fetch EDR CoverageJSON
+
+The EDR execution path is live, but the tested Geoconnex SNOTEL PID
+currently publishes variables without distribution URLs. Until a tested
+PID advertises the reviewed EDR endpoint, this package includes a small
+caller-supplied JSON-LD profile for the pygeoapi demonstration service.
+[`gx_catalog()`](https://ksonda.github.io/geoconnexr/reference/gx_catalog.md)
+records that no PID profile request was made and does not claim the
+metadata came from the provider.
+
+``` r
+
+edr_uri <- "https://example.org/geoconnexr/icoads-sst"
+profile_path <- system.file(
+  "extdata", "icoads-sst-profile.json",
+  package = "geoconnexr"
+)
+edr_profile <- jsonlite::fromJSON(profile_path, simplifyVector = FALSE)
+
+edr_catalog <- gx_catalog(
+  gx_aoi("VA"),
+  site_uri = edr_uri,
+  profiles = stats::setNames(list(edr_profile), edr_uri),
+  max_sites = 1L
+)
+
+edr_catalog$datasets[
+  , c("variable_name", "distribution_url", "handler_id", "fetchable")
+]
+edr_catalog$problems[c("code", "severity", "message")]
+```
+
+The profile binds a CRS84 point, one `SST` parameter, and one exact UTC
+interval. Planning re-derives those facts before authorizing the
+request.
+
+``` r
+
+edr_time <- as.POSIXct(
+  c("2000-01-16 06:00:00", "2000-02-16 06:00:00"),
+  tz = "UTC"
+)
+
+edr_plan <- gx_fetch_plan(
+  edr_catalog,
+  time = edr_time,
+  max_datasets = 1L,
+  max_bytes = 1024^2
+)
+
+gx_fetch(edr_plan, dry_run = TRUE)$status
+
+edr_fetched <- gx_fetch(edr_plan)
+edr_fetched$status
+
+edr_data <- edr_fetched$results$data[[1L]]
+edr_data
+```
+
+On July 22, 2026, that request returned two rows and nine columns from
+1,908 CoverageJSON bytes. The strict package parser and
+[`edr4r::covjson_to_tibble()`](https://rdrr.io/pkg/edr4r/man/covjson_to_tibble.html)
+agreed on the normalized result.
+
+## Automatic AOI discovery
+
+Omit `site_uri` to ask
+[`gx_catalog()`](https://ksonda.github.io/geoconnexr/reference/gx_catalog.md)
+to resolve identifier geometry and issue one bounded `sites_in_aoi`
+graph query:
+
+``` r
+
+catalog <- gx_catalog(gx_aoi("02070010"), max_sites = 25L)
+catalog$metadata$completeness
+catalog$problems
+```
+
+This is implemented, but current live polygon queries can time out
+upstream. Geoconnex documents graph query functionality as active
+development. For a known site, the explicit-PID form is currently the
+reliable fallback; it is never presented as proof that the site lies
+inside the AOI.
+
+## Read the result contract
+
+[`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+isolates failures, so a returned object is not equivalent to “everything
+succeeded.” Use both tables:
+
+- `$status` has exactly one terminal row per planned distribution,
+  including attempts, bytes, and typed error codes.
+- `$results` has one row per success. The handler-native payload is in
+  the `data` list-column.
+- `$provenance` retains the bounded request and validation evidence.
+
+The current boundary supports direct CSV, WQP Result, EDR position,
+current USGS continuous and daily data, and OGC API Features. It is
+single-page and sequential by contract. Harmonization is the next
+roadmap milestone.

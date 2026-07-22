@@ -2,9 +2,10 @@ pandoc: 3.8.3
 pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
+  end-to-end-fetch: end-to-end-fetch.html
   geoconnexr: geoconnexr.html
   safety-and-reproducibility: safety-and-reproducibility.html
-last_built: 2026-07-22T05:04Z
+last_built: 2026-07-22T13:02Z
 urls:
   reference: https://ksonda.github.io/geoconnexr/reference
   article: https://ksonda.github.io/geoconnexr/articles

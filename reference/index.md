@@ -71,6 +71,8 @@ Inspect safe query templates, handlers, and reviewed conversion rules.
 
 Build bounded plans and execute the frozen six-handler M7 subset.
 
+- [`gx_catalog()`](https://ksonda.github.io/geoconnexr/reference/gx_catalog.md)
+  : Discover a bounded Geoconnex catalog
 - [`gx_fetch_plan()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch_plan.md)
   : Build a bounded fetch plan
 - [`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)

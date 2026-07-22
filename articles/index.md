@@ -7,6 +7,12 @@
 
   Install the package and complete its core public workflows.
 
+- [Fetch WQP and EDR data end to
+  end](https://ksonda.github.io/geoconnexr/articles/end-to-end-fetch.md):
+
+  Build a public catalog, preview its plan, and retrieve bounded
+  provider data.
+
 ### Design and operation
 
 - [Safety and

@@ -36,7 +36,8 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/safety-and-reproducibility.html">Safety and reproducibility</a></li>
+<li><a class="dropdown-item" href="../articles/end-to-end-fetch.html">Fetch WQP and EDR data end to end</a></li>
+    <li><a class="dropdown-item" href="../articles/safety-and-reproducibility.html">Safety and reproducibility</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -89,8 +90,9 @@
 without discarding identifier identity or the evidence needed to
 interpret a result. This guide uses only the package’s current public
 functions. Fetch planning and execution are available for the frozen
-supported subset; public catalog discovery, harmonization, and snapshot
-composition remain under active development.</p>
+supported subset, and <code><a href="../reference/gx_catalog.html">gx_catalog()</a></code> now connects an AOI or
+explicit PID to them. Harmonization and snapshot composition remain
+under active development.</p>
 <div class="section level2">
 <h2 id="install">Install<a class="anchor" aria-label="anchor" href="#install"></a>
 </h2>
@@ -210,18 +212,24 @@ parameters:</p>
 <div class="section level2">
 <h2 id="plan-and-fetch-the-supported-subset">Plan and fetch the supported subset<a class="anchor" aria-label="anchor" href="#plan-and-fetch-the-supported-subset"></a>
 </h2>
-<p>When a workflow has a validated <code>gx_catalog</code>, build the
-bounded plan before performing provider work. Public catalog discovery
-is not yet available, so this boundary currently serves catalog objects
-produced by the validated experimental catalog pipeline.</p>
+<p>Build a validated catalog from a known PID, then build the bounded
+plan before performing provider work. Explicit PIDs skip automatic graph
+discovery, and the catalog records that AOI membership was not
+independently rechecked.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">plan</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gx_fetch_plan.html">gx_fetch_plan</a></span><span class="op">(</span></span>
-<span>  <span class="va">catalog</span>,</span>
+<code class="sourceCode R"><span><span class="va">wqp_catalog</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gx_catalog.html">gx_catalog</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="../reference/gx_aoi.html">gx_aoi</a></span><span class="op">(</span><span class="st">"VA"</span><span class="op">)</span>,</span>
+<span>  site_uri <span class="op">=</span> <span class="st">"https://geoconnex.us/iow/wqp/21VASWCB-WMPO001"</span>,</span>
+<span>  max_sites <span class="op">=</span> <span class="fl">1L</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">plan</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gx_fetch_plan.html">gx_fetch_plan</a></span><span class="op">(</span></span>
+<span>  <span class="va">wqp_catalog</span>,</span>
 <span>  time <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="st">"2025-01-01 00:00:00"</span>, <span class="st">"2025-01-31 23:59:59"</span></span>
+<span>    <span class="st">"2017-01-01 00:00:00"</span>, <span class="st">"2017-12-30 23:59:59"</span></span>
 <span>  <span class="op">)</span>, tz <span class="op">=</span> <span class="st">"UTC"</span><span class="op">)</span>,</span>
-<span>  max_datasets <span class="op">=</span> <span class="fl">20L</span>,</span>
-<span>  max_bytes <span class="op">=</span> <span class="fl">64</span> <span class="op">*</span> <span class="fl">1024</span><span class="op">^</span><span class="fl">2</span></span>
+<span>  max_datasets <span class="op">=</span> <span class="fl">1L</span>,</span>
+<span>  max_bytes <span class="op">=</span> <span class="fl">1024</span><span class="op">^</span><span class="fl">2</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">preview</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gx_fetch.html">gx_fetch</a></span><span class="op">(</span><span class="va">plan</span>, dry_run <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -229,14 +237,17 @@ produced by the validated experimental catalog pipeline.</p>
 <span></span>
 <span><span class="va">fetched</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gx_fetch.html">gx_fetch</a></span><span class="op">(</span><span class="va">plan</span><span class="op">)</span></span>
 <span><span class="va">fetched</span><span class="op">$</span><span class="va">status</span></span>
-<span><span class="va">fetched</span><span class="op">$</span><span class="va">results</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"handler_id"</span>, <span class="st">"payload_class"</span>, <span class="st">"row_count"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<span><span class="va">fetched</span><span class="op">$</span><span class="va">results</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"handler_id"</span>, <span class="st">"payload_class"</span>, <span class="st">"row_count"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">fetched</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">data</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
 <p>The frozen M7 contract is sequential and single-page. It supports
 direct CSV, WQP Result, EDR position, current USGS continuous and daily
 data, and OGC API Features. Inspect every status row: one failed or
 unsupported distribution does not abort later work.
 <code>fetched$results$data</code> retains handler-native tables or
 <code>sf</code>; <code>fetched$provenance</code> retains the validated
-bounded execution evidence.</p>
+bounded execution evidence. See <a href="end-to-end-fetch.html">Fetch
+WQP and EDR data end to end</a> for both live provider examples and the
+caller-supplied EDR profile boundary.</p>
 </div>
 <div class="section level2">
 <h2 id="where-to-go-next">Where to go next<a class="anchor" aria-label="anchor" href="#where-to-go-next"></a>

@@ -4,7 +4,9 @@
 discarding identifier identity or the evidence needed to interpret a
 result. This guide uses only the package’s current public functions.
 Fetch planning and execution are available for the frozen supported
-subset; public catalog discovery, harmonization, and snapshot
+subset, and
+[`gx_catalog()`](https://ksonda.github.io/geoconnexr/reference/gx_catalog.md)
+now connects an AOI or explicit PID to them. Harmonization and snapshot
 composition remain under active development.
 
 ## Install
@@ -154,20 +156,26 @@ Rendering is local. It does not execute the query.
 
 ## Plan and fetch the supported subset
 
-When a workflow has a validated `gx_catalog`, build the bounded plan
-before performing provider work. Public catalog discovery is not yet
-available, so this boundary currently serves catalog objects produced by
-the validated experimental catalog pipeline.
+Build a validated catalog from a known PID, then build the bounded plan
+before performing provider work. Explicit PIDs skip automatic graph
+discovery, and the catalog records that AOI membership was not
+independently rechecked.
 
 ``` r
 
+wqp_catalog <- gx_catalog(
+  gx_aoi("VA"),
+  site_uri = "https://geoconnex.us/iow/wqp/21VASWCB-WMPO001",
+  max_sites = 1L
+)
+
 plan <- gx_fetch_plan(
-  catalog,
+  wqp_catalog,
   time = as.POSIXct(c(
-    "2025-01-01 00:00:00", "2025-01-31 23:59:59"
+    "2017-01-01 00:00:00", "2017-12-30 23:59:59"
   ), tz = "UTC"),
-  max_datasets = 20L,
-  max_bytes = 64 * 1024^2
+  max_datasets = 1L,
+  max_bytes = 1024^2
 )
 
 preview <- gx_fetch(plan, dry_run = TRUE)
@@ -176,6 +184,7 @@ preview$status
 fetched <- gx_fetch(plan)
 fetched$status
 fetched$results[c("handler_id", "payload_class", "row_count")]
+fetched$results$data[[1L]]
 ```
 
 The frozen M7 contract is sequential and single-page. It supports direct
@@ -184,6 +193,10 @@ and OGC API Features. Inspect every status row: one failed or
 unsupported distribution does not abort later work.
 `fetched$results$data` retains handler-native tables or `sf`;
 `fetched$provenance` retains the validated bounded execution evidence.
+See [Fetch WQP and EDR data end to
+end](https://ksonda.github.io/geoconnexr/articles/end-to-end-fetch.md)
+for both live provider examples and the caller-supplied EDR profile
+boundary.
 
 ## Where to go next
 

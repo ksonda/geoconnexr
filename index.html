@@ -38,7 +38,8 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/safety-and-reproducibility.html">Safety and reproducibility</a></li>
+<li><a class="dropdown-item" href="articles/end-to-end-fetch.html">Fetch WQP and EDR data end to end</a></li>
+    <li><a class="dropdown-item" href="articles/safety-and-reproducibility.html">Safety and reproducibility</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -91,7 +92,7 @@ Discover connected water resources, crosswalk durable identifiers, and assemble 
 <a class="btn btn-light" href="articles/geoconnexr.html">Get started</a><a class="btn btn-outline-light" href="reference/index.html">Browse functions</a>
 </div>
 </div>
-<p><code>geoconnexr</code> is an experimental R client for the <a href="https://internetofwater.org/about-geoconnex/" class="external-link">Geoconnex</a> ecosystem. Its current public surface focuses on persistent-identifier resolution, bounded JSON-LD profiles, OGC API Features reference data, provider-gage crosswalks, spatial areas of interest, and safe query assets.</p>
+<p><code>geoconnexr</code> is an experimental R client for the <a href="https://internetofwater.org/about-geoconnex/" class="external-link">Geoconnex</a> ecosystem. Its current public surface focuses on persistent-identifier resolution, bounded JSON-LD profiles, OGC API Features reference data, provider-gage crosswalks, spatial areas of interest, public bounded catalogs, and provider fetches.</p>
 <div class="gx-card-grid">
 <div class="gx-card">
 <h3>
@@ -150,6 +151,23 @@ Represent partial results and upstream failures explicitly, with no invented aut
 <span></span>
 <span><span class="va">resolution</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pid_uri"</span>, <span class="st">"landing_url"</span>, <span class="st">"problem_code"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">location</span>, <span class="st">"diagnostics"</span><span class="op">)</span></span></code></pre></div>
+<p>Build a catalog from a known Water Quality Portal PID, preview the bounded plan, and fetch one distribution:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">wqp_catalog</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/gx_catalog.html">gx_catalog</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="reference/gx_aoi.html">gx_aoi</a></span><span class="op">(</span><span class="st">"VA"</span><span class="op">)</span>,</span>
+<span>  site_uri <span class="op">=</span> <span class="st">"https://geoconnex.us/iow/wqp/21VASWCB-WMPO001"</span>,</span>
+<span>  max_sites <span class="op">=</span> <span class="fl">1L</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">wqp_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2017-01-01 00:00:00"</span>, <span class="st">"2017-12-30 23:59:59"</span><span class="op">)</span>,</span>
+<span>  tz <span class="op">=</span> <span class="st">"UTC"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">wqp_plan</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/gx_fetch_plan.html">gx_fetch_plan</a></span><span class="op">(</span></span>
+<span>  <span class="va">wqp_catalog</span>, time <span class="op">=</span> <span class="va">wqp_time</span>, max_datasets <span class="op">=</span> <span class="fl">1L</span>, max_bytes <span class="op">=</span> <span class="fl">1024</span><span class="op">^</span><span class="fl">2</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">wqp_fetched</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/gx_fetch.html">gx_fetch</a></span><span class="op">(</span><span class="va">wqp_plan</span><span class="op">)</span></span>
+<span><span class="va">wqp_fetched</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">data</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="what-works-today">What works today<a class="anchor" aria-label="anchor" href="#what-works-today"></a>
@@ -162,6 +180,7 @@ Represent partial results and upstream failures explicitly, with no invented aut
 <li>Provider-gage to Geoconnex PID crosswalking.</li>
 <li>Explicit installation and verification of the optional NHDPlus lookup.</li>
 <li>Typed SPARQL template rendering and portable distribution classification.</li>
+<li>Bounded public catalog construction from one graph page, explicit PIDs, or caller-supplied local JSON-LD profiles.</li>
 <li>Bounded public fetch planning and sequential six-family execution from a validated catalog.</li>
 </ul>
 <div class="section level3">
@@ -169,7 +188,7 @@ Represent partial results and upstream failures explicitly, with no invented aut
 </h3>
 <p>M7 is complete for a frozen supported subset. Public <code><a href="reference/gx_fetch_plan.html">gx_fetch_plan()</a></code> builds a deterministic bounded plan from a validated catalog, and public <code><a href="reference/gx_fetch.html">gx_fetch()</a></code> returns <code>gx_fetched</code> 0.1.0 with one status row per distribution, one handler-native payload per success, and validated execution provenance. The sequential scheduler supports direct CSV, WQP Result, EDR position, current USGS continuous and daily data, and OGC API Features in one global order. It shares count and byte admission limits, continues after typed handler failures, and offers a deterministic no-host dry run. Every provider path is single-page; advertised next links are reported as truncation and never followed. Latest and legacy USGS, other EDR queries, pagination, registration, and replay are later fetch enhancements rather than blockers for M8 harmonization. See <a href="https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0027-bounded-direct-csv-orchestration.md" class="external-link">ADR 0027</a> and <a href="https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0028-single-page-oaf-handler.md" class="external-link">ADR 0028</a>, then <a href="https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0029-cross-handler-orchestration.md" class="external-link">ADR 0029</a>. The WQP boundary is specified in <a href="https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0030-single-response-wqp-handler.md" class="external-link">ADR 0030</a>. The EDR boundary is specified in <a href="https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0031-single-response-edr-position-handler.md" class="external-link">ADR 0031</a>. The current USGS continuous boundary is specified in <a href="https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0032-single-page-usgs-continuous-handler.md" class="external-link">ADR 0032</a>. The current USGS daily boundary is specified in <a href="https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0033-single-page-usgs-daily-handler.md" class="external-link">ADR 0033</a>. The M7 scope freeze and public result boundary are specified in <a href="https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0034-freeze-m7-supported-fetch-subset.md" class="external-link">ADR 0034</a>.</p>
 <div class="gx-status">
-<p><strong>Experimental status.</strong> The intended end-to-end catalog, fetch, harmonize, and snapshot workflow is still being implemented. The reference pages distinguish the public functions available now from internal roadmap substrates; do not treat the target API as released behavior.</p>
+<p><strong>Experimental status.</strong> Catalog → plan → fetch is public now. Automatic spatial graph discovery can still time out upstream, so explicit PIDs are the reliable path for known sites. Harmonization and snapshot composition remain roadmap work.</p>
 </div>
 </div>
 </div>
@@ -179,6 +198,8 @@ Represent partial results and upstream failures explicitly, with no invented aut
 <ul>
 <li>
 <a href="articles/geoconnexr.html">Get started</a> with installation and practical workflows.</li>
+<li>
+<a href="articles/end-to-end-fetch.html">Fetch WQP and EDR data</a> through the complete public path.</li>
 <li>Read about <a href="articles/safety-and-reproducibility.html">safety and reproducibility</a>.</li>
 <li>Browse the complete <a href="reference/index.html">function reference</a>.</li>
 <li>Follow the <a href="https://github.com/ksonda/geoconnexr/blob/main/geoconnexr-spec-v0.2.md" class="external-link">validated build roadmap</a>.</li>
