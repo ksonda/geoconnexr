@@ -72,18 +72,21 @@ without raw bodies or repeated plan chains. M7i adds the first non-CSV handler
 slice: one held-reservation OGC API Features request, an invocation-time native
 symbol check, strict single-page GeoJSON-to-`sf` normalization, and one exact
 charged attempt. M7j introduced shared global scheduling, M7k added WQP Result,
-and M7m now schedules CSV, WQP, EDR position, current USGS continuous data, and
-OGC in one global order. All five paths share count and byte admission, isolate
+and M7n now schedules CSV, WQP, EDR position, current USGS continuous and daily
+data, and OGC in one global order. All six paths share count and byte admission, isolate
 handler failures, and
 reconcile one terminal status per distribution. WQP requires invocation-time
 `dataRetrieval::importWQP()` output to match the strict CSV parser. EDR records
 one CRS84 WKT point, parameter, UTC interval, and CoverageJSON representation,
 then requires invocation-time `edr4r::covjson_to_tibble()` output to exactly
 match the strict bounded PointSeries result. The USGS slice checks
-`dataRetrieval::read_waterdata_continuous()` capability before one
-package-owned request for an exact site, parameter, and UTC interval. Its
-strict single-page GeoJSON parser preserves measurement values as strings and
-reports, but never follows, a next page.
+`dataRetrieval::read_waterdata_continuous()` or
+`dataRetrieval::read_waterdata_daily()` capability before one package-owned
+request. Continuous observations bind an exact site, parameter, and UTC
+interval. Daily values additionally bind one statistic code, preserve local
+calendar dates as `Date`, and keep last-modified instants in UTC. Both strict
+single-page GeoJSON parsers preserve measurement values as strings and report,
+but never follow, a next page.
 
 These are internal substrates, not exported discovery, fetch, package,
 snapshot, loading, or replay APIs. Public graph
@@ -337,14 +340,14 @@ join OGC results to M7h, map provider filters, paginate, register plugins,
 serialize/replay, or expose `gx_fetch()`. See
 [ADR 0028](docs/decisions/0028-single-page-oaf-handler.md).
 
-The internal M7m `gx_fetch_orchestration` S3 object implements contract 0.4.0.
+The internal M7n `gx_fetch_orchestration` S3 object implements contract 0.5.0.
 It derives direct-CSV, compatible WQP Result, EDR position, current USGS
-continuous, and OGC API Features candidates from one M7d plan, keeps their
-original global fetch order, and admits all five handlers under one explicit
+continuous and daily, and OGC API Features candidates from one M7d plan, keeps
+their original global fetch order, and admits all six handlers under one explicit
 request-count and aggregate reserved-response budget. Live work is sequential
 and continues after typed handler failures; every M7d coverage row receives one
 exact terminal status. A missing OGC symbol, WQP parser, required EDR
-capability, or required dataRetrieval continuous capability charges no physical
+capability, or required dataRetrieval continuous/daily capability charges no physical
 attempt, while transport and parse failures retain only bounded redacted
 evidence. Dry run performs the same planning and status projection without DNS,
 transport, clocks, throttling, cache, writes, or symbol resolution. CSV and WQP
@@ -355,14 +358,18 @@ not require the optional package later. OGC successes retain their bounded
 GeoJSON body so validation can rebuild M7i and reparse the exact `sf` result.
 USGS continuous successes retain the bounded GeoJSON body, fixed eleven-column
 table/schema, string-valued measurements, parse hashes, truncation facts, and
-one attempt; validation does not load dataRetrieval later. M7m remains
-unexported and does not implement other EDR queries, current USGS daily or
-legacy USGS execution, pagination, registration, serialization/replay, a public
+one attempt. Daily successes retain the same evidence shape while preserving
+observation dates as `Date`, binding an exact statistic code, and allowing an
+absent `numberMatched` only as unknown completeness. Validation does not load
+dataRetrieval later. M7n remains unexported and does not implement other EDR
+queries, latest or legacy USGS execution, pagination, registration,
+serialization/replay, a public
 fetched-result schema, or `gx_fetch()`. See
 [ADR 0029](docs/decisions/0029-cross-handler-orchestration.md) and
 [ADR 0030](docs/decisions/0030-single-response-wqp-handler.md), then
 [ADR 0031](docs/decisions/0031-single-response-edr-position-handler.md) and
-[ADR 0032](docs/decisions/0032-single-page-usgs-continuous-handler.md).
+[ADR 0032](docs/decisions/0032-single-page-usgs-continuous-handler.md), then
+[ADR 0033](docs/decisions/0033-single-page-usgs-daily-handler.md).
 
 `gx_resolve()`, `gx_jsonld()`, and the `gx_ref_*()` functions make bounded
 network requests, account for every physical retry, and validate DNS and every

@@ -151,5 +151,13 @@ exported `read_waterdata_continuous()` function before provider work, but
 geoconnexr owns the one DNS-pinned, identity-encoded, no-cache/no-redirect/
 no-retry request and strict parser so the M7d ledger remains authoritative.
 Measurement values stay strings, next-page presence is explicit truncation,
-and no next link is followed. The current daily, latest, and legacy USGS paths,
+and no next link is followed.
+
+ADR 0033 adds the internal M7n current USGS daily slice and upgrades the
+scheduler to contract 0.5.0. It requires one exact site, parameter, statistic,
+and closed local-date interval on the official `daily/items` endpoint.
+Invocation checks exported `read_waterdata_daily()` before the same single
+package-owned request boundary. The fixed table preserves measurement strings,
+stores observation time as `Date`, stores `last_modified` as UTC `POSIXct`, and
+treats an absent `numberMatched` as unknown. Latest and legacy USGS paths,
 other EDR queries, registration, replay, and a public fetch API remain planned.
