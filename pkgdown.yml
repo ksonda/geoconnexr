@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   geoconnexr: geoconnexr.html
   safety-and-reproducibility: safety-and-reproducibility.html
-last_built: 2026-07-21T20:05Z
+last_built: 2026-07-22T04:19Z
 urls:
   reference: https://ksonda.github.io/geoconnexr/reference
   article: https://ksonda.github.io/geoconnexr/articles
