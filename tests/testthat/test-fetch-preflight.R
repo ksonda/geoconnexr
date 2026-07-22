@@ -320,7 +320,8 @@ test_that("shared requirements probe once and unique packages use byte order", {
   ))
   expect_identical(
     shared$handlers$package_status[positions],
-    c("version_satisfied", rep("present_requirement_unpinned", 4L))
+    c(rep("version_satisfied", 2L),
+      rep("present_requirement_unpinned", 3L))
   )
   expect_true(all(
     shared$handlers$preflight_status[positions] ==

@@ -36,6 +36,7 @@
       "implementation_id": "geoconnexr:dataRetrieval-daily",
       "availability": "planned",
       "package": "dataRetrieval",
+      "minimum_version": "2.7.22",
       "function": "read_waterdata_daily",
       "query_semantics": ["monitoring_location_id", "parameter_code", "statistic_id", "time", "limit"],
       "missing_package_status": "skipped_missing_pkg"
@@ -97,7 +98,7 @@
     "dataRetrieval": {
       "current_functions": ["read_waterdata_continuous", "read_waterdata_daily"],
       "legacy_functions": ["readNWISuv", "readNWISdv"],
-      "reference": "https://doi-usgs.github.io/dataRetrieval/reference/read_waterdata_continuous.html"
+      "reference": "https://doi-usgs.github.io/dataRetrieval/reference/index.html"
     }
   }
 }
