@@ -36,9 +36,12 @@ wqp_test_scope <- function(label = "execution") {
 wqp_test_parser <- function(events = NULL, mismatch = FALSE) {
   function(obs_url, tz, csv, convertType) {
     if (is.environment(events)) events$values <- c(events$values, "parse")
-    stopifnot(is.list(obs_url), length(obs_url) == 1L)
+    stopifnot(
+      is.character(obs_url), length(obs_url) == 1L,
+      !grepl("https://", obs_url, fixed = TRUE)
+    )
     parsed <- utils::read.csv(
-      text = obs_url[[1L]],
+      text = obs_url,
       colClasses = "character",
       check.names = FALSE,
       na.strings = c("", "NA"),

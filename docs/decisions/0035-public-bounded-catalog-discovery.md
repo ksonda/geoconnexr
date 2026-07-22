@@ -43,8 +43,8 @@ The live compatibility corrections made at this boundary do not extend M7:
 
 - WQP profile URLs under either `/wqx3/Result/search` or
   `/data/Result/search` are normalized to the stable narrow Result CSV route;
-- `dataRetrieval::importWQP()` validates the same inline response without a
-  second provider request;
+- `dataRetrieval::importWQP()` validates a reversibly scheme-masked inline
+  response without a second provider request;
 - EDR accepts the pygeoapi CoverageJSON media type and reviewed CRS84 URI, and
   normalizes valid PointSeries `t,y,x` range shapes; and
 - EDR requires `edr4r` 0.1.1 or newer.

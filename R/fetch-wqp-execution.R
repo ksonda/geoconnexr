@@ -570,6 +570,25 @@ gx_wqp_normalize_names_impl <- function(data) {
   data
 }
 
+gx_wqp_external_mask_impl <- function(text) {
+  sentinels <- paste0("__GEOCONNEXR_WQP_HTTPS_", 0:63, "__")
+  occupied <- vapply(
+    sentinels, function(value) grepl(value, text, fixed = TRUE), logical(1)
+  )
+  position <- which(!occupied)[1L]
+  if (is.na(position)) {
+    gx_wqp_abort(
+      "The WQP response exhausted the bounded parser-mask namespace.",
+      "gx_error_wqp_payload"
+    )
+  }
+  sentinel <- sentinels[[position]]
+  list(
+    text = gsub("https://", sentinel, text, fixed = TRUE),
+    sentinel = sentinel
+  )
+}
+
 gx_wqp_external_data_impl <- function(parser, body, request_plan) {
   if (!is.function(parser)) {
     gx_wqp_abort(
@@ -585,14 +604,15 @@ gx_wqp_external_data_impl <- function(parser, body, request_plan) {
     )
   }
   Encoding(text) <- "UTF-8"
+  masked <- gx_wqp_external_mask_impl(text)
   parsed <- tryCatch(
     suppressMessages(withCallingHandlers(
       do.call(parser, list(
         # importWQP() treats any character input containing an HTTPS substring
-        # as a URL. A WQP CSV commonly contains URL-valued cells, so pass one
-        # inert literal record container: readr accepts it as inline data while
-        # importWQP's URL branch remains unreachable.
-        obs_url = list(text),
+        # as a URL. Temporarily mask only that exact scheme token, parse the
+        # single literal CSV document, and restore the token in every returned
+        # character cell before comparing with the exact strict parse.
+        obs_url = masked$text,
         tz = "UTC",
         csv = TRUE,
         convertType = FALSE
@@ -612,7 +632,7 @@ gx_wqp_external_data_impl <- function(parser, body, request_plan) {
   }
   columns <- lapply(parsed, function(column) {
     column[is.na(column)] <- ""
-    unname(column)
+    unname(gsub(masked$sentinel, "https://", column, fixed = TRUE))
   })
   names(columns) <- names(parsed)
   gx_wqp_normalize_names_impl(

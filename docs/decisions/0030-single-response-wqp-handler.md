@@ -91,16 +91,18 @@ ceiling, and bound to the exact canonical target.
 
 The retained raw body is parsed twice after the response envelope is admitted:
 
-1. `dataRetrieval::importWQP(obs_url = list(<retained text>), csv = TRUE,
+1. `dataRetrieval::importWQP(obs_url = <masked retained text>, csv = TRUE,
    convertType = FALSE, tz = "UTC")`; and
 2. geoconnexr's strict bounded UTF-8 CSV parser.
 
-The external parser receives response text in a one-element inert literal-data
-container, not a URL or connection, so it cannot initiate provider transport.
-The container is required because `importWQP()` otherwise interprets any
-character input containing an HTTPS-valued cell as a URL. Messages are
-suppressed and warnings or errors fail the parse phase. Its result must be a
-bounded, character-only table.
+The external parser receives one literal CSV document, not a URL or connection,
+so it cannot initiate provider transport. Before invocation, only exact
+`https://` scheme tokens are replaced by the first absent value in a bounded
+package sentinel namespace; `importWQP()` otherwise interprets any character
+input containing an HTTPS-valued cell as a URL. The sentinel is restored in
+every returned character cell before parser agreement. Messages are suppressed
+and warnings or errors fail the parse phase. Its result must be a bounded,
+character-only table.
 Because `importWQP()` maps both blank fields and literal WQP `NA` fields to R
 missing values, parser agreement compares those two spellings as one missing
 equivalence class. The retained strict result still preserves the exact source
