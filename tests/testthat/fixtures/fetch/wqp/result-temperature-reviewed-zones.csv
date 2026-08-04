@@ -1,0 +1,3 @@
+OrganizationIdentifier,MonitoringLocationIdentifier,ActivityStartDate,ActivityStartTime/Time,ActivityStartTime/TimeZoneCode,CharacteristicName,ResultMeasureValue,ResultMeasure/MeasureUnitCode,MeasureQualifierCode
+USGS,USGS-01234567,2025-06-01,08:34:56,EDT,Temperature,21.2,deg C,
+USGS,USGS-01234567,2025-06-01,09:04:56,NST,Temperature,NA,deg C,P

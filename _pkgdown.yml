@@ -93,12 +93,28 @@ reference:
   - gx_classify_distribution
   - gx_unit_conversions
 
-- title: Plan and fetch data
-  desc: Build bounded plans and execute the frozen six-handler M7 subset.
+- title: Plan, fetch, and harmonize data
+  desc: Execute the bounded six-handler subset and normalize reviewed time series.
   contents:
   - gx_catalog
   - gx_fetch_plan
   - gx_fetch
+  - gx_target_units
+  - gx_csv_mapping
+  - gx_feature_mapping
+  - gx_harmonize
+
+- title: Create and inspect packages and snapshots
+  desc: Publish verified packages or catalog snapshots and inspect offline evidence.
+  contents:
+  - gx_package
+  - gx_package_load
+  - gx_package_tables
+  - gx_package_hydrate
+  - gx_snapshot
+  - gx_snapshot_verify
+  - gx_snapshot_requests
+  - gx_snapshot_catalog_view
 
 - title: Infrastructure and package internals
   desc: Cache controls and versioned identity primitives for advanced use.

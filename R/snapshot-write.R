@@ -125,6 +125,7 @@ gx_snapshot_writer_character_column <- function(x) {
   }
   if (is.character(x) && !is.object(x)) return(enc2utf8(x))
   if (is.logical(x) && !is.object(x)) {
+    if (!length(x)) return(character())
     return(ifelse(is.na(x), NA_character_, ifelse(x, "true", "false")))
   }
   if (is.integer(x) && !is.object(x)) return(as.character(x))

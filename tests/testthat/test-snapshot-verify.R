@@ -1263,10 +1263,79 @@ test_that("resources remain opaque and verification performs no external work", 
   expect_identical(after, before)
 })
 
-test_that("snapshot verification internals are not exported", {
+test_that("public snapshot verification returns exact offline evidence", {
+  dir <- snapshot_test_copy()
+  verified_at <- as.POSIXct("2026-07-28 12:34:56", tz = "UTC")
+  withr::local_options(list(geoconnexr.clock = function() verified_at))
+  before <- snapshot_test_tree_state(dir)
+  network <- snapshot_test_block_external_work()
+
+  output <- gx_snapshot_verify(dir)
+
+  expect_s3_class(output, "gx_snapshot_verification")
+  expect_identical(class(output), "gx_snapshot_verification")
+  expect_identical(output$status, "verified")
+  expect_identical(output$verified_at, verified_at)
+  expect_identical(
+    gx_snapshot_verification_validate_impl(output),
+    invisible(output)
+  )
+  expect_identical(snapshot_test_tree_state(dir), before)
+  expect_identical(network$calls, 0L)
+  printed <- capture.output(print(output), type = "message")
+  expect_true(any(grepl("unsigned internal consistency", printed, fixed = TRUE)))
+
+  mutations <- list(
+    resource = function(x) {
+      x$resources$actual_sha256[[1L]] <-
+        paste(rep("0", 64L), collapse = "")
+      x
+    },
+    request_count = function(x) {
+      x$request_count <- x$request_count + 1L
+      x
+    },
+    manifest = function(x) {
+      x$manifest$package$name <- "forged"
+      x
+    },
+    status = function(x) {
+      x$status <- "forged"
+      x
+    }
+  )
+  for (name in names(mutations)) {
+    forged <- mutations[[name]](unserialize(serialize(output, NULL)))
+    expect_error(
+      gx_snapshot_verification_validate_impl(forged),
+      class = "gx_error_snapshot",
+      info = name
+    )
+  }
+
+  optional_dir <- snapshot_test_copy()
+  optional_manifest <- snapshot_test_read_manifest(optional_dir)
+  index <- snapshot_test_resource_index(optional_manifest, "requests.csv")
+  optional_manifest$resources[[index]]$required <- FALSE
+  snapshot_test_write_manifest(optional_dir, optional_manifest)
+  unlink(file.path(optional_dir, "requests.csv"))
+  optional <- gx_snapshot_verify(optional_dir)
+  expect_identical(optional$status, "verified_with_optional_absences")
+  expect_identical(
+    optional$resources$status,
+    c("verified", "missing_optional")
+  )
+  expect_identical(
+    gx_snapshot_verification_validate_impl(optional),
+    invisible(optional)
+  )
+})
+
+test_that("only the public evidence wrapper is exported", {
   exports <- getNamespaceExports("geoconnexr")
 
   expect_false("gx_snapshot_verify_impl" %in% exports)
-  expect_false("gx_snapshot_verify" %in% exports)
+  expect_true("gx_snapshot_verify" %in% exports)
   expect_false("gx_replay" %in% exports)
+  expect_false("gx_snapshot_verification_validate_impl" %in% exports)
 })

@@ -380,6 +380,566 @@ test_that("embedded request ledger and requests.csv are exactly bound", {
   ))
 })
 
+test_that("M9e loads canonical request exports as exact typed ledgers", {
+  testthat::local_mocked_bindings(
+    gx_now = writer_test_clock,
+    .package = "geoconnexr"
+  )
+  for (n in c(0L, 2L)) {
+    parent <- writer_test_parent()
+    target <- file.path(parent, paste0("snapshot-", n))
+    catalog <- writer_test_catalog(n)
+    gx_snapshot_write_catalog_impl(catalog, target)
+
+    output <- gx_snapshot_load_requests_impl(target)
+
+    expect_s3_class(output, "gx_snapshot_request_export")
+    expect_identical(class(output), "gx_snapshot_request_export")
+    expect_identical(output$contract_version, "0.1.0")
+    expect_identical(output$mode, "catalog_request_export")
+    expect_identical(output$status, "loaded_and_bound")
+    expect_identical(output$request_count, n)
+    expect_identical(
+      output$path,
+      normalizePath(target, winslash = "/", mustWork = TRUE)
+    )
+    expected_requests <- catalog$requests
+    expected_requests$request_hash <- unname(expected_requests$request_hash)
+    expected_requests$content_hash <- unname(expected_requests$content_hash)
+    expect_identical(output$requests, expected_requests)
+    expect_match(output$manifest_sha256, "^[0-9a-f]{64}$")
+    expect_match(output$resource_sha256, "^[0-9a-f]{64}$")
+    expect_match(output$export_id, "^[0-9a-f]{64}$")
+    expect_identical(
+      gx_snapshot_request_export_validate_impl(output),
+      invisible(output)
+    )
+  }
+})
+
+test_that("M9e rejects noncanonical request bytes despite valid tree hashes", {
+  parent <- writer_test_parent()
+  target <- file.path(parent, "snapshot")
+  gx_snapshot_write_catalog_impl(writer_test_catalog(), target)
+  request_path <- file.path(target, "requests.csv")
+  modified <- c(writer_test_read_raw(request_path), charToRaw("\n"))
+  writeBin(modified, request_path)
+
+  manifest <- writer_test_manifest(target)
+  paths <- vapply(manifest$resources, `[[`, character(1), "path")
+  position <- match("requests.csv", paths)
+  manifest$resources[[position]]$bytes <- length(modified)
+  manifest$resources[[position]]$sha256 <- digest::digest(
+    modified,
+    algo = "sha256",
+    serialize = FALSE
+  )
+  writeBin(
+    gx_snapshot_writer_json_bytes(manifest),
+    file.path(target, "manifest.json")
+  )
+
+  expect_identical(gx_snapshot_verify_impl(target)$status, "verified")
+  expect_error(
+    gx_snapshot_load_requests_impl(target),
+    class = "gx_error_snapshot_request_load_binding"
+  )
+})
+
+test_that("M9e accepts only the fixed catalog request-export profile", {
+  parent <- writer_test_parent()
+  target <- file.path(parent, "snapshot")
+  gx_snapshot_write_catalog_impl(writer_test_catalog(), target)
+  manifest <- writer_test_manifest(target)
+  manifest$effective_options$serialization$request_export <- "future-profile"
+  writeBin(
+    gx_snapshot_writer_json_bytes(manifest),
+    file.path(target, "manifest.json")
+  )
+
+  expect_identical(gx_snapshot_verify_impl(target)$status, "verified")
+  expect_error(
+    gx_snapshot_load_requests_impl(target),
+    class = "gx_error_snapshot_request_load_profile"
+  )
+})
+
+test_that("M9e evidence and loading budgets fail closed", {
+  parent <- writer_test_parent()
+  target <- file.path(parent, "snapshot")
+  gx_snapshot_write_catalog_impl(writer_test_catalog(), target)
+  output <- gx_snapshot_load_requests_impl(target)
+
+  forged <- unserialize(serialize(output, NULL))
+  forged$requests$cache_origin[[1L]] <- "offline_cache"
+  expect_error(
+    gx_snapshot_request_export_validate_impl(forged),
+    class = "gx_error_snapshot_request_load_evidence"
+  )
+
+  request_size <- file.info(file.path(target, "requests.csv"))$size[[1L]]
+  expect_error(
+    testthat::with_mocked_bindings(
+      gx_snapshot_load_requests_impl(target),
+      gx_snapshot_request_load_max_bytes = request_size - 1,
+      .package = "geoconnexr"
+    ),
+    class = "gx_error_snapshot_request_load_budget"
+  )
+})
+
+test_that("M9e request loading is offline and read-only", {
+  calls <- 0L
+  blocked <- function(...) {
+    calls <<- calls + 1L
+    stop("blocked external or write seam", call. = FALSE)
+  }
+  parent <- writer_test_parent()
+  target <- file.path(parent, "snapshot")
+  gx_snapshot_write_catalog_impl(writer_test_catalog(), target)
+
+  expect_no_error(testthat::with_mocked_bindings(
+    gx_snapshot_load_requests_impl(target),
+    gx_http_request = blocked,
+    gx_default_dns_resolver = blocked,
+    gx_snapshot_writer_write_csv = blocked,
+    gx_snapshot_writer_write_raw = blocked,
+    gx_snapshot_writer_unlink = blocked,
+    .package = "geoconnexr"
+  ))
+  expect_identical(calls, 0L)
+})
+
+test_that("M9f publishes exact read-only request-ledger evidence", {
+  testthat::local_mocked_bindings(
+    gx_now = writer_test_clock,
+    .package = "geoconnexr"
+  )
+  parent <- writer_test_parent()
+  target <- file.path(parent, "snapshot")
+  catalog <- writer_test_catalog(n = 2L)
+  gx_snapshot_write_catalog_impl(catalog, target)
+
+  output <- gx_snapshot_requests(target)
+
+  expect_s3_class(output, "gx_snapshot_request_export")
+  expect_identical(output$status, "loaded_and_bound")
+  expect_identical(output$request_count, 2L)
+  expect_identical(names(output$requests), .gx_catalog_request_columns)
+  expect_identical(
+    gx_snapshot_request_export_validate_impl(output),
+    invisible(output)
+  )
+  expect_identical(
+    output$manifest_sha256,
+    gx_snapshot_verify(target)$manifest_sha256
+  )
+  printed <- capture.output(print(output), type = "message")
+  expect_true(any(grepl(
+    "canonical CSV bytes to typed manifest ledger",
+    printed,
+    fixed = TRUE
+  )))
+
+  forged <- unserialize(serialize(output, NULL))
+  forged$path <- dirname(forged$path)
+  expect_error(
+    gx_snapshot_request_export_validate_impl(forged),
+    class = "gx_error_snapshot_request_load_evidence"
+  )
+})
+
+test_that("M9g loads exact redacted catalog CSV character tables", {
+  testthat::local_mocked_bindings(
+    gx_now = writer_test_clock,
+    .package = "geoconnexr"
+  )
+  for (n in c(0L, 2L)) {
+    parent <- writer_test_parent()
+    target <- file.path(parent, paste0("snapshot-", n))
+    catalog <- writer_test_catalog(n)
+    gx_snapshot_write_catalog_impl(catalog, target)
+    views <- gx_catalog_export_views_impl(catalog)
+
+    for (resource in c("sites", "datasets", "problems")) {
+      output <- gx_snapshot_load_catalog_csv_impl(target, resource)
+      expected <- gx_snapshot_writer_redact_view(
+        gx_snapshot_writer_character_view(views[[resource]])
+      )
+      expected <- lapply(expected, function(column) {
+        column <- as.character(column)
+        column[is.na(column)] <- ""
+        unname(column)
+      })
+      expected <- as.data.frame(
+        expected,
+        stringsAsFactors = FALSE,
+        check.names = FALSE
+      )
+      expected <- tibble::as_tibble(expected)
+
+      expect_s3_class(output, "gx_snapshot_catalog_csv")
+      expect_identical(output$resource, resource)
+      expect_identical(output$status, "loaded_and_bound")
+      expect_identical(output$table, expected)
+      expect_identical(output$rows, as.integer(nrow(expected)))
+      expect_identical(output$columns, as.integer(ncol(expected)))
+      expect_match(output$manifest_sha256, "^[0-9a-f]{64}$")
+      expect_match(output$resource_sha256, "^[0-9a-f]{64}$")
+      expect_match(output$table_id, "^[0-9a-f]{64}$")
+      expect_identical(
+        gx_snapshot_catalog_csv_validate_impl(output),
+        invisible(output)
+      )
+    }
+  }
+})
+
+test_that("M9g parser accepts only canonical quote-all UTF-8 LF bytes", {
+  expected <- c("left", "right")
+  canonical <- charToRaw("\"left\",\"right\"\n\"a\",\"b\"\n")
+  parsed <- gx_snapshot_csv_parse_impl(canonical, expected, 1L)
+  expect_identical(parsed, tibble::tibble(left = "a", right = "b"))
+  expect_identical(gx_snapshot_csv_bytes_impl(parsed), canonical)
+
+  cases <- list(
+    unquoted = charToRaw("left,right\n\"a\",\"b\"\n"),
+    crlf = charToRaw("\"left\",\"right\"\r\n\"a\",\"b\"\r\n"),
+    extra_blank = c(canonical, charToRaw("\n")),
+    bom = c(as.raw(c(0xef, 0xbb, 0xbf)), canonical),
+    wrong_header = charToRaw("\"right\",\"left\"\n\"b\",\"a\"\n")
+  )
+  for (name in names(cases)) {
+    expect_error(
+      gx_snapshot_csv_parse_impl(cases[[name]], expected, 1L),
+      class = "gx_error_snapshot_csv_load",
+      info = name
+    )
+  }
+})
+
+test_that("M9g rejects rehashed noncanonical catalog CSV bytes", {
+  parent <- writer_test_parent()
+  target <- file.path(parent, "snapshot")
+  gx_snapshot_write_catalog_impl(writer_test_catalog(), target)
+  resource_path <- file.path(target, "catalog", "sites.csv")
+  modified <- c(writer_test_read_raw(resource_path), charToRaw("\n"))
+  writeBin(modified, resource_path)
+
+  manifest <- writer_test_manifest(target)
+  paths <- vapply(manifest$resources, `[[`, character(1), "path")
+  position <- match("catalog/sites.csv", paths)
+  manifest$resources[[position]]$bytes <- length(modified)
+  manifest$resources[[position]]$sha256 <- digest::digest(
+    modified,
+    algo = "sha256",
+    serialize = FALSE
+  )
+  writeBin(
+    gx_snapshot_writer_json_bytes(manifest),
+    file.path(target, "manifest.json")
+  )
+
+  expect_identical(gx_snapshot_verify_impl(target)$status, "verified")
+  expect_error(
+    gx_snapshot_load_catalog_csv_impl(target, "sites"),
+    class = "gx_error_snapshot_csv_load"
+  )
+})
+
+test_that("M9g profile, evidence, and budgets fail closed", {
+  parent <- writer_test_parent()
+  target <- file.path(parent, "snapshot")
+  gx_snapshot_write_catalog_impl(writer_test_catalog(), target)
+  output <- gx_snapshot_load_catalog_csv_impl(target, "datasets")
+
+  forged <- unserialize(serialize(output, NULL))
+  forged$table$dataset_name[[1L]] <- "forged"
+  expect_error(
+    gx_snapshot_catalog_csv_validate_impl(forged),
+    class = "gx_error_snapshot_csv_load_evidence"
+  )
+  expect_error(
+    gx_snapshot_load_catalog_csv_impl(target, "requests"),
+    class = "gx_error_snapshot_csv_load_input"
+  )
+
+  resource_size <- file.info(
+    file.path(target, "catalog", "datasets.csv")
+  )$size[[1L]]
+  expect_error(
+    testthat::with_mocked_bindings(
+      gx_snapshot_load_catalog_csv_impl(target, "datasets"),
+      gx_snapshot_csv_load_max_bytes = resource_size - 1,
+      .package = "geoconnexr"
+    ),
+    class = "gx_error_snapshot_csv_load_budget"
+  )
+})
+
+test_that("M9g catalog CSV loading is offline and read-only", {
+  calls <- 0L
+  blocked <- function(...) {
+    calls <<- calls + 1L
+    stop("blocked external or write seam", call. = FALSE)
+  }
+  parent <- writer_test_parent()
+  target <- file.path(parent, "snapshot")
+  gx_snapshot_write_catalog_impl(writer_test_catalog(), target)
+
+  expect_no_error(testthat::with_mocked_bindings(
+    gx_snapshot_load_catalog_csv_impl(target, "problems"),
+    gx_http_request = blocked,
+    gx_default_dns_resolver = blocked,
+    gx_snapshot_writer_write_csv = blocked,
+    gx_snapshot_writer_write_raw = blocked,
+    gx_snapshot_writer_unlink = blocked,
+    .package = "geoconnexr"
+  ))
+  expect_identical(calls, 0L)
+})
+
+test_that("M9h derives exact typed redacted catalog views", {
+  testthat::local_mocked_bindings(
+    gx_now = writer_test_clock,
+    .package = "geoconnexr"
+  )
+  for (n in c(0L, 2L)) {
+    parent <- writer_test_parent()
+    target <- file.path(parent, paste0("snapshot-", n))
+    gx_snapshot_write_catalog_impl(writer_test_catalog(n), target)
+
+    output <- gx_snapshot_load_catalog_view_impl(target)
+
+    expect_s3_class(output, "gx_snapshot_catalog_view")
+    expect_identical(output$contract_version, "0.1.0")
+    expect_identical(output$mode, "redacted_catalog_view")
+    expect_identical(output$status, "loaded_and_verified")
+    expect_s3_class(output$verification, "gx_snapshot_verification")
+    expect_s3_class(output$sites, "sf")
+    expect_s3_class(sf::st_geometry(output$sites), "sfc_POINT")
+    expect_s3_class(output$datasets, "tbl_df")
+    expect_s3_class(output$problems, "tbl_df")
+    expect_s3_class(output$requests, "tbl_df")
+    expect_true(inherits(output$datasets$temporal_start, "POSIXct"))
+    expect_true(inherits(output$datasets$temporal_end, "POSIXct"))
+    expect_true(is.list(output$datasets$conforms_to))
+    expect_true(is.logical(output$datasets$fetchable))
+    expect_true(is.logical(output$problems$recoverable))
+    expect_true(inherits(output$problems$occurred_at, "POSIXct"))
+    expect_identical(output$metadata$counts, list(
+      sites = n,
+      datasets = n,
+      problems = n,
+      requests = n
+    ))
+    expect_identical(output$metadata$blank_cells, "preserved_as_empty_strings")
+    expect_identical(
+      output$metadata$identity_policy,
+      "redacted_values_not_reconstructed"
+    )
+    expect_false(output$metadata$replayable)
+    expect_match(output$view_id, "^[0-9a-f]{64}$")
+    expect_identical(
+      gx_snapshot_catalog_view_validate_impl(output),
+      invisible(output)
+    )
+  }
+})
+
+test_that("M9h preserves redaction and does not reconstruct discarded identities", {
+  parent <- writer_test_parent()
+  target <- file.path(parent, "snapshot")
+  gx_snapshot_write_catalog_impl(
+    writer_test_catalog(sensitive = TRUE),
+    target
+  )
+
+  output <- gx_snapshot_load_catalog_view_impl(target)
+
+  expect_match(output$sites$site_uri[[1L]], "?[redacted]", fixed = TRUE)
+  expect_match(
+    output$datasets$distribution_url[[1L]],
+    "?[redacted]",
+    fixed = TRUE
+  )
+  expect_true(any(grepl(
+    "?[redacted]",
+    output$datasets$conforms_to[[1L]],
+    fixed = TRUE
+  )))
+  expect_identical(output$sites$mainstem_uri[[1L]], "")
+  expect_identical(output$datasets$measurement_technique[[1L]], "")
+  collect_text <- function(x) {
+    if (is.character(x)) return(x)
+    if (!is.list(x)) return(character())
+    unlist(lapply(x, collect_text), use.names = FALSE)
+  }
+  expect_false(any(grepl(
+    "SECRET_",
+    collect_text(output),
+    fixed = TRUE
+  )))
+})
+
+test_that("M9h rejects canonical CSV with invalid typed field values", {
+  parent <- writer_test_parent()
+  target <- file.path(parent, "snapshot")
+  gx_snapshot_write_catalog_impl(writer_test_catalog(), target)
+  evidence <- gx_snapshot_load_catalog_csv_impl(target, "datasets")
+  table <- evidence$table
+  table$fetchable[[1L]] <- "yes"
+  modified <- gx_snapshot_csv_bytes_impl(table)
+  resource_path <- file.path(target, "catalog", "datasets.csv")
+  writeBin(modified, resource_path)
+
+  manifest <- writer_test_manifest(target)
+  paths <- vapply(manifest$resources, `[[`, character(1), "path")
+  position <- match("catalog/datasets.csv", paths)
+  manifest$resources[[position]]$bytes <- length(modified)
+  manifest$resources[[position]]$sha256 <- digest::digest(
+    modified,
+    algo = "sha256",
+    serialize = FALSE
+  )
+  writeBin(
+    gx_snapshot_writer_json_bytes(manifest),
+    file.path(target, "manifest.json")
+  )
+
+  expect_s3_class(
+    gx_snapshot_load_catalog_csv_impl(target, "datasets"),
+    "gx_snapshot_catalog_csv"
+  )
+  expect_error(
+    gx_snapshot_load_catalog_view_impl(target),
+    class = "gx_error_snapshot_catalog_view_type"
+  )
+})
+
+test_that("M9h combined evidence forgery fails closed", {
+  parent <- writer_test_parent()
+  target <- file.path(parent, "snapshot")
+  gx_snapshot_write_catalog_impl(writer_test_catalog(), target)
+  output <- gx_snapshot_load_catalog_view_impl(target)
+
+  mutations <- list(
+    typed = function(x) {
+      x$datasets$dataset_name[[1L]] <- "forged"
+      x
+    },
+    raw = function(x) {
+      x$resource_evidence$datasets$table$dataset_name[[1L]] <- "forged"
+      x
+    },
+    request = function(x) {
+      x$requests$cache_origin[[1L]] <- "offline_cache"
+      x
+    },
+    metadata = function(x) {
+      x$metadata$replayable <- TRUE
+      x
+    },
+    identity = function(x) {
+      x$view_id <- paste(rep("0", 64L), collapse = "")
+      x
+    }
+  )
+  for (name in names(mutations)) {
+    forged <- mutations[[name]](unserialize(serialize(output, NULL)))
+    expect_error(
+      gx_snapshot_catalog_view_validate_impl(forged),
+      class = "gx_error_snapshot_catalog_view",
+      info = name
+    )
+  }
+})
+
+test_that("M9h typed redacted-view loading is offline and read-only", {
+  calls <- 0L
+  blocked <- function(...) {
+    calls <<- calls + 1L
+    stop("blocked external or write seam", call. = FALSE)
+  }
+  parent <- writer_test_parent()
+  target <- file.path(parent, "snapshot")
+  gx_snapshot_write_catalog_impl(writer_test_catalog(), target)
+
+  expect_no_error(testthat::with_mocked_bindings(
+    gx_snapshot_load_catalog_view_impl(target),
+    gx_http_request = blocked,
+    gx_default_dns_resolver = blocked,
+    gx_snapshot_writer_write_csv = blocked,
+    gx_snapshot_writer_write_raw = blocked,
+    gx_snapshot_writer_unlink = blocked,
+    .package = "geoconnexr"
+  ))
+  expect_identical(calls, 0L)
+})
+
+test_that("M9i publicly exposes the exact typed redacted catalog view", {
+  testthat::local_mocked_bindings(
+    gx_now = writer_test_clock,
+    .package = "geoconnexr"
+  )
+  calls <- 0L
+  blocked <- function(...) {
+    calls <<- calls + 1L
+    stop("blocked external or write seam", call. = FALSE)
+  }
+  parent <- writer_test_parent()
+  target <- file.path(parent, "snapshot")
+  gx_snapshot_write_catalog_impl(writer_test_catalog(2L), target)
+
+  output <- testthat::with_mocked_bindings(
+    gx_snapshot_catalog_view(target),
+    gx_http_request = blocked,
+    gx_default_dns_resolver = blocked,
+    gx_snapshot_writer_write_csv = blocked,
+    gx_snapshot_writer_write_raw = blocked,
+    gx_snapshot_writer_unlink = blocked,
+    .package = "geoconnexr"
+  )
+
+  expect_identical(calls, 0L)
+  expect_s3_class(output, "gx_snapshot_catalog_view")
+  expect_identical(output$status, "loaded_and_verified")
+  expect_s3_class(output$sites, "sf")
+  expect_s3_class(output$datasets, "tbl_df")
+  expect_s3_class(output$problems, "tbl_df")
+  expect_s3_class(output$requests, "tbl_df")
+  expect_identical(
+    output$verification$manifest_sha256,
+    gx_snapshot_verify(target)$manifest_sha256
+  )
+  expect_identical(output$metadata$counts, list(
+    sites = 2L,
+    datasets = 2L,
+    problems = 2L,
+    requests = 2L
+  ))
+  expect_identical(
+    gx_snapshot_catalog_view_validate_impl(output),
+    invisible(output)
+  )
+  expect_message(print(output), "typed redacted snapshot view", fixed = TRUE)
+  expect_message(print(output), "not gx_catalog", fixed = TRUE)
+  expect_message(print(output), "non-replayable", fixed = TRUE)
+
+  forged_path <- unserialize(serialize(output, NULL))
+  forged_path$path <- paste0(forged_path$path, "-forged")
+  expect_error(
+    gx_snapshot_catalog_view_validate_impl(forged_path),
+    class = "gx_error_snapshot_catalog_view"
+  )
+  forged_metadata <- unserialize(serialize(output, NULL))
+  forged_metadata$metadata$replayable <- TRUE
+  expect_error(
+    gx_snapshot_catalog_view_validate_impl(forged_metadata),
+    class = "gx_error_snapshot_catalog_view"
+  )
+})
+
 test_that("resource bytes are deterministic for permuted equivalent catalogs", {
   testthat::local_mocked_bindings(gx_now = writer_test_clock, .package = "geoconnexr")
   catalog <- writer_test_catalog(n = 2L)
@@ -587,7 +1147,7 @@ test_that("catalog snapshot writing performs no network discovery", {
   parent <- writer_test_parent()
   target <- file.path(parent, "snapshot")
   expect_no_error(testthat::with_mocked_bindings(
-    gx_snapshot_write_catalog_impl(writer_test_catalog(), target),
+    gx_snapshot(writer_test_catalog(), target),
     gx_http_request = blocked,
     gx_graph_execute_once = blocked,
     gx_ref_features_impl = blocked,
@@ -598,9 +1158,127 @@ test_that("catalog snapshot writing performs no network discovery", {
   expect_identical(calls, 0L)
 })
 
-test_that("snapshot writer and verifier boundaries remain unexported", {
+test_that("public catalog snapshots return exact verified evidence", {
+  testthat::local_mocked_bindings(
+    gx_now = writer_test_clock,
+    .package = "geoconnexr"
+  )
+  parent <- writer_test_parent()
+  target <- file.path(parent, "snapshot")
+
+  output <- gx_snapshot(writer_test_catalog(n = 2L), target)
+
+  expect_s3_class(output, "gx_snapshot")
+  expect_identical(class(output), "gx_snapshot")
+  expect_identical(output$contract_version, "0.1.0")
+  expect_identical(output$mode, "catalog_only_snapshot")
+  expect_identical(output$status, "written_and_verified")
+  expect_identical(
+    output$path,
+    normalizePath(target, winslash = "/", mustWork = TRUE)
+  )
+  expect_s3_class(output$verification, "gx_snapshot_verification")
+  expect_identical(output$verification$status, "verified")
+  expect_identical(output$metadata, list(
+    scope = "catalog_only_v1",
+    creation_only = TRUE,
+    catalog_contract_version = "0.1.0",
+    resources = 4L,
+    requests = 2L,
+    overwrite = FALSE,
+    fetch = FALSE,
+    harmonize = FALSE,
+    report = FALSE,
+    frictionless = FALSE,
+    replayable = FALSE
+  ))
+  expect_match(output$snapshot_id, "^[0-9a-f]{64}$")
+  expect_identical(gx_snapshot_validate_impl(output), invisible(output))
+  expect_identical(
+    output$verification$manifest_sha256,
+    gx_snapshot_verify(target)$manifest_sha256
+  )
+  printed <- capture.output(print(output), type = "message")
+  expect_true(any(grepl(
+    "catalog-only; creation-only; non-replayable",
+    printed,
+    fixed = TRUE
+  )))
+
+  mutations <- list(
+    verification = function(x) {
+      x$verification$resources$actual_sha256[[1L]] <-
+        paste(rep("0", 64L), collapse = "")
+      x
+    },
+    metadata = function(x) {
+      x$metadata$frictionless <- TRUE
+      x
+    },
+    identity = function(x) {
+      x$snapshot_id <- paste(rep("0", 64L), collapse = "")
+      x
+    },
+    status = function(x) {
+      x$status <- "forged"
+      x
+    }
+  )
+  for (name in names(mutations)) {
+    forged <- mutations[[name]](unserialize(serialize(output, NULL)))
+    expect_error(
+      gx_snapshot_validate_impl(forged),
+      class = "gx_error_snapshot",
+      info = name
+    )
+  }
+})
+
+test_that("public catalog snapshots reject scope expansion before writing", {
+  catalog <- writer_test_catalog()
+  cases <- list(
+    fetch = list(fetch = TRUE),
+    report = list(report = TRUE),
+    overwrite = list(overwrite = TRUE)
+  )
+  for (name in names(cases)) {
+    parent <- writer_test_parent()
+    target <- file.path(parent, paste0("snapshot-", name))
+    arguments <- c(list(x = catalog, dir = target), cases[[name]])
+    expect_error(
+      do.call(gx_snapshot, arguments),
+      class = "gx_error_snapshot_scope",
+      info = name
+    )
+    expect_false(file.exists(target) || dir.exists(target), info = name)
+    expect_length(writer_test_stage_paths(parent), 0L)
+  }
+
+  parent <- writer_test_parent()
+  target <- file.path(parent, "snapshot-invalid")
+  expect_error(
+    gx_snapshot(list(), target),
+    class = "gx_error_snapshot_input"
+  )
+  expect_false(file.exists(target) || dir.exists(target))
+  expect_error(
+    gx_snapshot(catalog, target, fetch = NA),
+    class = "gx_error_snapshot_input"
+  )
+  expect_false(file.exists(target) || dir.exists(target))
+})
+
+test_that("public snapshot wrappers preserve internal boundaries", {
   exports <- getNamespaceExports("geoconnexr")
+  expect_true(all(c(
+    "gx_snapshot", "gx_snapshot_verify", "gx_snapshot_requests",
+    "gx_snapshot_catalog_view"
+  ) %in% exports))
   expect_false("gx_snapshot_write_catalog_impl" %in% exports)
   expect_false("gx_snapshot_verify_impl" %in% exports)
   expect_false("gx_catalog_export_views_impl" %in% exports)
+  expect_false("gx_snapshot_validate_impl" %in% exports)
+  expect_false("gx_snapshot_load_requests_impl" %in% exports)
+  expect_false("gx_snapshot_load_catalog_csv_impl" %in% exports)
+  expect_false("gx_snapshot_load_catalog_view_impl" %in% exports)
 })

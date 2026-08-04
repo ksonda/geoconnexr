@@ -1,0 +1,24 @@
+code,name,offset_minutes,source_uri,review_date,status
+ADT,Atlantic Daylight Time,-180,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+AKDT,Alaska Daylight Time,-480,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+AKST,Alaska Standard Time,-540,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+AST,Atlantic Standard Time,-240,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+CDT,Central Daylight Time,-300,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+CEST,Central European Summer Time,120,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+CET,Central European Time,60,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+CST,Central Standard Time,-360,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+EDT,Eastern Daylight Time,-240,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+EST,Eastern Standard Time,-300,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+GMT,Greenwich Mean Time,0,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+GST,Guam Standard Time,600,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+HADT,Hawaii-Aleutian Daylight Time,-540,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+HAST,Hawaii-Aleutian Standard Time,-600,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+KST,Korea Standard Time,540,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+MDT,Mountain Daylight Time,-360,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+MST,Mountain Standard Time,-420,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+NDT,Newfoundland Daylight Time,-150,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+NST,Newfoundland Standard Time,-210,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+PDT,Pacific Daylight Time,-420,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+PST,Pacific Standard Time,-480,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+SST,American Samoa Standard Time,-660,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed
+UTC,Coordinated Universal Time,0,https://cdx.epa.gov/WQXWeb/Services.asmx?op=GetDomainValues,2026-07-28,reviewed

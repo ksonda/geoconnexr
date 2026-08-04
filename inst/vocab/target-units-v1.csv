@@ -1,0 +1,9 @@
+dimension,unit_uri,unit_label,preferred,source_uri,review_date,status
+thermodynamic-temperature,http://qudt.org/vocab/unit/DEG_C,deg C,true,https://qudt.org/vocab/unit/DEG_C,2026-07-27,reviewed
+thermodynamic-temperature,http://qudt.org/vocab/unit/DEG_F,deg F,false,https://qudt.org/vocab/unit/DEG_F,2026-07-27,reviewed
+length,http://qudt.org/vocab/unit/M,m,true,https://qudt.org/vocab/unit/M,2026-07-27,reviewed
+length,http://qudt.org/vocab/unit/FT,ft,false,https://qudt.org/vocab/unit/FT,2026-07-27,reviewed
+length,http://qudt.org/vocab/unit/MilliM,mm,false,https://qudt.org/vocab/unit/MilliM,2026-07-27,reviewed
+length,http://qudt.org/vocab/unit/IN,in,false,https://qudt.org/vocab/unit/IN,2026-07-27,reviewed
+volume-flow-rate,http://qudt.org/vocab/unit/M3-PER-SEC,m3/s,true,https://qudt.org/vocab/unit/M3-PER-SEC,2026-07-27,reviewed
+volume-flow-rate,http://qudt.org/vocab/unit/FT3-PER-SEC,ft^3/s,false,https://qudt.org/vocab/unit/FT3-PER-SEC,2026-07-27,reviewed

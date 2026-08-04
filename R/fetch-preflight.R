@@ -303,9 +303,19 @@ gx_fetch_preflight_description_version_impl <- function(path, package) {
 }
 
 gx_fetch_preflight_package_version_impl <- function(
-    package, library_paths = base::.libPaths()) {
+    package,
+    library_paths = base::.libPaths(),
+    allowed_packages = .gx_handler_registry_allowed_packages) {
+  valid_allowed <- is.character(allowed_packages) &&
+    length(allowed_packages) <= .gx_handler_registry_max_handlers &&
+    !anyNA(allowed_packages) && !anyDuplicated(allowed_packages) &&
+    all(vapply(
+      allowed_packages,
+      gx_handler_registry_scalar_text,
+      logical(1)
+    ))
   if (!gx_handler_registry_scalar_text(package) ||
-      !package %in% .gx_handler_registry_allowed_packages) {
+      !valid_allowed || !package %in% allowed_packages) {
     gx_fetch_preflight_abort(
       "Package preflight received an invalid package requirement.",
       "gx_error_fetch_preflight_input"

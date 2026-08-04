@@ -1,0 +1,36 @@
+{
+  "type": "FeatureCollection",
+  "numberMatched": 2,
+  "numberReturned": 2,
+  "features": [
+    {
+      "type": "Feature",
+      "id": "observation-001",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-77.0365, 38.8977]
+      },
+      "properties": {
+        "observed_at": "2025-06-01T00:00:00Z",
+        "result_value": "4.5",
+        "result_unit": "m3/s",
+        "result_qualifier": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "observation-002",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-77.0365, 38.8977]
+      },
+      "properties": {
+        "observed_at": "2025-06-01T01:00:00Z",
+        "result_value": "NA",
+        "result_unit": "m3/s",
+        "result_qualifier": "P"
+      }
+    }
+  ],
+  "links": []
+}

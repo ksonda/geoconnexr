@@ -46,10 +46,45 @@ cache boundary. The M5b named-query manifest is separately hardened for local
 rendering with exact template-byte pins and explicit disabled execution and
 pagination. Offline M6a/M6b boundaries now canonicalize one custom polygonal
 `sf`/`sfc` AOI into a bounded CRS84 recipe and safely hydrate AOI-only recipes
-by recomputing geometry and digest integrity. Internal M6c and M9a/M9b
-boundaries now validate a strict offline catalog value object and can create
-then verify a deterministic, redacted catalog-only snapshot at a new local
-destination. Internal M7a adds deterministic, selection-only fetch plans bound
+by recomputing geometry and digest integrity. Internal M6c and M9b boundaries
+validate a strict offline catalog value object and its creation-only writer.
+Public `gx_snapshot()` can now create that deterministic, redacted catalog-only
+snapshot at a new local destination, and `gx_snapshot_verify()` exposes M9a
+closed-tree integrity evidence without loading or replaying resources. Public
+`gx_snapshot_requests()` exposes M9e's typed manifest ledger only after binding
+the canonical stored `requests.csv` bytes and re-verifying the tree. Public
+`gx_snapshot_catalog_view()` exposes the fixed typed redacted sites, datasets,
+problems, and requests while remaining explicitly distinct from a live
+`gx_catalog` because redaction is not lossless.
+Public `gx_package()` can now publish or replace validated catalog, fetched, or
+harmonized inputs through deterministic CSV/raw resources and final closed-tree
+verification. Harmonized inputs may opt into the fixed Arrow/Parquet profile
+with `timeseries = "parquet"`. Replacement admits only an intact fixed-writer
+package, stages
+the new generation before moving the prior package, and restores the prior
+generation on detected installation or verification failure. Fetched and
+harmonized inputs require their explicit source catalog. Public
+`gx_package_load()` verifies those fixed packages before and
+after reading and returns every declared resource as exact bounded bytes;
+`gx_package_tables()` adds canonical character-only tibbles for every CSV and
+leaves verified Parquet bytes opaque.
+An internal M9p substrate now applies exact fixed storage types to package-owned
+tables without interpreting provider-native payloads or reconstructing live
+workflow objects. Public `gx_package_hydrate()` exposes that exact redacted,
+read-only inspection view, including exact typed Parquet observations when
+Arrow is available. Reports and replay remain deferred.
+Internal M9t inspects Arrow and Quarto package metadata without loading either
+namespace. M9u pins Arrow R 14.0.0 and a fixed in-memory Parquet-2.4 profile:
+required symbols are resolved only after the selected operation, exact
+redacted typed observations are written and read back from bounded raw bytes,
+and determinism is claimed only within one Arrow version. M9v now carries that
+profile through public package creation, replacement, loading, and hydration;
+M9w pins Quarto R 1.5.1 and resolves its reviewed report-facing symbols without
+invoking the CLI or rendering. M9x separately admits only a normalized,
+unchanged Quarto CLI 1.8.27 or newer through one bounded `--version` command;
+it does not render, and the repository host's CLI 1.3.433 remains blocked.
+The fixed report contract remains deferred.
+Internal M7a adds deterministic, selection-only fetch plans bound
 to strict portable-classifier and R-implementation metadata assets; M7b adds a
 separate host-specific advisory check using bounded direct reads of selected
 optional-package metadata without loading their namespaces. Internal M7c adds a
@@ -96,6 +131,20 @@ catalog from one bounded graph page, explicit site PIDs, or caller-supplied
 local JSON-LD profiles. Automatic graph discovery remains dependent on an
 upstream service that can time out; provider variants beyond the supported
 subset, pagination, packaging, loading, and replay remain separate work.
+M8a–M8e now add an offline `gx_harmonize()` boundary over the frozen fetched
+object. It normalizes strict EDR position, current USGS continuous/daily, and
+catalog-aligned single-characteristic WQP time-series tables. WQP civil times
+use only the reviewed fixed offset for an active EPA timezone code; unknown
+codes remain native-only. Explicit `gx_csv_mapping()` objects can normalize
+single-variable direct-CSV tables with exact UTC datetime, value, unit, and
+optional qualifier columns; no column is guessed. The result preserves source
+order, qualifiers, original values, and native payload access, and applies only
+exact directed reviewed unit rules. Explicit `gx_feature_mapping()` objects
+apply the same distribution-bound model to OGC API Features properties while
+excluding generated feature identifiers and geometry from observation roles.
+Ambiguous variables, catalog/native unit conflicts, and unknown units remain
+visible and unconverted. Unfiltered, mixed-characteristic, or incomplete WQP
+results remain native-only, as do unmapped CSV and Features results.
 
 ## Intended workflow
 
@@ -115,10 +164,39 @@ plan <- gx_fetch_plan(
 )
 fetched <- gx_fetch(plan)
 fetched$results$data[[1L]]
+harmonized <- gx_harmonize(fetched)
+package <- gx_package(
+  harmonized,
+  "path/to/new-package",
+  catalog = catalog
+)
+loaded <- gx_package_load(package$path)
+loaded$contents[["data/observations.csv"]]
+tables <- gx_package_tables(package$path)
+tables$tables[["data/observations.csv"]]
+hydrated <- gx_package_hydrate(package$path)
+hydrated$harmonized$observations
+
+parquet_package <- gx_package(
+  harmonized,
+  "path/to/new-parquet-package",
+  catalog = catalog,
+  timeseries = "parquet"
+)
+parquet_loaded <- gx_package_load(parquet_package$path)
+parquet_loaded$contents[["data/observations.parquet"]]
+gx_package_hydrate(parquet_package$path)$harmonized$observations
 ```
 
-Catalog → plan → fetch is now public for the frozen supported subset.
-Harmonization and snapshot composition remain target APIs.
+Catalog → plan → fetch → harmonize → package is now public for the frozen
+supported subset and deterministic CSV/raw or opt-in Arrow/Parquet package
+profiles. Package resources
+can be loaded offline as exact verified bytes without reconstructing live
+workflow objects or authorizing replay, and canonical CSV resources can be
+inspected as character-only tibbles without type inference.
+Public `gx_package_hydrate()` applies fixed types to package-owned schemas while
+keeping provider-native resources character-only or opaque. It remains an
+inspection view and never reconstructs live workflow objects.
 
 ## Available in the P0 scaffold
 
@@ -183,6 +261,7 @@ gx_classify_distribution(
   "https://reference.geoconnex.us/collections/gages/items"
 )
 gx_unit_conversions()
+gx_target_units()
 
 # Discover one known PID and preview its fetch without provider work
 catalog <- gx_catalog(
@@ -197,7 +276,30 @@ fetch_window <- as.POSIXct(
 plan <- gx_fetch_plan(
   catalog, time = fetch_window, max_datasets = 1L, max_bytes = 1024^2
 )
-gx_fetch(plan, dry_run = TRUE)
+preview <- gx_fetch(plan, dry_run = TRUE)
+
+# After a live fetch, harmonization itself is offline:
+# fetched <- gx_fetch(plan)
+# harmonized <- gx_harmonize(fetched)
+# harmonized$observations
+#
+# A schema-free direct CSV needs an explicit distribution-scoped mapping:
+# csv_map <- gx_csv_mapping(
+#   distribution_id = fetched$results$distribution_id[[1]],
+#   datetime_column = "datetime", value_column = "value",
+#   unit_column = "unit", qualifier_column = "qualifier",
+#   missing_values = c("", "NA")
+# )
+# harmonized <- gx_harmonize(fetched, csv_mappings = csv_map)
+#
+# OGC API Features also requires an explicit property mapping:
+# feature_map <- gx_feature_mapping(
+#   distribution_id = fetched$results$distribution_id[[1]],
+#   datetime_property = "observed_at", value_property = "result_value",
+#   unit_property = "result_unit", qualifier_property = "result_qualifier",
+#   missing_values = c("", "NA")
+# )
+# harmonized <- gx_harmonize(fetched, feature_mappings = feature_map)
 ```
 
 For custom geometry, `gx_aoi()` accepts exactly one valid, non-empty XY
@@ -217,7 +319,8 @@ noncanonical geometry, and GeoJSON/WKB hash disagreement; it does not execute
 replay. See [ADR 0014](docs/decisions/0014-offline-custom-aoi-boundary.md) and
 [ADR 0016](docs/decisions/0016-offline-aoi-recipe-hydration.md).
 
-The internal M9a verifier reads only a fixed `manifest.json` beneath one
+The public `gx_snapshot_verify()` boundary reads only a fixed `manifest.json`
+beneath one
 non-symlink snapshot root. It validates the bounded manifest and embedded
 request-ledger shape, rehydrates the AOI through M6b, inventories a closed tree
 of portable relative paths, and checks every present resource's exact size and
@@ -226,8 +329,31 @@ missing required resources, present mismatches, symlinks, hard-link aliases,
 unreadable directories, special files, and undeclared files fail closed. This
 proves consistency relative to the supplied,
 unsigned manifest—not authenticity or historical request provenance—and remains
-an unexported prerequisite for future `gx_replay(refresh = FALSE)`. See
-[ADR 0017](docs/decisions/0017-offline-snapshot-verification.md).
+an evidence-only boundary rather than loading or replay. See
+[ADR 0017](docs/decisions/0017-offline-snapshot-verification.md) and
+[ADR 0041](docs/decisions/0041-public-offline-snapshot-verification.md).
+
+```r
+verification <- gx_snapshot_verify("path/to/snapshot")
+verification$resources
+
+snapshot <- gx_snapshot(catalog, "path/to/new-snapshot")
+snapshot$verification
+
+requests <- gx_snapshot_requests("path/to/snapshot")
+requests$requests
+
+catalog_view <- gx_snapshot_catalog_view("path/to/snapshot")
+catalog_view$sites
+catalog_view$datasets
+
+package <- gx_package(
+  harmonized,
+  "path/to/new-package",
+  catalog = catalog
+)
+package$verification
+```
 
 The M6c catalog is a separately validated value object rather than an alias for
 any protocol response. It requires typed CRS84 point sites,
@@ -242,9 +368,12 @@ and general graph/profile merge remain deferred. The internal M9b
 writer accepts only that revalidated object, writes redacted deterministic CSV
 views and manifest-v1 through a sibling staging directory, verifies the closed
 tree before and after publication, and refuses any existing destination. The
-writer remains unexported and its manifest is explicitly non-replayable. See
+writer remains internal, while public `gx_snapshot()` exposes only its
+catalog-only, creation-only path and rejects fetch, report, and overwrite. Its
+manifest is explicitly non-replayable. See
 [ADR 0018](docs/decisions/0018-internal-catalog-value-object.md) and
-[ADR 0019](docs/decisions/0019-catalog-only-snapshot-writer.md).
+[ADR 0019](docs/decisions/0019-catalog-only-snapshot-writer.md), then
+[ADR 0042](docs/decisions/0042-public-catalog-only-snapshot-creation.md).
 
 The internal M7a plan groups the catalog's distribution-by-variable rows into
 one deterministic distribution row plus ordered parameter rows per distribution
@@ -402,7 +531,15 @@ serialization/replay are deferred enhancements rather than M8 gates. See
 [ADR 0031](docs/decisions/0031-single-response-edr-position-handler.md) and
 [ADR 0032](docs/decisions/0032-single-page-usgs-continuous-handler.md), then
 [ADR 0033](docs/decisions/0033-single-page-usgs-daily-handler.md) and
-[ADR 0034](docs/decisions/0034-freeze-m7-supported-fetch-subset.md).
+[ADR 0034](docs/decisions/0034-freeze-m7-supported-fetch-subset.md). M8a then
+normalizes only the three strict time-series result shapes and applies reviewed
+single-step affine rules without provider work. Other payloads remain
+losslessly available through the embedded `gx_fetched` object; see
+[ADR 0036](docs/decisions/0036-conservative-harmonization-boundary.md) and
+[ADR 0037](docs/decisions/0037-filtered-utc-wqp-harmonization.md), followed by
+[ADR 0038](docs/decisions/0038-reviewed-wqp-timezone-offsets.md) and
+[ADR 0039](docs/decisions/0039-explicit-direct-csv-mappings.md), then
+[ADR 0040](docs/decisions/0040-explicit-oaf-observation-mappings.md).
 
 `gx_resolve()`, `gx_jsonld()`, and the `gx_ref_*()` functions make bounded
 network requests, account for every physical retry, and validate DNS and every
@@ -442,10 +579,70 @@ tables without loading an optional parser package. M7g can execute exactly one
 selected direct-CSV request through the bounded package transport and bind the
 provider response to its charged attempt. M7h can orchestrate multiple bounded
 direct-CSV requests with exact statuses and continue-on-error behavior, but
-public and multi-handler fetch orchestration remains gated.
-The internal M9b
-writer is limited to validated catalog-only resources and is labeled
-non-replayable in its manifest.
+the public M7 boundary now uses the later six-handler orchestrator. The M8a
+harmonizer consumes only the frozen public result and performs no transport.
+The M9b/M9d writer path is limited to validated catalog-only resources and is
+labeled non-replayable in its manifest.
+The M9e loader recognizes only that exact writer profile and proves
+that `requests.csv` is the canonical deterministic projection of the typed
+manifest request ledger; public `gx_snapshot_requests()` exposes that exact
+typed evidence. No redacted value is reconstructed as an identity. Internal M9g
+provides
+their loading prerequisite: each fixed catalog CSV can be parsed only as an
+exact character table whose quote-all UTF-8 LF serialization matches the
+verified bytes. Blank cells, WKT, JSON, timestamps, and logicals remain
+uninterpreted. Internal M9h builds an exact typed redacted view over that
+evidence: site WKT becomes bounded CRS84 point geometry, fixed writer
+timestamps become UTC values, logical fields accept only `true` or `false`, and
+conforms-to text becomes canonical JSON string arrays. All other redacted and
+blank strings remain unchanged, and the result is deliberately not a live
+`gx_catalog`. Public `gx_snapshot_catalog_view()` exposes that exact verified
+M9h object as an offline, read-only, non-replayable inspection boundary.
+Internal M9j establishes the next packaging prerequisite: exact catalog inputs
+are self-contained, while fetched or harmonized inputs require the explicit
+source catalog and must rebind its AOI and dataset identity to their embedded
+fetch plan. The resulting package-input object retains native payloads and
+harmonization evidence. Internal M9k converts that exact input into bounded,
+path-sorted in-memory resources: canonical catalog/status/index CSVs, exact
+retained provider bodies, canonical direct-CSV tables where no body was
+retained, and harmonized observation/resource CSVs. M9k itself does not write
+or publish. Internal M9l can now write those exact bytes and a deterministic
+manifest through a verified sibling staging tree, atomically publish only to
+an absent destination, and verify the exposed tree again. Its request ledger
+is explicitly catalog-only and its result non-replayable; public package
+creation is now available through `gx_package()` for catalog, fetched, and
+harmonized inputs, with an explicit source catalog required for the latter two.
+Public `gx_package_load()` now reads that fixed profile as exact bounded bytes
+between complete closed-tree verifications. It remains read-only, unsigned,
+non-Frictionless, and non-replayable and does not reconstruct live catalog,
+fetched, or harmonized objects. Public `gx_package_tables()` parses those
+verified in-memory CSV bytes only when they round-trip exactly through the
+canonical quote-all UTF-8/LF profile; all columns remain character values and
+native raw resources remain opaque. Internal M9p provides exact typed
+package-owned projections, and public `gx_package_hydrate()` exposes them as a
+redacted, read-only, non-reconstructing view under M9q. Internal M9r supplies
+fixed-profile ownership admission and sibling-backup rollback; public M9s now
+exposes that exact path through `gx_package(..., overwrite = TRUE)` and returns
+evidence binding the prior and final verified generations. M9v integrates the
+fixed Arrow/Parquet observation profile through bundle creation, manifests,
+loading, table inspection, hydration, and replacement. Quarto, reports,
+authenticity, refresh, and replay remain deferred. Internal M9t gives those optional dependencies an explicit host-
+specific preflight. Internal M9u classifies Arrow against a reviewed 14.0.0
+minimum and resolves its required exports only at the private serialization
+boundary. The fixed redacted observation table is serialized and read back
+entirely in memory; M9v exposes that profile only for harmonized packages. See
+[ADR 0051](docs/decisions/0051-public-verified-package-creation.md) and
+[ADR 0052](docs/decisions/0052-public-byte-preserving-package-loading.md) and
+[ADR 0053](docs/decisions/0053-public-canonical-package-table-views.md), and
+[ADR 0054](docs/decisions/0054-internal-typed-package-hydration.md), and
+[ADR 0055](docs/decisions/0055-public-typed-package-hydration.md), and
+[ADR 0056](docs/decisions/0056-internal-owned-package-replacement.md), and
+[ADR 0057](docs/decisions/0057-public-verified-package-replacement.md), and
+[ADR 0058](docs/decisions/0058-host-specific-optional-package-preflight.md),
+and [ADR 0059](docs/decisions/0059-fixed-in-memory-arrow-parquet.md), and
+[ADR 0060](docs/decisions/0060-public-verified-parquet-packages.md), and
+[ADR 0061](docs/decisions/0061-reviewed-quarto-runtime-capability.md), and
+[ADR 0062](docs/decisions/0062-reviewed-quarto-cli-admission.md).
 
 The first crosswalk validates the reference service's advertised
 `provider_id`, gage identity, and PID before returning a match. Repeated inputs

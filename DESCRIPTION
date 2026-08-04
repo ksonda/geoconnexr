@@ -14,10 +14,55 @@ Description: Tools for discovering water-data sites and datasets through the
     API Features reference client with a validated provider-gage PID crosswalk
     and checksum-pinned optional COMID/mainstem membership substrates. Custom
     polygon AOIs have bounded offline CRS84 recipe construction and
-    integrity-checked hydration boundaries, and an internal closed-tree
-    verifier checks manifest-relative snapshot integrity offline. A bounded
-    internal catalog value object and creation-only catalog snapshot writer
-    provide a deterministic offline packaging substrate, and an internal
+    integrity-checked hydration boundaries, and a public evidence-only
+    closed-tree verifier checks manifest-relative snapshot integrity offline
+    without loading or replaying resources. A bounded internal catalog value
+    object and creation-only catalog snapshot writer provide a deterministic
+    offline packaging substrate; public catalog-only snapshot creation exposes
+    that verified path while rejecting fetch, report, replay, Frictionless, and
+    overwrite claims. A bounded public read-only accessor binds the
+    deterministic request export to its authoritative manifest ledger and
+    returns exact typed request evidence without parsing other catalog
+    resources. A bounded internal canonical CSV loader admits the three fixed
+    redacted catalog resources only as byte-rebound character tables without
+    reconstructing discarded identities. A public read-only typed redacted
+    view derives only fixed geometry, UTC, logical, and JSON-array fields while
+    retaining the canonical character evidence and explicitly declining live
+    catalog reconstruction or replay. An internal package-input value object
+    now admits exact catalog, fetched, and harmonized stages; the latter two
+    require an explicit catalog whose AOI and dataset identity rebind to the
+    embedded fetch plan. It preserves native payloads but performs no
+    publication, optional-format work, or replay. A subsequent internal
+    bounded serializer derives deterministic in-memory catalog, fetch-index,
+    native-result, and harmonized CSV/raw resources while preserving exact
+    provider bytes only where the fetched contract retained them. An internal
+    creation-only publisher writes that exact bundle and a deterministic
+    manifest through verified sibling staging, atomically exposes only an
+    absent destination, and verifies the exposed tree again. Public
+    creation-only package writing now exposes this exact pipeline for catalog,
+    fetched, and harmonized inputs; the latter two require their explicit
+    source catalog, and only deterministic CSV/raw resources with retained
+    provider bytes are admitted. A public byte-preserving loader verifies that
+    fixed package profile before and after reading and returns exact bounded
+    resource bytes without reconstructing workflow objects or authorizing
+    replay. A public canonical table view parses verified package CSV bytes
+    into character-only tibbles only when they round-trip exactly through the
+    fixed quote-all UTF-8 profile; native raw resources remain opaque. An
+    internal typed hydration substrate applies only fixed package-owned
+    storage types, retains the complete canonical evidence, and leaves
+    provider-native tables and raw payloads uninterpreted. A public typed
+    inspection wrapper exposes that exact redacted, read-only result without
+    reconstructing live workflow objects. Public verified replacement admits
+    only fixed-writer destinations, stages both package generations through
+    sibling paths, synchronously restores the prior package on detected
+    failures, and returns evidence binding both verified generations. Optional
+    package metadata for Arrow and Quarto can be inspected through a bounded
+    internal preflight without loading either namespace. Arrow 14.0.0 is now
+    the reviewed minimum for an internal fixed in-memory Parquet 2.4 serializer
+    that rechecks required exports, redacts typed observations, and verifies an
+    exact raw-byte read-back; public format integration remains deferred.
+    Quarto, reports, refresh, and replay remain deferred.
+    An internal
     selection-only fetch plan binds catalog distributions to strict handler
     metadata without constructing requests or executing providers. A separate
     internal host preflight uses bounded direct metadata reads for selected
@@ -57,12 +102,20 @@ Description: Tools for discovering water-data sites and datasets through the
     normalization. Public bounded fetch planning and sequential execution now
     return a validated supported-subset result with exact all-distribution
     status, handler-native payloads, and retained execution provenance. Public
-    bounded catalog construction supports one graph page, explicit PID
+    offline harmonization now normalizes strict EDR, current USGS, and
+    catalog-aligned single-characteristic WQP time-series payloads under
+    reviewed fixed-offset timezone, target-unit, and directed affine-rule
+    contracts. Explicit distribution-scoped mappings admit strict
+    single-variable UTC direct-CSV tables and OGC API Features properties
+    without field-name inference. Feature identifiers and geometry never
+    supply observation semantics. The exact fetched object and native resources
+    remain preserved.
+    Public bounded catalog construction supports one graph page, explicit PID
     profiles, or caller-supplied local JSON-LD while retaining problems,
     request evidence, and completeness. Automatic graph discovery remains
     upstream-dependent; provider variants outside the frozen subset,
-    pagination, harmonization, replay, and provider-data packaging remain
-    under development.
+    pagination, broader semantic alignment, replay, and optional package
+    profiles remain under development.
 License: MIT + file LICENSE
 URL: https://ksonda.github.io/geoconnexr/, https://github.com/ksonda/geoconnexr
 BugReports: https://github.com/ksonda/geoconnexr/issues
@@ -84,10 +137,12 @@ Imports:
     xml2 (>= 1.3.6),
     yaml (>= 2.3.0)
 Suggests:
+    arrow (>= 14.0.0),
     dataRetrieval (>= 2.7.22),
     edr4r (>= 0.1.1),
     jsonvalidate,
     knitr,
+    quarto (>= 1.5.1),
     readr,
     rmarkdown,
     testthat (>= 3.2.0),

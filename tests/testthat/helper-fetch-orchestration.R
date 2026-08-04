@@ -20,6 +20,7 @@ fetch_orchestration_test_performer <- function(
     usgs_continuous_body = usgs_continuous_test_body(),
     usgs_daily_body = usgs_daily_test_body(),
     wqp_body = wqp_test_body(),
+    csv_body = csv_response_validation_test_body(),
     oaf_body = oaf_test_body(),
     calls = NULL,
     events = NULL) {
@@ -33,6 +34,7 @@ fetch_orchestration_test_performer <- function(
   force(usgs_continuous_body)
   force(usgs_daily_body)
   force(wqp_body)
+  force(csv_body)
   force(oaf_body)
   function(request) {
     handler <- if (grepl(
@@ -116,7 +118,7 @@ fetch_orchestration_test_performer <- function(
       if (csv_position %in% fail_csv_on) {
         stop("sensitive cross-handler transport detail", call. = FALSE)
       }
-      body <- csv_response_validation_test_body()
+      body <- csv_body
       return(list(
         status = 200L,
         headers = list(
@@ -235,8 +237,7 @@ fetch_orchestration_test_usgs_continuous_plan <- function(
   )
 }
 
-fetch_orchestration_test_usgs_daily_plan <- function(
-    max_response_bytes = 20000) {
+fetch_orchestration_test_usgs_daily_catalog <- function() {
   catalog <- csv_intents_test_fixture_catalog()
   oaf_position <- which(catalog$datasets$handler_id == "ogc_api_features")
   daily_position <- which(grepl(
@@ -274,6 +275,12 @@ fetch_orchestration_test_usgs_daily_plan <- function(
     requests = catalog$requests,
     metadata = fetch_plan_test_metadata(catalog$sites, catalog$datasets)
   )
+  catalog
+}
+
+fetch_orchestration_test_usgs_daily_plan <- function(
+    max_response_bytes = 20000) {
+  catalog <- fetch_orchestration_test_usgs_daily_catalog()
   intent_set <- csv_request_plan_test_intent_set(
     catalog = catalog,
     max_datasets = 7L,

@@ -41,6 +41,33 @@ and link both records rather than rewriting history.
 | [0033](0033-single-page-usgs-daily-handler.md) | Accepted internal substrate | Execute one current USGS daily-values page under the held M7d reservation |
 | [0034](0034-freeze-m7-supported-fetch-subset.md) | Accepted public boundary | Freeze the supported M7 subset, publish fetched results, and open M8 |
 | [0035](0035-public-bounded-catalog-discovery.md) | Accepted experimental policy | Publish bounded catalog discovery without reopening M7 |
+| [0036](0036-conservative-harmonization-boundary.md) | Accepted public boundary | Normalize reviewed time series without inferring semantic mappings |
+| [0037](0037-filtered-utc-wqp-harmonization.md) | Accepted public boundary | Normalize exact filtered UTC WQP results without broad label inference |
+| [0038](0038-reviewed-wqp-timezone-offsets.md) | Accepted public boundary | Convert active WQX timezone codes through reviewed fixed offsets |
+| [0039](0039-explicit-direct-csv-mappings.md) | Accepted public boundary | Normalize strict direct CSV only through embedded distribution mappings |
+| [0040](0040-explicit-oaf-observation-mappings.md) | Accepted public boundary | Normalize OGC Features observations only through explicit property mappings |
+| [0041](0041-public-offline-snapshot-verification.md) | Accepted public boundary | Publish closed-tree snapshot verification as evidence, not loading or replay |
+| [0042](0042-public-catalog-only-snapshot-creation.md) | Accepted public boundary | Publish creation-only catalog snapshots without broader package claims |
+| [0043](0043-canonical-request-export-loading.md) | Accepted internal substrate | Bind canonical request-export bytes to typed manifest ledger rows |
+| [0044](0044-public-snapshot-request-ledgers.md) | Accepted public boundary | Publish typed request-ledger access without catalog loading or replay |
+| [0045](0045-canonical-redacted-catalog-csv-loading.md) | Accepted internal substrate | Load fixed redacted catalog CSVs only as canonical character tables |
+| [0046](0046-typed-redacted-catalog-view.md) | Accepted internal substrate | Type redacted snapshot catalogs without reconstructing live identity |
+| [0047](0047-public-typed-redacted-catalog-view.md) | Accepted public boundary | Publish typed redacted snapshot views without live reconstruction |
+| [0048](0048-explicit-package-input-lineage.md) | Accepted internal substrate | Rebind explicit catalog lineage before package serialization |
+| [0049](0049-deterministic-in-memory-package-resources.md) | Accepted internal substrate | Serialize fixed package resources before filesystem publication |
+| [0050](0050-verified-creation-only-package-publication.md) | Accepted internal substrate | Publish fixed package resources through verified sibling staging |
+| [0051](0051-public-verified-package-creation.md) | Accepted public boundary | Publish verified creation-only catalog, fetched, and harmonized packages |
+| [0052](0052-public-byte-preserving-package-loading.md) | Accepted public boundary | Load fixed verified package resources as exact bounded bytes |
+| [0053](0053-public-canonical-package-table-views.md) | Accepted public boundary | Parse verified package CSVs as canonical character tables |
+| [0054](0054-internal-typed-package-hydration.md) | Accepted internal substrate | Hydrate only fixed package-owned table schemas |
+| [0055](0055-public-typed-package-hydration.md) | Accepted public boundary | Publish fixed typed package inspection |
+| [0056](0056-internal-owned-package-replacement.md) | Accepted internal substrate | Replace only verified owned packages with synchronous rollback |
+| [0057](0057-public-verified-package-replacement.md) | Accepted public boundary | Expose verified package replacement through `gx_package()` |
+| [0058](0058-host-specific-optional-package-preflight.md) | Accepted internal substrate | Inspect optional package metadata without authorizing execution |
+| [0059](0059-fixed-in-memory-arrow-parquet.md) | Accepted internal substrate | Freeze an internal in-memory Arrow Parquet profile |
+| [0060](0060-public-verified-parquet-packages.md) | Accepted public boundary | Publish verified Parquet observation packages end to end |
+| [0061](0061-reviewed-quarto-runtime-capability.md) | Accepted internal substrate | Pin and resolve the Quarto R report capability without rendering |
+| [0062](0062-reviewed-quarto-cli-admission.md) | Accepted internal substrate | Admit one reviewed Quarto CLI version command without rendering |
 
 Each ADR states its context, decision, consequences, and status. Proposed ADRs
 may change; accepted ADRs govern implementation until superseded.
