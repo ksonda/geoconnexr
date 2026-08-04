@@ -67,9 +67,10 @@ Inspect safe query templates, handlers, and reviewed conversion rules.
 - [`gx_unit_conversions()`](https://ksonda.github.io/geoconnexr/reference/gx_unit_conversions.md)
   : Read reviewed unit conversion rules
 
-## Plan and fetch data
+## Plan, fetch, and harmonize data
 
-Build bounded plans and execute the frozen six-handler M7 subset.
+Execute the bounded six-handler subset and normalize reviewed time
+series.
 
 - [`gx_catalog()`](https://ksonda.github.io/geoconnexr/reference/gx_catalog.md)
   : Discover a bounded Geoconnex catalog
@@ -77,6 +78,36 @@ Build bounded plans and execute the frozen six-handler M7 subset.
   : Build a bounded fetch plan
 - [`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
   : Fetch the supported M7 data subset
+- [`gx_target_units()`](https://ksonda.github.io/geoconnexr/reference/gx_target_units.md)
+  : Select reviewed harmonization target units
+- [`gx_csv_mapping()`](https://ksonda.github.io/geoconnexr/reference/gx_csv_mapping.md)
+  : Declare one direct-CSV observation mapping
+- [`gx_feature_mapping()`](https://ksonda.github.io/geoconnexr/reference/gx_feature_mapping.md)
+  : Declare one OGC API Features observation mapping
+- [`gx_harmonize()`](https://ksonda.github.io/geoconnexr/reference/gx_harmonize.md)
+  : Harmonize reviewed fetched time-series observations
+
+## Create and inspect packages and snapshots
+
+Publish verified packages or catalog snapshots and inspect offline
+evidence.
+
+- [`gx_package()`](https://ksonda.github.io/geoconnexr/reference/gx_package.md)
+  : Create or replace a verified geoconnexr data package
+- [`gx_package_load()`](https://ksonda.github.io/geoconnexr/reference/gx_package_load.md)
+  : Load verified geoconnexr package bytes offline
+- [`gx_package_tables()`](https://ksonda.github.io/geoconnexr/reference/gx_package_tables.md)
+  : Parse verified package CSV resources as canonical character tables
+- [`gx_package_hydrate()`](https://ksonda.github.io/geoconnexr/reference/gx_package_hydrate.md)
+  : Hydrate verified package-owned tables with fixed storage types
+- [`gx_snapshot()`](https://ksonda.github.io/geoconnexr/reference/gx_snapshot.md)
+  : Create a verified catalog-only snapshot
+- [`gx_snapshot_verify()`](https://ksonda.github.io/geoconnexr/reference/gx_snapshot_verify.md)
+  : Verify a closed geoconnexr snapshot offline
+- [`gx_snapshot_requests()`](https://ksonda.github.io/geoconnexr/reference/gx_snapshot_requests.md)
+  : Load a verified snapshot request ledger offline
+- [`gx_snapshot_catalog_view()`](https://ksonda.github.io/geoconnexr/reference/gx_snapshot_catalog_view.md)
+  : Load a typed redacted catalog view from a snapshot
 
 ## Infrastructure and package internals
 

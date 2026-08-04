@@ -4,6 +4,38 @@
 
 ### Repository foundation
 
+- Added the internal M9x Quarto CLI admission boundary under ADR 0062.
+  After validating the M9w Quarto R capability, the boundary accepts
+  only the normalized executable returned by
+  `quarto_path(normalize = TRUE)`, runs that exact path only with
+  `--version` under a five-second timeout, detects file metadata races,
+  and requires Quarto CLI 1.8.27 or newer. The resulting host-specific
+  evidence authorizes version admission only: no report is inspected or
+  rendered, no file is written, and no public API is added. The
+  repository host’s Quarto CLI 1.3.433 remains correctly blocked; the
+  fixed report contract is next.
+- Added the internal M9w Quarto R capability boundary under ADR 0061.
+  Quarto R 1.5.1 is now the reviewed minimum in package metadata and the
+  advisory M9t preflight. Operation-time resolution rejects missing or
+  old metadata before namespace loading, detects metadata/namespace
+  races, and requires the reviewed `quarto_render()`, `quarto_path()`,
+  `quarto_version()`, and `quarto_available()` exports and formals.
+  Resolution invokes none of those functions, does not locate or execute
+  the Quarto CLI, renders nothing, and remains internal; M9x now
+  supplies the separate CLI admission boundary.
+- Added the public M9v Arrow/Parquet package path. Harmonized inputs now
+  accept `gx_package(..., timeseries = "parquet")` and publish one fixed
+  redacted typed `data/observations.parquet` resource through the
+  existing staged closed-tree verification and owned replacement
+  guarantees. Manifests bind the Arrow writer version and reviewed
+  Parquet-2.4 profile. Byte-preserving loading recognizes Parquet
+  without loading Arrow, canonical table views leave it opaque, and
+  [`gx_package_hydrate()`](https://ksonda.github.io/geoconnexr/reference/gx_package_hydrate.md)
+  reads the verified bytes in memory through the reviewed Arrow
+  capability and requires the exact typed observation schema.
+  Catalog/fetched Parquet requests fail before publication; CSV remains
+  the default; reports, authenticity, refresh, and replay remain
+  deferred.
 - Established the package and repository identity as `ksonda/geoconnexr`
   under the MIT license.
 - Added cross-platform R CMD check, test coverage, and isolated weekly
@@ -289,6 +321,63 @@
   per-host limits. Latest/legacy USGS, other EDR queries, pagination,
   registration, serialization, and replay are now explicit later
   enhancements rather than M8 gates.
+- Began M8 with public
+  [`gx_target_units()`](https://ksonda.github.io/geoconnexr/reference/gx_target_units.md)
+  and
+  [`gx_harmonize()`](https://ksonda.github.io/geoconnexr/reference/gx_harmonize.md)
+  contracts under ADR 0036. The reviewed target asset admits
+  dimension-safe metric or imperial targets, while the offline
+  harmonizer normalizes strict EDR position and current USGS
+  continuous/daily results to one UTC observation table. It preserves
+  source order, duplicate timestamps, qualifiers, original value/unit
+  facts, the exact fetched object, and retained raw payloads. Conversion
+  requires one unambiguous catalog variable/unit URI, exact native-label
+  corroboration, and one directed reviewed affine rule; conflicts and
+  missing mappings remain visibly unchanged. CSV, WQP, and general
+  Features results are indexed as native-only resources rather than
+  guessed.
+- Extended
+  [`gx_harmonize()`](https://ksonda.github.io/geoconnexr/reference/gx_harmonize.md)
+  to contract 0.2.0 under ADR 0037 with a bounded WQP slice. A WQP
+  Result is normalized only when its request selects one exact
+  characteristic and site, the catalog supplies one matching variable
+  URI and label, every native row corroborates both facts, and every
+  timestamp is explicitly UTC. Values, WQP measure qualifiers, duplicate
+  instants, and the exact fetched payload are preserved. Unfiltered,
+  mixed-characteristic, non-UTC, or incomplete WQP results remain
+  indexed as native-only resources.
+- Extended
+  [`gx_harmonize()`](https://ksonda.github.io/geoconnexr/reference/gx_harmonize.md)
+  to contract 0.3.0 under ADR 0038 with reviewed WQX timezone
+  normalization. The bundled asset freezes the 23 active EPA
+  `TimeZoneCode` values and their explicit fixed offsets, including
+  half-hour Newfoundland codes, while excluding three retired aliases.
+  Unknown codes remain native-only. The exact timezone-asset hash is
+  retained and revalidated with every harmonized object; no geographic
+  or daylight-saving inference is performed.
+- Added public
+  [`gx_csv_mapping()`](https://ksonda.github.io/geoconnexr/reference/gx_csv_mapping.md)
+  and upgraded
+  [`gx_harmonize()`](https://ksonda.github.io/geoconnexr/reference/gx_harmonize.md)
+  to contract 0.4.0 under ADR 0039. A mapping binds one planned
+  direct-CSV distribution to exact UTC datetime, value, unit-label,
+  optional qualifier, and explicit missing-token columns. Mappings are
+  identity-bound, embedded in the harmonized object, and revalidated
+  before rows are re-derived. Missing columns, invalid timestamps,
+  multiple catalog variables, unit conflicts, and unmapped CSV resources
+  remain native-only; column names and missing tokens are never guessed.
+- Added public
+  [`gx_feature_mapping()`](https://ksonda.github.io/geoconnexr/reference/gx_feature_mapping.md)
+  and upgraded
+  [`gx_harmonize()`](https://ksonda.github.io/geoconnexr/reference/gx_harmonize.md)
+  to contract 0.5.0 under ADR 0040. A mapping binds one planned OGC API
+  Features distribution to exact UTC datetime, value, unit-label,
+  optional qualifier, and explicit missing-token properties. Generated
+  feature identifiers and geometry are excluded from observation roles.
+  Mappings are identity-bound, embedded, and revalidated; missing
+  properties, incompatible types, invalid timestamps, multiple catalog
+  variables, unit conflicts, and unmapped feature collections remain
+  native-only without changing the retained `sf` result or raw GeoJSON.
 - Added the unexported M9b catalog-only snapshot writer. It revalidates
   a catalog, creates deterministic redacted UTF-8 CSV views in a sibling
   staging tree, writes a manifest-v1 document last, verifies the closed
@@ -297,6 +386,180 @@
   and owned-stage cleanup is checked. It does not claim Frictionless
   compatibility, authenticity, replayability, loading semantics, or
   overwrite ownership.
+- Added public
+  [`gx_snapshot_verify()`](https://ksonda.github.io/geoconnexr/reference/gx_snapshot_verify.md)
+  as the M9c evidence-only wrapper over the hardened M9a verifier under
+  ADR 0041. It validates one fixed manifest, rebinds the AOI recipe,
+  inventories the closed tree twice, and verifies declared resource
+  sizes and SHA-256 values without parsing resources or performing
+  network, cache, replay, repair, or write work. The returned
+  `gx_snapshot_verification` object revalidates its normalized manifest
+  and resource evidence. Success proves unsigned internal consistency at
+  verification time, not authenticity, historical provenance, licence
+  truth, loading semantics, or coordinated-replacement resistance.
+- Added public
+  [`gx_snapshot()`](https://ksonda.github.io/geoconnexr/reference/gx_snapshot.md)
+  for the M9d catalog-only creation boundary under ADR 0042. It accepts
+  one validated catalog and writes only four deterministic redacted CSV
+  resources plus `manifest.json` through M9b’s sibling staging,
+  pre-publication verification, creation-only rename, and final
+  verification workflow. The returned `gx_snapshot` object embeds
+  validated M9c evidence and an identity over its normalized path,
+  manifest hash, scope, and counts. `fetch`, `report`, and `overwrite`
+  are explicit `FALSE`-only gates; fetched or harmonized resources,
+  Frictionless metadata, loading, signatures, replay, and refresh remain
+  unsupported.
+- Added the internal M9e catalog request-export loader under ADR 0043.
+  It recognizes only the exact M9b writer profile, re-derives canonical
+  `requests.csv` bytes from the authoritative manifest ledger, loads
+  that ledger to the exact typed catalog request schema, and verifies
+  the closed tree again afterward. Unknown profiles, validly rehashed
+  but noncanonical CSV bytes, malformed evidence, mutation, and exports
+  above 64 MiB fail closed. Catalog resource loading and public replay
+  remain gated.
+- Added public
+  [`gx_snapshot_requests()`](https://ksonda.github.io/geoconnexr/reference/gx_snapshot_requests.md)
+  as the M9f read-only accessor under ADR
+  44. It exposes M9e’s exact typed request table and evidence binding
+      the normalized snapshot path, request count, manifest hash,
+      request-resource hash, and deterministic export identity. It does
+      not parse other resources, authenticate historical claims, or
+      authorize loading or replay.
+- Added the internal M9g canonical catalog-CSV loader under ADR 0045. It
+  recognizes only the fixed M9b profiles and loads `sites.csv`,
+  `datasets.csv`, or `problems.csv` as exact character tables under 64
+  MiB and fixed row/column/field ceilings. Parsed tables must
+  reserialize byte-for-byte to the quote-all UTF-8 LF resource, and the
+  complete tree is verified again. Blank cells, WKT, JSON, timestamps,
+  logicals, and redacted identities remain uninterpreted; public
+  catalog-resource loading is still gated.
+- Added the internal M9h typed redacted catalog view under ADR 0046. It
+  combines M9c verification, all three M9g character-table evidence
+  objects, and M9f request evidence, then types only exact CRS84 point
+  WKT, writer UTC timestamps, `true`/`false` fields, and canonical
+  conforms-to JSON arrays. Blank and redacted strings remain unchanged,
+  all typed projections are re-derived during validation, and the result
+  explicitly denies live `gx_catalog` reconstruction and replay.
+- Added public
+  [`gx_snapshot_catalog_view()`](https://ksonda.github.io/geoconnexr/reference/gx_snapshot_catalog_view.md)
+  as the M9i inspection boundary under ADR 0047. It exposes M9h’s exact
+  verified sites, datasets, problems, requests, and canonical character
+  evidence while remaining offline, read-only, unsigned, non-replayable,
+  and explicitly distinct from a live `gx_catalog`.
+- Added the internal M9j package-input boundary under ADR 0048. Exact
+  catalog inputs are self-contained; fetched and harmonized inputs
+  require the explicit source catalog and rebind its AOI and dataset
+  identity to the embedded fetch plan. The resulting value object
+  retains native payloads and binds canonical catalog projections, fetch
+  status/result identities, harmonization evidence, counts, stage, and
+  input identity without serializing, writing, publishing, or replaying.
+- Normalized empty logical snapshot-export columns to `character(0)`,
+  closing an in-memory canonical-evidence mismatch without changing
+  written CSV bytes.
+- Made canonical snapshot CSV loading locale-independent by reusing the
+  bounded bytewise UTF-8 parser. Non-ASCII cells now retain their exact
+  bytes even when R starts in the `C` locale, while noncanonical
+  quoting, encoding, line endings, and record shapes still fail closed.
+- Added the internal M9k deterministic package-resource bundle under
+  ADR 0049. It derives path-sorted in-memory bytes from one exact M9j
+  input: canonical catalog/status/index CSVs, exact retained provider
+  bodies, canonical direct-CSV tables where no body was retained, and
+  harmonized observation and resource CSVs. Every resource binds its
+  path, format, byte count, SHA-256, dimensions, and result lineage
+  under fixed per-resource, aggregate, field, and count budgets.
+  Filesystem writes, publication, manifests, loading, Arrow/Parquet,
+  Quarto, Frictionless, reports, refresh, and replay remain deferred.
+- Added the internal M9l verified package-publication boundary under
+  ADR 0050. It writes one exact M9k bundle and deterministic manifest-v1
+  into a private sibling staging tree, verifies the closed tree,
+  atomically exposes only an absent destination, and verifies it again.
+  Exact catalog, fetched, and harmonized resources can now be published
+  without overwrite; the manifest honestly labels its request ledger
+  catalog-only and the result non-replayable. Pre-publication failures
+  clean only owned staging content, while a failure after exposure never
+  deletes the destination. Public package creation/loading,
+  Frictionless, optional formats, reports, refresh, and replay remain
+  deferred.
+- Added public
+  [`gx_package()`](https://ksonda.github.io/geoconnexr/reference/gx_package.md)
+  as the M9m creation boundary under ADR 0051. Validated catalog inputs
+  are self-contained; fetched and harmonized inputs require their
+  explicit source catalog and rebind it to the embedded fetch plan
+  before serialization. The function publishes only the fixed
+  deterministic CSV/raw profile through the exact M9j–M9l admission,
+  in-memory serialization, verified sibling staging, and atomic exposure
+  chain. It preserves retained provider bytes, refuses overwrite, and
+  returns compact final verification evidence. Package loading, optional
+  formats, Frictionless metadata, reports, authenticity, refresh, and
+  replay remain deferred.
+- Added public
+  [`gx_package_load()`](https://ksonda.github.io/geoconnexr/reference/gx_package_load.md)
+  as the M9n byte-preserving loading boundary under ADR 0052. It accepts
+  only the fixed M9m writer profile, verifies the closed tree before and
+  after loading, performs replacement-aware bounded reads, and returns
+  every path-sorted resource as exact bytes rebound to its manifest
+  SHA-256. CSVs remain raw UTF-8 CSV bytes and provider payloads remain
+  opaque; typed hydration, authenticity, overwrite, optional formats,
+  Frictionless validation, reports, refresh, and replay remain deferred.
+- Added public
+  [`gx_package_tables()`](https://ksonda.github.io/geoconnexr/reference/gx_package_tables.md)
+  as the M9o canonical table-view boundary under ADR 0053. It parses
+  every M9n-loaded CSV from verified in-memory bytes with the bounded
+  bytewise parser and requires exact quote-all UTF-8/LF round-tripping.
+  Results retain their full byte-loading evidence and expose only
+  character columns; native raw resources remain opaque, and no live
+  workflow object, type inference, authenticity, overwrite, refresh, or
+  replay claim is added.
+- Added the internal M9p typed package-hydration substrate under
+  ADR 0054. It starts from exact M9o evidence, reuses the redacted
+  catalog typing rules, rebinds requests to the manifest ledger, and
+  applies only fixed canonical storage types to package-owned
+  fetch-index and harmonization tables. Provider-native tables remain
+  character-only and raw payloads opaque; the result is fully
+  revalidated, offline, read-only, unsigned, non-replayable, and not yet
+  public.
+- Added public
+  [`gx_package_hydrate()`](https://ksonda.github.io/geoconnexr/reference/gx_package_hydrate.md)
+  as the M9q typed inspection boundary under ADR 0055. It exposes M9p’s
+  exact typed package-owned catalog, fetch-index, and harmonization
+  tables while retaining complete canonical and byte-loading evidence.
+  Provider-native tables remain character-only and raw resources opaque.
+  The result is explicitly redacted, read-only, unsigned,
+  non-replayable, and distinct from a reconstructed live workflow
+  object.
+- Added the internal M9r owned-package replacement substrate under
+  ADR 0056. An existing destination is admitted only after complete
+  closed-tree and fixed-writer-profile verification. The new bundle is
+  independently staged and verified before the prior package moves to a
+  sibling backup; install and final-verification failures restore and
+  re-verify the prior generation. Failed restoration or cleanup retains
+  typed recovery paths and committed state. At the M9r checkpoint,
+  public overwrite remained gated for M9s.
+- Enabled public `gx_package(..., overwrite = TRUE)` as M9s under
+  ADR 0057. Replacement admits only a completely verified fixed-writer
+  package and delegates staging, sibling backup, rollback, and retained
+  recovery paths to M9r. The public `gx_package` v0.2 result
+  distinguishes creation from replacement, embeds prior verification for
+  replacement, and binds both manifest generations into its identity.
+  Creation behavior remains absent-destination-only, and replacement
+  performs no external work.
+- Added the internal M9t Arrow/Quarto package preflight under ADR 0058.
+  It safely inspects bounded installed-package metadata without loading
+  either namespace. Missing packages produce `skipped_missing_pkg`;
+  installed packages remain `blocked_version_unpinned` until reviewed
+  minimum versions and symbols are frozen. Exact host-specific evidence
+  binds both feature rows, observed versions, statuses, counts,
+  limitations, and identity while keeping Parquet serialization and
+  report rendering explicitly unauthorized.
+- Added the internal M9u fixed Arrow/Parquet serializer under ADR 0059.
+  Arrow R 14.0.0 is the reviewed minimum; required writer, reader, and
+  in-memory stream exports are rechecked after namespace loading. Exact
+  redacted typed observations serialize through a pinned uncompressed
+  Parquet-2.4 profile, are read back from the same bounded raw bytes,
+  and must match exactly. Evidence binds the complete source, table,
+  bytes, Arrow version, writer controls, digest, and identity.
+  Determinism is claimed only within one Arrow version; bundle
+  integration and public Parquet were deferred to M9v.
 - Added typed SPARQL template discovery and local rendering with
   injection guards, slice/query byte budgets, and the correct GeoSPARQL
   function namespace.

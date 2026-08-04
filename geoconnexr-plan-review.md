@@ -88,8 +88,9 @@ becomes a P0 gate.
   use it.
 
 **Resolution in v0.2:** documented S3 objects; coherent
-catalog→plan→fetch→harmonize→package flow; `gx_snapshot()`; separate
-`gx_replay()`.
+catalog→plan→fetch→harmonize→package flow;
+[`gx_snapshot()`](https://ksonda.github.io/geoconnexr/reference/gx_snapshot.md);
+separate `gx_replay()`.
 
 ### 5. The frozen dataset ID can collide
 

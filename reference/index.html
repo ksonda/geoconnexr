@@ -242,9 +242,9 @@
         </dt>
         <dd>Read reviewed unit conversion rules</dd>
       </dl></div><div class="section level2">
-      <h2 id="plan-and-fetch-data">Plan and fetch data<a class="anchor" aria-label="anchor" href="#plan-and-fetch-data"></a></h2>
+      <h2 id="plan-fetch-and-harmonize-data">Plan, fetch, and harmonize data<a class="anchor" aria-label="anchor" href="#plan-fetch-and-harmonize-data"></a></h2>
 
-      <div class="section-desc"><p>Build bounded plans and execute the frozen six-handler M7 subset.</p></div>
+      <div class="section-desc"><p>Execute the bounded six-handler subset and normalize reviewed time series.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -271,6 +271,99 @@
 
         </dt>
         <dd>Fetch the supported M7 data subset</dd>
+
+        <dt>
+
+          <code><a href="gx_target_units.html">gx_target_units()</a></code>
+
+        </dt>
+        <dd>Select reviewed harmonization target units</dd>
+
+        <dt>
+
+          <code><a href="gx_csv_mapping.html">gx_csv_mapping()</a></code>
+
+        </dt>
+        <dd>Declare one direct-CSV observation mapping</dd>
+
+        <dt>
+
+          <code><a href="gx_feature_mapping.html">gx_feature_mapping()</a></code>
+
+        </dt>
+        <dd>Declare one OGC API Features observation mapping</dd>
+
+        <dt>
+
+          <code><a href="gx_harmonize.html">gx_harmonize()</a></code>
+
+        </dt>
+        <dd>Harmonize reviewed fetched time-series observations</dd>
+      </dl></div><div class="section level2">
+      <h2 id="create-and-inspect-packages-and-snapshots">Create and inspect packages and snapshots<a class="anchor" aria-label="anchor" href="#create-and-inspect-packages-and-snapshots"></a></h2>
+
+      <div class="section-desc"><p>Publish verified packages or catalog snapshots and inspect offline evidence.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="gx_package.html">gx_package()</a></code>
+
+        </dt>
+        <dd>Create or replace a verified geoconnexr data package</dd>
+
+        <dt>
+
+          <code><a href="gx_package_load.html">gx_package_load()</a></code>
+
+        </dt>
+        <dd>Load verified geoconnexr package bytes offline</dd>
+
+        <dt>
+
+          <code><a href="gx_package_tables.html">gx_package_tables()</a></code>
+
+        </dt>
+        <dd>Parse verified package CSV resources as canonical character tables</dd>
+
+        <dt>
+
+          <code><a href="gx_package_hydrate.html">gx_package_hydrate()</a></code>
+
+        </dt>
+        <dd>Hydrate verified package-owned tables with fixed storage types</dd>
+
+        <dt>
+
+          <code><a href="gx_snapshot.html">gx_snapshot()</a></code>
+
+        </dt>
+        <dd>Create a verified catalog-only snapshot</dd>
+
+        <dt>
+
+          <code><a href="gx_snapshot_verify.html">gx_snapshot_verify()</a></code>
+
+        </dt>
+        <dd>Verify a closed geoconnexr snapshot offline</dd>
+
+        <dt>
+
+          <code><a href="gx_snapshot_requests.html">gx_snapshot_requests()</a></code>
+
+        </dt>
+        <dd>Load a verified snapshot request ledger offline</dd>
+
+        <dt>
+
+          <code><a href="gx_snapshot_catalog_view.html">gx_snapshot_catalog_view()</a></code>
+
+        </dt>
+        <dd>Load a typed redacted catalog view from a snapshot</dd>
       </dl></div><div class="section level2">
       <h2 id="infrastructure-and-package-internals">Infrastructure and package internals<a class="anchor" aria-label="anchor" href="#infrastructure-and-package-internals"></a></h2>
 
