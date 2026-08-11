@@ -15,8 +15,20 @@ concurrency:
 
 jobs:
   frictionless-profile:
+    name: ${{ matrix.test_file }}
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        test_file:
+          - test-package-frictionless.R
+          - test-package-frictionless-mixed.R
+          - test-package-frictionless-public.R
+          - test-package-report.R
+          - test-package-report-resources.R
+          - test-package-report-public.R
+          - test-replay-public.R
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       GEOCONNEXR_FRICTIONLESS_CLI: ${{ github.workspace }}/.venv/bin/frictionless
@@ -48,18 +60,12 @@ jobs:
           python -m venv .venv
           .venv/bin/python -m pip install --disable-pip-version-check frictionless==5.19.0
 
-      - name: Validate fixed Data Package profiles
+      - name: Run fixed M9 package profile
         run: |
           pkgload::load_all()
-          for (path in c(
-            "tests/testthat/test-package-frictionless.R",
-            "tests/testthat/test-package-frictionless-mixed.R",
-            "tests/testthat/test-package-frictionless-public.R"
-          )) {
-            testthat::test_file(
-              path,
-              reporter = "summary",
-              stop_on_failure = TRUE
-            )
-          }
+          testthat::test_file(
+            file.path("tests", "testthat", "${{ matrix.test_file }}"),
+            reporter = "summary",
+            stop_on_failure = TRUE
+          )
         shell: Rscript {0}

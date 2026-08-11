@@ -20,6 +20,7 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       GEOCONNEXR_RUN_LIVE: "false"
+      GEOCONNEXR_SKIP_SLOW_M9: "true"
       TZ: UTC
 
     steps:
