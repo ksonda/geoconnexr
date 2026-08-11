@@ -10,7 +10,9 @@ gx_package(
   catalog = NULL,
   timeseries = "csv",
   keep_raw = TRUE,
-  overwrite = FALSE
+  overwrite = FALSE,
+  report = FALSE,
+  frictionless = FALSE
 )
 }
 \arguments{
@@ -28,6 +30,12 @@ only for harmonized inputs and requires Arrow 14.0.0 or newer.}
 
 \item{overwrite}{One logical value. \code{FALSE} requires an absent destination;
 \code{TRUE} replaces only an intact package from the fixed writer profile.}
+
+\item{report}{One logical value. When \code{TRUE}, render and integrate one fixed
+Quarto HTML report before final package publication.}
+
+\item{frictionless}{One logical value. When \code{TRUE}, add one deterministic
+Frictionless Data Package v1 descriptor to the finalized package.}
 }
 \value{
 A validated \code{gx_package} object containing the normalized absolute
@@ -48,11 +56,17 @@ rebound to the input's exact AOI and dataset identity before serialization.
 
 This public package contract remains non-replayable. \code{timeseries} may be
 \code{"csv"} or \code{"parquet"}; Parquet requires a harmonized input and Arrow
-14.0.0 or newer. \code{keep_raw} must be \code{TRUE}. With \code{overwrite = FALSE}, the
+14.0.0 or newer. \code{keep_raw} must be \code{TRUE}. \code{report = TRUE} renders one
+fixed, execution-disabled, cache-disabled, embedded-resource HTML report
+through the reviewed Quarto R and CLI capability and binds its exact bytes
+into the package. With \code{overwrite = FALSE}, the
 destination must be absent. With \code{overwrite = TRUE}, the destination must
 be an intact package produced by this fixed writer profile. The replacement
 is fully staged and verified before the prior package moves to a sibling
 backup; detected installation or final-verification failures synchronously
-restore and re-verify the prior package. Frictionless metadata, reports,
-refresh, replay, and authenticity claims remain unsupported.
+restore and re-verify the prior package. Report HTML can be read through
+\code{\link[=gx_report]{gx_report()}}. \code{frictionless = TRUE} adds a manifest-bound
+\code{datapackage.json}. Canonical CSV resources carry exact string schemas;
+retained raw bytes, Parquet, and report HTML remain opaque file resources.
+Refresh, replay, and authenticity claims remain unsupported.
 }

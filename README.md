@@ -59,7 +59,9 @@ problems, and requests while remaining explicitly distinct from a live
 Public `gx_package()` can now publish or replace validated catalog, fetched, or
 harmonized inputs through deterministic CSV/raw resources and final closed-tree
 verification. Harmonized inputs may opt into the fixed Arrow/Parquet profile
-with `timeseries = "parquet"`. Replacement admits only an intact fixed-writer
+with `timeseries = "parquet"`. Explicit `report = TRUE` adds one fixed,
+execution-disabled and cache-disabled verified HTML report through the reviewed
+Quarto runtime; the default performs no rendering. Replacement admits only an intact fixed-writer
 package, stages
 the new generation before moving the prior package, and restores the prior
 generation on detected installation or verification failure. Fetched and
@@ -72,7 +74,13 @@ An internal M9p substrate now applies exact fixed storage types to package-owned
 tables without interpreting provider-native payloads or reconstructing live
 workflow objects. Public `gx_package_hydrate()` exposes that exact redacted,
 read-only inspection view, including exact typed Parquet observations when
-Arrow is available. Reports and replay remain deferred.
+Arrow is available. Public `gx_report()` exposes exact verified report HTML in
+memory or atomically copies it to one absent file without invoking Quarto.
+Public `gx_replay(..., refresh = FALSE)` now provides one offline, read-only
+stored-state inspection result over the fixed catalog-snapshot and package
+profiles. It verifies and loads the typed redacted view plus any stored report,
+but does not execute a recipe or reconstruct live workflow objects. Live
+refresh and procedural replay remain deferred.
 Internal M9t inspects Arrow and Quarto package metadata without loading either
 namespace. M9u pins Arrow R 14.0.0 and a fixed in-memory Parquet-2.4 profile:
 required symbols are resolved only after the selected operation, exact
@@ -83,7 +91,42 @@ M9w pins Quarto R 1.5.1 and resolves its reviewed report-facing symbols without
 invoking the CLI or rendering. M9x separately admits only a normalized,
 unchanged Quarto CLI 1.8.27 or newer through one bounded `--version` command;
 it does not render, and the repository host's CLI 1.3.433 remains blocked.
-The fixed report contract remains deferred.
+M9y derives one fixed code-free report from a typed package view, invokes only
+that admitted CLI path with execution and caching disabled, and accepts only a
+bounded minimal HTML document in a closed private render tree. Scripts, active
+embedded objects, refreshes, external links, unexpected artifacts, source or
+CLI mutation, and output forgery fail closed. Exact source and HTML bytes are
+retained in memory after private-stage cleanup. M9z binds those exact bytes to
+their originating M9k bundle as one `report/index.html` resource and carries
+the profile through verified staged creation and owned replacement. M9aa now
+exposes that path through explicit `gx_package(..., report = TRUE)`, admits
+report packages through offline loading/table/hydration inspection, and adds
+`gx_report()` for exact in-memory access or absent-file export. Report-free
+manifests remain unchanged. M9ab wraps those fixed loading profiles in public
+offline `gx_replay(refresh = FALSE)` evidence while retaining explicit
+non-replayable, unsigned, and no-refresh limitations.
+M9ac adds an internal deterministic Frictionless Data Package v1 descriptor
+over the exact fixed resource bundle. Canonical CSVs have exact all-string
+Table Schemas, non-CSV resources are explicit and generic, and a dedicated CI
+gate validates the fixed catalog, fetched, and harmonized CSV profiles with
+Python Frictionless CLI 5.19.0. It does not publish a descriptor or authorize
+refresh or replay.
+M9ad exposes that reviewed all-CSV profile through explicit
+`gx_package(..., frictionless = TRUE)`. The resulting `datapackage.json` is a
+manifest-declared resource, survives verified replacement and offline typed
+inspection, and is rederived from stored CSV bytes during loading. Defaults
+remain descriptor-free.
+M9ae validates those remaining fixed resource families before public exposure.
+Retained provider bodies, Parquet observations, and report HTML are described
+as opaque binary Data Resources whose custom `geoconnexr` metadata retains the
+true format. Core Python Frictionless CLI 5.19.0 validates their exact files,
+sizes, and hashes without invoking optional semantic format parsers.
+M9af completes the fixed-package M9 roadmap by composing that validated profile
+through public raw, Parquet, and report publication, replacement, loading,
+typed inspection, report access, and offline stored-state inspection. Live
+refresh and procedural replay remain explicitly deferred under ADR 0066 until
+a complete reproducible request recipe exists; they are not another
+fixed-package implementation gate.
 Internal M7a adds deterministic, selection-only fetch plans bound
 to strict portable-classifier and R-implementation metadata assets; M7b adds a
 separate host-specific advisory check using bounded direct reads of selected
@@ -186,6 +229,17 @@ parquet_package <- gx_package(
 parquet_loaded <- gx_package_load(parquet_package$path)
 parquet_loaded$contents[["data/observations.parquet"]]
 gx_package_hydrate(parquet_package$path)$harmonized$observations
+
+# Requires Quarto R >= 1.5.1 and Quarto CLI >= 1.8.27.
+reported_package <- gx_package(
+  harmonized,
+  "path/to/new-reported-package",
+  catalog = catalog,
+  report = TRUE
+)
+report <- gx_report(reported_package)
+report$html
+gx_report(reported_package, "path/to/report-copy.html")
 ```
 
 Catalog → plan → fetch → harmonize → package is now public for the frozen
@@ -196,7 +250,9 @@ workflow objects or authorizing replay, and canonical CSV resources can be
 inspected as character-only tibbles without type inference.
 Public `gx_package_hydrate()` applies fixed types to package-owned schemas while
 keeping provider-native resources character-only or opaque. It remains an
-inspection view and never reconstructs live workflow objects.
+inspection view and never reconstructs live workflow objects. Fixed report
+access is offline and byte-preserving; only explicit package creation with
+`report = TRUE` invokes the reviewed Quarto runtime.
 
 ## Available in the P0 scaffold
 
@@ -614,8 +670,10 @@ creation is now available through `gx_package()` for catalog, fetched, and
 harmonized inputs, with an explicit source catalog required for the latter two.
 Public `gx_package_load()` now reads that fixed profile as exact bounded bytes
 between complete closed-tree verifications. It remains read-only, unsigned,
-non-Frictionless, and non-replayable and does not reconstruct live catalog,
-fetched, or harmonized objects. Public `gx_package_tables()` parses those
+and non-replayable and does not reconstruct live catalog, fetched, or
+harmonized objects. For an opt-in M9ad package, loading rederives and preserves
+its Frictionless compatibility evidence without invoking an external runtime.
+Public `gx_package_tables()` parses those
 verified in-memory CSV bytes only when they round-trip exactly through the
 canonical quote-all UTF-8/LF profile; all columns remain character values and
 native raw resources remain opaque. Internal M9p provides exact typed
@@ -625,8 +683,12 @@ fixed-profile ownership admission and sibling-backup rollback; public M9s now
 exposes that exact path through `gx_package(..., overwrite = TRUE)` and returns
 evidence binding the prior and final verified generations. M9v integrates the
 fixed Arrow/Parquet observation profile through bundle creation, manifests,
-loading, table inspection, hydration, and replacement. Quarto, reports,
-authenticity, refresh, and replay remain deferred. Internal M9t gives those optional dependencies an explicit host-
+loading, table inspection, hydration, and replacement. M9w/M9x admit the
+reviewed Quarto R and CLI runtime, and M9y now renders and verifies one isolated
+internal HTML report. M9z integrates those bytes under a private staged and
+replaceable package profile; M9aa exposes explicit public creation and offline
+report access while authenticity, refresh, and replay remain deferred.
+Internal M9t gives those optional dependencies an explicit host-
 specific preflight. Internal M9u classifies Arrow against a reviewed 14.0.0
 minimum and resolves its required exports only at the private serialization
 boundary. The fixed redacted observation table is serialized and read back
@@ -642,7 +704,16 @@ entirely in memory; M9v exposes that profile only for harmonized packages. See
 and [ADR 0059](docs/decisions/0059-fixed-in-memory-arrow-parquet.md), and
 [ADR 0060](docs/decisions/0060-public-verified-parquet-packages.md), and
 [ADR 0061](docs/decisions/0061-reviewed-quarto-runtime-capability.md), and
-[ADR 0062](docs/decisions/0062-reviewed-quarto-cli-admission.md).
+[ADR 0062](docs/decisions/0062-reviewed-quarto-cli-admission.md), and
+[ADR 0063](docs/decisions/0063-fixed-quarto-html-report.md), and
+[ADR 0064](docs/decisions/0064-private-report-package-integration.md), and
+[ADR 0065](docs/decisions/0065-public-verified-package-reports.md), and
+[ADR 0066](docs/decisions/0066-public-offline-replay-inspection.md), and
+[ADR 0067](docs/decisions/0067-internal-frictionless-data-package-profile.md),
+[ADR 0068](docs/decisions/0068-public-all-csv-frictionless-packages.md), and
+[ADR 0069](docs/decisions/0069-pinned-mixed-resource-frictionless-validation.md),
+and [ADR 0070](docs/decisions/0070-public-mixed-resource-frictionless-packages.md),
+which closes the fixed-package M9 roadmap.
 
 The first crosswalk validates the reference service's advertised
 `provider_id`, gage identity, and PID before returning a match. Repeated inputs

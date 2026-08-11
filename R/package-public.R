@@ -1,4 +1,4 @@
-.gx_package_contract_version <- "0.3.0"
+.gx_package_contract_version <- "0.6.0"
 
 .gx_package_fields <- c(
   "contract_version", "mode", "status", "stage", "path", "verification",
@@ -55,14 +55,11 @@ gx_package_timeseries_impl <- function(x) {
   unname(x)
 }
 
-gx_package_manifest_profile_impl <- function(verification) {
-  gx_snapshot_verification_validate_impl(verification)
-  manifest <- verification$manifest
-  serialization <- manifest$effective_options$serialization
-  stage <- manifest$effective_options$package_stage
-  timeseries <- manifest$recipe$output$timeseries
-  parquet <- serialization$parquet
-  valid_parquet <- if (identical(timeseries, "parquet")) {
+gx_package_parquet_manifest_valid_impl <- function(
+    stage,
+    timeseries,
+    parquet) {
+  if (identical(timeseries, "parquet")) {
     identical(stage, "harmonized") && is.list(parquet) &&
       setequal(names(parquet), c(
         "profile", "arrow_package_version", "arrow_minimum_version",
@@ -72,12 +69,12 @@ gx_package_manifest_profile_impl <- function(verification) {
       identical(parquet$profile, "fixed-arrow-parquet-v1") &&
       is.character(parquet$arrow_package_version) &&
       length(parquet$arrow_package_version) == 1L &&
-      !is.na(parquet$arrow_package_version) &&
-      utils::compareVersion(
+      !is.na(parquet$arrow_package_version) && utils::compareVersion(
         parquet$arrow_package_version, .gx_package_parquet_arrow_minimum
-      ) >= 0L &&
-      identical(parquet$arrow_minimum_version, .gx_package_parquet_arrow_minimum) &&
-      identical(parquet$parquet_version, "2.4") &&
+      ) >= 0L && identical(
+        parquet$arrow_minimum_version,
+        .gx_package_parquet_arrow_minimum
+      ) && identical(parquet$parquet_version, "2.4") &&
       identical(parquet$compression, "uncompressed") &&
       identical(parquet$use_dictionary, FALSE) &&
       identical(parquet$write_statistics, FALSE) &&
@@ -85,6 +82,20 @@ gx_package_manifest_profile_impl <- function(verification) {
   } else {
     identical(timeseries, "csv") && is.null(parquet)
   }
+}
+
+gx_package_base_manifest_profile_impl <- function(
+    verification,
+    resource_profile = "fixed-in-memory-resources-v2") {
+  gx_snapshot_verification_validate_impl(verification)
+  manifest <- verification$manifest
+  serialization <- manifest$effective_options$serialization
+  stage <- manifest$effective_options$package_stage
+  timeseries <- manifest$recipe$output$timeseries
+  parquet <- serialization$parquet
+  valid_parquet <- gx_package_parquet_manifest_valid_impl(
+    stage, timeseries, parquet
+  )
   valid <- identical(verification$status, "verified") &&
     identical(manifest$recipe$pipeline$end_stage, "package") &&
     timeseries %in% c("csv", "parquet") && valid_parquet &&
@@ -99,7 +110,7 @@ gx_package_manifest_profile_impl <- function(verification) {
     identical(serialization$writer, .gx_package_writer_profile) &&
     identical(
       serialization$resource_profile,
-      "fixed-in-memory-resources-v2"
+      resource_profile
     ) &&
     identical(serialization$request_export, "manifest-requests-csv-v1") &&
     identical(serialization$request_ledger_scope, "catalog_only") &&
@@ -126,8 +137,23 @@ gx_package_manifest_profile_impl <- function(verification) {
   )
 }
 
+gx_package_manifest_profile_impl <- function(verification) {
+  gx_snapshot_verification_validate_impl(verification)
+  resource_profile <-
+    verification$manifest$effective_options$serialization$resource_profile
+  if (identical(
+      resource_profile,
+      .gx_package_frictionless_resource_profile
+    )) {
+    return(gx_package_frictionless_manifest_profile_impl(verification))
+  }
+  gx_package_base_manifest_profile_impl(verification)
+}
+
 gx_package_metadata_impl <- function(verification, overwrite = FALSE) {
-  profile <- gx_package_manifest_profile_impl(verification)
+  profile <- gx_package_owned_manifest_profile_impl(verification)
+  report <- isTRUE(verification$manifest$recipe$output$report)
+  frictionless <- !is.null(profile$frictionless)
   raw_roles <- vapply(
     verification$resources$roles,
     function(roles) identical(roles, c("data", "native", "raw")),
@@ -149,17 +175,17 @@ gx_package_metadata_impl <- function(verification, overwrite = FALSE) {
     timeseries = profile$timeseries,
     keep_raw = TRUE,
     overwrite = overwrite,
-    report = FALSE,
+    report = report,
     arrow = identical(profile$timeseries, "parquet"),
-    quarto = FALSE,
-    frictionless = FALSE,
+    quarto = report,
+    frictionless = frictionless,
     request_ledger_scope = "catalog_only",
     replayable = FALSE
   )
 }
 
 gx_package_id_impl <- function(path, previous, verification, metadata) {
-  profile <- gx_package_manifest_profile_impl(verification)
+  profile <- gx_package_owned_manifest_profile_impl(verification)
   overwrite <- !is.null(previous)
   prior_manifest_sha256 <- if (overwrite) {
     previous$manifest_sha256
@@ -182,6 +208,8 @@ gx_package_id_impl <- function(path, previous, verification, metadata) {
       "source_stage", metadata$source_stage,
       "timeseries", metadata$timeseries,
       "overwrite", overwrite,
+      "report", metadata$report,
+      "frictionless", metadata$frictionless,
       "prior_manifest_sha256", prior_manifest_sha256,
       "manifest_sha256", verification$manifest_sha256,
       "package_input_id", profile$serialization$package_input_id,
@@ -225,7 +253,7 @@ gx_package_validate_impl <- function(x) {
     warning = function(cnd) NULL
   )
   profile <- tryCatch(
-    gx_package_manifest_profile_impl(x$verification),
+    gx_package_owned_manifest_profile_impl(x$verification),
     error = function(cnd) NULL,
     warning = function(cnd) NULL
   )
@@ -237,7 +265,7 @@ gx_package_validate_impl <- function(x) {
     is.null(x$previous)
   previous_profile <- if (overwrite) {
     tryCatch(
-      gx_package_manifest_profile_impl(x$previous),
+      gx_package_owned_manifest_profile_impl(x$previous),
       error = function(cnd) NULL,
       warning = function(cnd) NULL
     )
@@ -284,13 +312,19 @@ gx_package_validate_impl <- function(x) {
 #'
 #' This public package contract remains non-replayable. `timeseries` may be
 #' `"csv"` or `"parquet"`; Parquet requires a harmonized input and Arrow
-#' 14.0.0 or newer. `keep_raw` must be `TRUE`. With `overwrite = FALSE`, the
+#' 14.0.0 or newer. `keep_raw` must be `TRUE`. `report = TRUE` renders one
+#' fixed, execution-disabled, cache-disabled, embedded-resource HTML report
+#' through the reviewed Quarto R and CLI capability and binds its exact bytes
+#' into the package. With `overwrite = FALSE`, the
 #' destination must be absent. With `overwrite = TRUE`, the destination must
 #' be an intact package produced by this fixed writer profile. The replacement
 #' is fully staged and verified before the prior package moves to a sibling
 #' backup; detected installation or final-verification failures synchronously
-#' restore and re-verify the prior package. Frictionless metadata, reports,
-#' refresh, replay, and authenticity claims remain unsupported.
+#' restore and re-verify the prior package. Report HTML can be read through
+#' [gx_report()]. `frictionless = TRUE` adds a manifest-bound
+#' `datapackage.json`. Canonical CSV resources carry exact string schemas;
+#' retained raw bytes, Parquet, and report HTML remain opaque file resources.
+#' Refresh, replay, and authenticity claims remain unsupported.
 #'
 #' @param x A validated `gx_catalog`, `gx_fetched`, or `gx_harmonized` object.
 #' @param dir Destination directory beneath an existing safe parent.
@@ -301,6 +335,10 @@ gx_package_validate_impl <- function(x) {
 #' @param keep_raw Must be `TRUE`; exact retained provider bodies are preserved.
 #' @param overwrite One logical value. `FALSE` requires an absent destination;
 #'   `TRUE` replaces only an intact package from the fixed writer profile.
+#' @param report One logical value. When `TRUE`, render and integrate one fixed
+#'   Quarto HTML report before final package publication.
+#' @param frictionless One logical value. When `TRUE`, add one deterministic
+#'   Frictionless Data Package v1 descriptor to the finalized package.
 #'
 #' @return A validated `gx_package` object containing the normalized absolute
 #'   path, source stage, final [gx_snapshot_verify()] evidence, optional prior
@@ -313,10 +351,14 @@ gx_package <- function(
     catalog = NULL,
     timeseries = "csv",
     keep_raw = TRUE,
-    overwrite = FALSE) {
+    overwrite = FALSE,
+    report = FALSE,
+    frictionless = FALSE) {
   timeseries <- gx_package_timeseries_impl(timeseries)
   keep_raw <- gx_package_flag_impl(keep_raw, "keep_raw")
   overwrite <- gx_package_flag_impl(overwrite, "overwrite")
+  report <- gx_package_flag_impl(report, "report")
+  frictionless <- gx_package_flag_impl(frictionless, "frictionless")
   if (!keep_raw) {
     gx_package_public_abort(
       paste0(
@@ -326,7 +368,6 @@ gx_package <- function(
       "gx_error_package_scope"
     )
   }
-
   input <- gx_package_input_impl(x, catalog)
   if (identical(timeseries, "parquet") &&
       !identical(input$stage, "harmonized")) {
@@ -335,16 +376,32 @@ gx_package <- function(
       "gx_error_package_scope"
     )
   }
-  bundle <- gx_package_resources_impl(input, timeseries = timeseries)
-  written <- if (overwrite) {
-    replacement <- gx_package_replace_impl(bundle, dir)
-    gx_package_replacement_validate_impl(replacement)
-    replacement
+  base <- gx_package_resources_impl(input, timeseries = timeseries)
+  preparation <- if (report) gx_package_report_bundle_impl(base) else NULL
+  finalized <- if (report) preparation$bundle else base
+  bundle <- if (frictionless) {
+    gx_package_frictionless_resources_impl(finalized)
   } else {
-    publication <- gx_package_write_impl(bundle, dir)
-    gx_package_publication_validate_impl(publication)
-    publication
+    finalized
   }
+  written <- tryCatch(
+    if (overwrite) {
+      replacement <- gx_package_replace_impl(bundle, dir)
+      gx_package_replacement_validate_impl(replacement)
+      replacement
+    } else {
+      publication <- gx_package_write_impl(bundle, dir)
+      gx_package_publication_validate_impl(publication)
+      publication
+    },
+    error = function(cnd) cnd
+  )
+  if (report) {
+    gx_package_report_preparation_cleanup_impl(
+      preparation, committed = !inherits(written, "condition")
+    )
+  }
+  if (inherits(written, "condition")) stop(written)
   verification <- structure(
     written$verification,
     class = "gx_snapshot_verification"
@@ -395,7 +452,11 @@ print.gx_package <- function(x, ...) {
       "; retained raw: ", x$metadata$native_raw_resources
     ),
     paste0(
-      "* Scope: CSV/raw; ",
+      "* Scope: fixed CSV/raw",
+      if (x$metadata$arrow) "/Parquet" else "",
+      "; ",
+      if (x$metadata$report) "fixed HTML report; " else "",
+      if (x$metadata$frictionless) "Frictionless Data Package v1; " else "",
       if (x$metadata$overwrite) "verified replacement" else "creation-only",
       "; non-replayable"
     ),

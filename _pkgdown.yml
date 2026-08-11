@@ -111,6 +111,8 @@ reference:
   - gx_package_load
   - gx_package_tables
   - gx_package_hydrate
+  - gx_report
+  - gx_replay
   - gx_snapshot
   - gx_snapshot_verify
   - gx_snapshot_requests

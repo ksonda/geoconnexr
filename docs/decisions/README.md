@@ -68,6 +68,14 @@ and link both records rather than rewriting history.
 | [0060](0060-public-verified-parquet-packages.md) | Accepted public boundary | Publish verified Parquet observation packages end to end |
 | [0061](0061-reviewed-quarto-runtime-capability.md) | Accepted internal substrate | Pin and resolve the Quarto R report capability without rendering |
 | [0062](0062-reviewed-quarto-cli-admission.md) | Accepted internal substrate | Admit one reviewed Quarto CLI version command without rendering |
+| [0063](0063-fixed-quarto-html-report.md) | Accepted internal substrate | Render and verify one fixed isolated execution-disabled HTML report |
+| [0064](0064-private-report-package-integration.md) | Accepted internal substrate | Integrate verified HTML into private staged and replaceable packages |
+| [0065](0065-public-verified-package-reports.md) | Accepted public boundary | Publish and access fixed verified package reports |
+| [0066](0066-public-offline-replay-inspection.md) | Accepted public boundary | Inspect fixed stored state without executing replay |
+| [0067](0067-internal-frictionless-data-package-profile.md) | Accepted internal substrate | Describe fixed package bundles as Frictionless Data Package v1 |
+| [0068](0068-public-all-csv-frictionless-packages.md) | Accepted public boundary | Publish Frictionless descriptors for fixed all-CSV packages |
+| [0069](0069-pinned-mixed-resource-frictionless-validation.md) | Accepted internal validation gate | Validate raw, Parquet, and report resources as opaque Frictionless files |
+| [0070](0070-public-mixed-resource-frictionless-packages.md) | Accepted public boundary | Complete fixed-package M9 with mixed-resource Frictionless publication |
 
 Each ADR states its context, decision, consequences, and status. Proposed ADRs
 may change; accepted ADRs govern implementation until superseded.

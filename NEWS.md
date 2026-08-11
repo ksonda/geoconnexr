@@ -2,6 +2,82 @@
 
 ## Repository foundation
 
+- Completed the fixed-package M9 roadmap through M9af under ADR 0070. Public
+  `gx_package(..., frictionless = TRUE)` now composes with retained provider
+  bodies, fixed Arrow/Parquet observations, and verified report HTML. The
+  descriptor remains manifest-bound and is rederived during offline loading;
+  canonical CSVs retain exact string schemas while non-CSV resources use the
+  pinned opaque-file profile. Public loading, table inspection, typed
+  hydration, report access, replacement, and stored-state inspection preserve
+  the combined evidence without invoking Python or executing a recipe. Live
+  refresh and procedural replay are explicitly deferred under ADR 0066 until
+  a complete reproducible request recipe exists; they are not another
+  fixed-package M9 gate.
+- Added the internal M9ae mixed-resource Frictionless validation gate under
+  ADR 0069. Non-canonical resources now use a deterministic `format = "bin"`
+  Data Resource transport profile while retaining their true extension and
+  `opaque-file-v1` marker in custom `geoconnexr` metadata. This keeps exact
+  path, byte-length, SHA-256, and media-type validation without dispatching
+  semantic Python parsers. The pinned core Frictionless 5.19.0 CI job now
+  validates real retained-raw, Arrow/Parquet, and verified-report bundles with
+  zero errors or warnings and requires every opaque resource to remain a file
+  task. M9af now supplies the public composition boundary.
+- Added M9ad public all-CSV Frictionless package publication under ADR 0068.
+  Explicit `gx_package(..., frictionless = TRUE)` now adds one deterministic
+  manifest-declared `datapackage.json` derived from the finalized base bundle,
+  carries its exact identity through creation and owned replacement, and
+  rederives the descriptor from verified bytes during offline loading. Table,
+  hydration, and stored-state replay evidence preserve the compatibility claim
+  while leaving JSON opaque and procedural replay disabled. Default manifests
+  remain descriptor-free; raw, Parquet, report, and mixed-resource combinations
+  remain gated. The pinned Frictionless 5.19.0 CI job now validates a publicly
+  generated package in standards-v1 mode.
+- Added the internal M9ac Frictionless Data Package v1 profile under ADR 0067.
+  Exact M9k/M9z resource bundles now produce a deterministic bounded
+  `datapackage.json` description in memory: canonical CSV resources carry
+  exact all-string Table Schemas, non-CSV bytes are declared explicitly as
+  generic resources, and every resource remains bound to its path, size, and
+  SHA-256 digest. Construction performs no write, publication, CLI, refresh,
+  or replay work and remains internal. A dedicated CI gate pins Python
+  Frictionless CLI 5.19.0 and validates the catalog, fetched, and harmonized
+  CSV package stages in standards-v1 mode without errors or warnings.
+- Added M9ab public offline stored-state inspection under ADR 0066.
+  `gx_replay(..., refresh = FALSE)` now accepts only fixed catalog snapshots
+  and fixed public packages, reuses their closed-tree verification and exact
+  typed loaders, and returns evidence binding the current manifest, typed
+  view, optional stored report, explicit limitations, and deterministic
+  inspection identity. It performs no recipe execution, network, cache,
+  optional runtime, write, destination publication, authenticity check, or
+  Frictionless interpretation. `refresh = TRUE`, destinations, extra options,
+  arbitrary manifest-v1 trees, mutations, and forged evidence fail closed.
+- Added M9aa public verified package reports under ADR 0065. Explicit
+  `gx_package(..., report = TRUE)` now builds one fixed execution-disabled,
+  cache-disabled HTML report from an owned typed package view, binds its exact
+  bytes through the M9z profile, and removes the private source after staged or
+  replacement verification. Report packages now load, parse tables, and
+  hydrate through the public offline inspection APIs while HTML remains opaque
+  exact bytes. New `gx_report()` revalidates and returns those bytes without
+  Quarto and can atomically copy them to one absent output file. Verified
+  replacement supports report-free, report-bearing, and report-removal
+  transitions; report-free defaults and manifests remain unchanged.
+- Added the internal M9z private report-package profile under ADR 0064. Exact
+  M9y evidence can now add one byte-identical `report/index.html` resource only
+  to the M9k bundle from which its typed source package originated. The private
+  manifest binds base-bundle, hydration, source-manifest, source, HTML, Quarto
+  R, and CLI identities and passes the existing staged closed-tree creation and
+  owned replacement workflow, including repeated replacement of an intact
+  report package. Report-free manifests remain unchanged; M9aa now exposes the
+  reviewed public creation, loading, and access boundary.
+- Added the internal M9y fixed Quarto HTML report boundary under ADR 0063. One
+  exact typed package view now derives a bounded code-free `report.qmd`, then
+  renders only through the M9x-admitted CLI path with execution and caching
+  disabled under a 30-second timeout. The private render tree must contain only
+  the unchanged source and one bounded minimal `report.html`; HTML verification
+  rejects scripts, active embedded objects, refreshes, and external links and
+  binds all redacted summary counts. Exact source/output bytes and runtime
+  evidence are retained in memory after the private tree is removed. M9z now
+  supplies private package integration, and M9aa now supplies public report
+  creation and access.
 - Added the internal M9x Quarto CLI admission boundary under ADR 0062. After
   validating the M9w Quarto R capability, the boundary accepts only the
   normalized executable returned by `quarto_path(normalize = TRUE)`, runs that
@@ -9,8 +85,8 @@
   metadata races, and requires Quarto CLI 1.8.27 or newer. The resulting
   host-specific evidence authorizes version admission only: no report is
   inspected or rendered, no file is written, and no public API is added. The
-  repository host's Quarto CLI 1.3.433 remains correctly blocked; the fixed
-  report contract is next.
+  repository host's Quarto CLI 1.3.433 remains correctly blocked; M9y now
+  supplies the separate fixed report contract.
 - Added the internal M9w Quarto R capability boundary under ADR 0061. Quarto
   R 1.5.1 is now the reviewed minimum in package metadata and the advisory M9t
   preflight. Operation-time resolution rejects missing or old metadata before
