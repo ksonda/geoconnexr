@@ -29,7 +29,9 @@ named resource bytes, fixed scope metadata, and load identity.
 ## Details
 
 This boundary is deliberately byte-preserving. CSV and Parquet resources
-remain raw bytes and provider payloads remain opaque raw bytes; it does
-not reconstruct a live catalog, fetched result, or harmonized result.
-Loading is read-only, offline, unsigned, non-Frictionless, and
-non-replayable.
+remain raw bytes, a fixed report remains exact HTML bytes, and provider
+payloads remain opaque raw bytes; it does not reconstruct a live
+catalog, fetched result, or harmonized result. Loading is read-only,
+offline, unsigned, and non-replayable. When the fixed package declares
+Frictionless metadata, loading rederives its descriptor without an
+external runtime and preserves that compatibility evidence.

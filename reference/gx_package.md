@@ -15,7 +15,9 @@ gx_package(
   catalog = NULL,
   timeseries = "csv",
   keep_raw = TRUE,
-  overwrite = FALSE
+  overwrite = FALSE,
+  report = FALSE,
+  frictionless = FALSE
 )
 ```
 
@@ -48,6 +50,16 @@ gx_package(
   One logical value. `FALSE` requires an absent destination; `TRUE`
   replaces only an intact package from the fixed writer profile.
 
+- report:
+
+  One logical value. When `TRUE`, render and integrate one fixed Quarto
+  HTML report before final package publication.
+
+- frictionless:
+
+  One logical value. When `TRUE`, add one deterministic Frictionless
+  Data Package v1 descriptor to the finalized package.
+
 ## Value
 
 A validated `gx_package` object containing the normalized absolute path,
@@ -65,11 +77,17 @@ serialization.
 
 This public package contract remains non-replayable. `timeseries` may be
 `"csv"` or `"parquet"`; Parquet requires a harmonized input and Arrow
-14.0.0 or newer. `keep_raw` must be `TRUE`. With `overwrite = FALSE`,
-the destination must be absent. With `overwrite = TRUE`, the destination
-must be an intact package produced by this fixed writer profile. The
-replacement is fully staged and verified before the prior package moves
-to a sibling backup; detected installation or final-verification
-failures synchronously restore and re-verify the prior package.
-Frictionless metadata, reports, refresh, replay, and authenticity claims
-remain unsupported.
+14.0.0 or newer. `keep_raw` must be `TRUE`. `report = TRUE` renders one
+fixed, execution-disabled, cache-disabled, embedded-resource HTML report
+through the reviewed Quarto R and CLI capability and binds its exact
+bytes into the package. With `overwrite = FALSE`, the destination must
+be absent. With `overwrite = TRUE`, the destination must be an intact
+package produced by this fixed writer profile. The replacement is fully
+staged and verified before the prior package moves to a sibling backup;
+detected installation or final-verification failures synchronously
+restore and re-verify the prior package. Report HTML can be read through
+[`gx_report()`](https://ksonda.github.io/geoconnexr/reference/gx_report.md).
+`frictionless = TRUE` adds a manifest-bound `datapackage.json`.
+Canonical CSV resources carry exact string schemas; retained raw bytes,
+Parquet, and report HTML remain opaque file resources. Refresh, replay,
+and authenticity claims remain unsupported.

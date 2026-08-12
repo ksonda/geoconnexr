@@ -100,6 +100,10 @@ evidence.
   : Parse verified package CSV resources as canonical character tables
 - [`gx_package_hydrate()`](https://ksonda.github.io/geoconnexr/reference/gx_package_hydrate.md)
   : Hydrate verified package-owned tables with fixed storage types
+- [`gx_report()`](https://ksonda.github.io/geoconnexr/reference/gx_report.md)
+  : Access a verified geoconnexr package report
+- [`gx_replay()`](https://ksonda.github.io/geoconnexr/reference/gx_replay.md)
+  : Inspect a verified stored snapshot or package offline
 - [`gx_snapshot()`](https://ksonda.github.io/geoconnexr/reference/gx_snapshot.md)
   : Create a verified catalog-only snapshot
 - [`gx_snapshot_verify()`](https://ksonda.github.io/geoconnexr/reference/gx_snapshot_verify.md)
