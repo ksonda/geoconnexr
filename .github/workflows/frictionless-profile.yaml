@@ -1,0 +1,71 @@
+name: Frictionless profile
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frictionless-profile-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frictionless-profile:
+    name: ${{ matrix.test_file }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        test_file:
+          - test-package-frictionless.R
+          - test-package-frictionless-mixed.R
+          - test-package-frictionless-public.R
+          - test-package-report.R
+          - test-package-report-resources.R
+          - test-package-report-public.R
+          - test-replay-public.R
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      GEOCONNEXR_FRICTIONLESS_CLI: ${{ github.workspace }}/.venv/bin/frictionless
+      GEOCONNEXR_RUN_LIVE: "false"
+      TZ: UTC
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          dependencies: '"hard"'
+          extra-packages: |
+            any::arrow
+            any::pkgload
+            any::testthat
+            any::withr
+
+      - name: Install pinned Frictionless CLI
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install --disable-pip-version-check frictionless==5.19.0
+
+      - name: Run fixed M9 package profile
+        run: |
+          pkgload::load_all()
+          testthat::test_file(
+            file.path("tests", "testthat", "${{ matrix.test_file }}"),
+            reporter = "summary",
+            stop_on_failure = TRUE
+          )
+        shell: Rscript {0}

@@ -47,6 +47,9 @@ gx_package_load_role_impl <- function(roles) {
     "data\x1fnative\x1ftable" = "native_table",
     "data\x1fobservations" = "observations",
     "harmonize\x1fresource-index" = "harmonized_index",
+    "report\x1fhtml\x1ffixed-quarto-report-v1" = "report_html",
+    "metadata\x1ffrictionless\x1fdata-package-v1" =
+      "frictionless_descriptor",
     NULL
   )
   if (is.null(role)) {
@@ -59,12 +62,14 @@ gx_package_load_role_impl <- function(roles) {
 }
 
 gx_package_load_resource_profile_impl <- function(verification) {
-  profile <- gx_package_manifest_profile_impl(verification)
+  profile <- gx_package_owned_manifest_profile_impl(verification)
+  has_report <- isTRUE(verification$manifest$recipe$output$report)
+  has_frictionless <- !is.null(profile$frictionless)
   evidence <- verification$resources
   roles <- lapply(evidence$roles, unname)
   role <- vapply(roles, gx_package_load_role_impl, character(1))
   format <- ifelse(
-    role == "native_raw",
+    role %in% c("native_raw", "report_html", "frictionless_descriptor"),
     "raw",
     ifelse(
       role == "observations" &
@@ -96,6 +101,8 @@ gx_package_load_resource_profile_impl <- function(verification) {
       "harmonized_index"
     )
   )
+  if (has_report) expected <- c(expected, "report_html")
+  if (has_frictionless) expected <- c(expected, "frictionless_descriptor")
   singleton <- setdiff(unique(resources$role), c(
     "native_raw", "native_table"
   ))
@@ -113,7 +120,9 @@ gx_package_load_resource_profile_impl <- function(verification) {
     catalog_requests = "requests.csv",
     fetch_status = "catalog/fetch_status.csv",
     native_index = "data/native/index.csv",
-    harmonized_index = "data/harmonized_resources.csv"
+    harmonized_index = "data/harmonized_resources.csv",
+    report_html = "report/index.html",
+    frictionless_descriptor = "datapackage.json"
   )
   fixed <- resources$role %in% names(fixed_paths)
   valid_paths <- all(
@@ -150,6 +159,18 @@ gx_package_load_resource_profile_impl <- function(verification) {
   ) && identical(
     sum(resources$format == "parquet"),
     if (identical(profile$timeseries, "parquet")) 1L else 0L
+  ) && identical(
+    sum(resources$role == "report_html"),
+    if (has_report) 1L else 0L
+  ) && all(
+    resources$media_type[resources$role == "report_html"] ==
+      "text/html; charset=utf-8"
+  ) && identical(
+    sum(resources$role == "frictionless_descriptor"),
+    if (has_frictionless) 1L else 0L
+  ) && all(
+    resources$media_type[resources$role == "frictionless_descriptor"] ==
+      "application/json"
   )
   order <- order(resources$path, method = "radix")
   total <- sum(resources$bytes)
@@ -232,7 +253,7 @@ gx_package_load_metadata_impl <- function(resources) {
     stored_bytes = unname(as.double(sum(resources$bytes))),
     parses_tables = FALSE,
     authenticity = FALSE,
-    frictionless = FALSE,
+    frictionless = any(resources$role == "frictionless_descriptor"),
     replayable = FALSE
   )
 }
@@ -303,7 +324,7 @@ gx_package_loaded_validate_impl <- function(x) {
   }
   profile <- if (verification_valid) {
     tryCatch(
-      gx_package_manifest_profile_impl(x$verification),
+      gx_package_owned_manifest_profile_impl(x$verification),
       error = function(cnd) NULL,
       warning = function(cnd) NULL
     )
@@ -348,10 +369,17 @@ gx_package_loaded_validate_impl <- function(x) {
   } else {
     NULL
   }
+  frictionless_valid <- if (valid_resources && valid_contents &&
+      !is.null(profile)) tryCatch({
+    gx_package_frictionless_loaded_validate_impl(
+      profile, x$resources, x$contents
+    )
+    TRUE
+  }, error = function(cnd) FALSE, warning = function(cnd) FALSE) else FALSE
   valid <- !is.null(root) && identical(root$path, x$path) &&
     verification_valid && !is.null(profile) &&
     identical(x$stage, profile$stage) &&
-    valid_resources && valid_contents &&
+    valid_resources && valid_contents && frictionless_valid &&
     identical(as.numeric(content_bytes), x$resources$bytes) &&
     identical(unname(content_hashes), x$resources$sha256) &&
     is.list(x$metadata) &&
@@ -374,9 +402,12 @@ gx_package_loaded_validate_impl <- function(x) {
 #' rebound to their manifest SHA-256 values.
 #'
 #' This boundary is deliberately byte-preserving. CSV and Parquet resources
-#' remain raw bytes and provider payloads remain opaque raw bytes; it does not
+#' remain raw bytes, a fixed report remains exact HTML bytes, and provider
+#' payloads remain opaque raw bytes; it does not
 #' reconstruct a live catalog, fetched result, or harmonized result. Loading is
-#' read-only, offline, unsigned, non-Frictionless, and non-replayable.
+#' read-only, offline, unsigned, and non-replayable. When the fixed package
+#' declares Frictionless metadata, loading rederives its descriptor without an
+#' external runtime and preserves that compatibility evidence.
 #'
 #' @param dir Existing package directory created with the fixed public
 #'   [gx_package()] profile.
@@ -414,7 +445,10 @@ gx_package_load <- function(dir) {
           "gx_error_package_load_mutation"
         )
       }
-      profile <- gx_package_manifest_profile_impl(after)
+      profile <- gx_package_owned_manifest_profile_impl(after)
+      gx_package_frictionless_loaded_validate_impl(
+        profile, resources, contents
+      )
       metadata <- gx_package_load_metadata_impl(resources)
       object <- structure(
         list(

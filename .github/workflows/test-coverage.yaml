@@ -16,10 +16,11 @@ concurrency:
 jobs:
   test-coverage:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 120
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       GEOCONNEXR_RUN_LIVE: "false"
+      GEOCONNEXR_SKIP_SLOW_M9: "true"
       TZ: UTC
 
     steps:

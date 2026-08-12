@@ -1,9 +1,12 @@
 package_quarto_cli_test_file <- function(.local_envir = parent.frame()) {
+  windows <- identical(.Platform$OS.type, "windows")
   path <- withr::local_tempfile(
     pattern = "gx-quarto-cli-",
+    fileext = if (windows) ".bat" else "",
     .local_envir = .local_envir
   )
-  writeLines(c("#!/bin/sh", "exit 0"), path, useBytes = TRUE)
+  contents <- if (windows) "@exit /b 0" else c("#!/bin/sh", "exit 0")
+  writeLines(contents, path, useBytes = TRUE)
   Sys.chmod(path, mode = "0755")
   normalizePath(path, winslash = "/", mustWork = TRUE)
 }

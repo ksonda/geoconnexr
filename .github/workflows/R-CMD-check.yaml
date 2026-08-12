@@ -17,7 +17,7 @@ jobs:
   R-CMD-check:
     name: ${{ matrix.config.os }} (R ${{ matrix.config.r }})
     runs-on: ${{ matrix.config.os }}
-    timeout-minutes: 40
+    timeout-minutes: 120
 
     strategy:
       fail-fast: false
@@ -33,6 +33,7 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
       GEOCONNEXR_RUN_LIVE: "false"
+      GEOCONNEXR_SKIP_SLOW_M9: "true"
       TZ: UTC
 
     steps:

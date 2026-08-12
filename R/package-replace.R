@@ -40,14 +40,18 @@ gx_package_replace_write <- function(bundle, path) {
   gx_package_write_impl(bundle, path)
 }
 
-gx_package_replace_owned_impl <- function(path) {
+gx_package_replace_owned_impl <- function(path, allow_report = TRUE) {
   verification <- tryCatch(
     gx_package_replace_verify(path),
     error = function(cnd) NULL,
     warning = function(cnd) NULL
   )
   profile <- if (is.null(verification)) NULL else tryCatch(
-    gx_package_manifest_profile_impl(verification),
+    if (isTRUE(allow_report)) {
+      gx_package_owned_manifest_profile_impl(verification)
+    } else {
+      gx_package_manifest_profile_impl(verification)
+    },
     error = function(cnd) NULL,
     warning = function(cnd) NULL
   )
@@ -260,16 +264,17 @@ gx_package_replacement_validate_impl <- function(x) {
     )
   }
   bundle_valid <- tryCatch({
-    gx_package_resources_validate_impl(x$bundle)
+    gx_package_bundle_validate_impl(x$bundle)
     TRUE
   }, error = function(cnd) FALSE, warning = function(cnd) FALSE)
   previous_valid <- tryCatch({
     gx_snapshot_verification_validate_impl(x$previous)
-    gx_package_manifest_profile_impl(x$previous)
+    gx_package_owned_manifest_profile_impl(x$previous)
     TRUE
   }, error = function(cnd) FALSE, warning = function(cnd) FALSE)
   verification_valid <- tryCatch({
     gx_snapshot_verification_validate_impl(x$verification)
+    gx_package_bundle_manifest_validate_impl(x$verification, x$bundle)
     TRUE
   }, error = function(cnd) FALSE, warning = function(cnd) FALSE)
   root <- tryCatch(
@@ -320,7 +325,7 @@ gx_package_replace_impl <- function(bundle, dir) {
   cleanup$owned <- FALSE
   tryCatch(
     {
-      gx_package_resources_validate_impl(bundle)
+      gx_package_bundle_validate_impl(bundle)
       destination <- gx_snapshot_writer_scalar_path(dir)
       if (!gx_snapshot_writer_entry_exists(destination$target)) {
         gx_package_replace_abort(
@@ -339,7 +344,9 @@ gx_package_replace_impl <- function(bundle, dir) {
           "gx_error_package_replace_ownership"
         )
       }
-      owned <- gx_package_replace_owned_impl(destination$target)
+      owned <- gx_package_replace_owned_impl(
+        destination$target
+      )
       previous <- owned$verification
       prepared <- gx_package_replace_temp_path_impl(
         destination$parent, ".gx-package-prepared-replacement-"
@@ -355,7 +362,9 @@ gx_package_replace_impl <- function(bundle, dir) {
         target_info,
         gx_snapshot_assert_fs_type(destination$target, "directory")
       )
-      current <- gx_package_replace_owned_impl(destination$target)$verification
+      current <- gx_package_replace_owned_impl(
+        destination$target
+      )$verification
       if (!gx_package_replace_same_previous_impl(previous, current)) {
         gx_package_replace_abort(
           "The owned destination changed while its replacement was staged.",

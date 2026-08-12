@@ -60,9 +60,35 @@ Description: Tools for discovering water-data sites and datasets through the
     internal preflight without loading either namespace. Arrow 14.0.0 is now
     the reviewed minimum for an internal fixed in-memory Parquet 2.4 serializer
     that rechecks required exports, redacts typed observations, and verifies an
-    exact raw-byte read-back; public format integration remains deferred.
-    Quarto, reports, refresh, and replay remain deferred.
-    An internal
+    exact raw-byte read-back; the reviewed public Parquet profile carries those
+    bytes through verified creation, loading, hydration, and replacement.
+    An internal Quarto report boundary derives one fixed code-free summary from
+    a typed package view, renders it only through a reviewed CLI with execution
+    and caching disabled, verifies bounded minimal HTML without active or
+    external content, and removes its private render tree. A report-aware
+    profile binds the exact HTML to its originating bundle and carries it
+    through verified staged creation and owned replacement. Explicit public
+    report creation now retains an owned typed source package through final
+    lineage verification and removes it afterward; public loading preserves
+    HTML as exact opaque bytes, and a report accessor revalidates isolated HTML
+    for in-memory access or absent-file export without invoking Quarto.
+    Public offline replay inspection now verifies and loads only those fixed
+    catalog-snapshot and package profiles as typed redacted stored state,
+    including an existing report, while making no recipe-execution or live
+    refresh claim. An internal deterministic Frictionless Data Package v1
+    descriptor binds each fixed resource path, size, and digest in memory,
+    declares exact all-string schemas for canonical CSV tables, and leaves
+    non-CSV resources explicit and generic. A pinned Python CLI gate validates
+    the fixed CSV package stages and real retained-raw, Arrow/Parquet, and
+    verified-report bundles in continuous integration; non-CSV resources use
+    an opaque-file transport profile that prevents semantic parser dispatch
+    while retaining their true format in custom metadata. Public opt-in fixed
+    packages now publish that descriptor as a manifest-bound resource,
+    including packages with retained raw bodies, fixed Arrow/Parquet
+    observations, or verified report HTML. Replacement and offline typed
+    inspection preserve the combined evidence, and loading rederives the
+    descriptor from verified stored bytes. Live refresh and procedural replay
+    remain deferred until a complete request recipe exists. An internal
     selection-only fetch plan binds catalog distributions to strict handler
     metadata without constructing requests or executing providers. A separate
     internal host preflight uses bounded direct metadata reads for selected

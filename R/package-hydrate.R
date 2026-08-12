@@ -311,7 +311,7 @@ gx_package_hydrate_projection_impl <- function(view) {
   )
 }
 
-gx_package_hydrate_metadata_impl <- function(projection) {
+gx_package_hydrate_metadata_impl <- function(projection, frictionless = FALSE) {
   list(
     scope = "typed_package_tables_v1",
     offline = TRUE,
@@ -327,7 +327,7 @@ gx_package_hydrate_metadata_impl <- function(projection) {
     native_payloads_typed = FALSE,
     reconstructed_objects = FALSE,
     authenticity = FALSE,
-    frictionless = FALSE,
+    frictionless = frictionless,
     replayable = FALSE
   )
 }
@@ -378,7 +378,9 @@ gx_package_hydrated_validate_impl <- function(x) {
     warning = function(cnd) NULL
   ) else NULL
   metadata <- if (is.null(projection)) NULL else
-    gx_package_hydrate_metadata_impl(projection)
+    gx_package_hydrate_metadata_impl(
+      projection, x$table_view$loaded$metadata$frictionless
+    )
   hydration_id <- if (is.null(metadata)) NULL else
     gx_package_hydrate_id_impl(x$table_view, metadata)
   valid <- view_valid && !is.null(projection) &&
@@ -404,7 +406,9 @@ gx_package_hydrate_impl <- function(dir) {
     {
       view <- gx_package_tables(dir)
       projection <- gx_package_hydrate_projection_impl(view)
-      metadata <- gx_package_hydrate_metadata_impl(projection)
+      metadata <- gx_package_hydrate_metadata_impl(
+        projection, view$loaded$metadata$frictionless
+      )
       object <- structure(
         list(
           contract_version = .gx_package_hydrated_contract_version,

@@ -1331,11 +1331,10 @@ test_that("public snapshot verification returns exact offline evidence", {
   )
 })
 
-test_that("only the public evidence wrapper is exported", {
+test_that("snapshot verification internals remain private", {
   exports <- getNamespaceExports("geoconnexr")
 
   expect_false("gx_snapshot_verify_impl" %in% exports)
   expect_true("gx_snapshot_verify" %in% exports)
-  expect_false("gx_replay" %in% exports)
   expect_false("gx_snapshot_verification_validate_impl" %in% exports)
 })

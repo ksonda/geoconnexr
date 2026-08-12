@@ -45,6 +45,10 @@ gx_package_writer_roles_impl <- function(role) {
     native_table = c("data", "native", "table"),
     observations = c("data", "observations"),
     harmonized_index = c("harmonize", "resource-index"),
+    report_html = c("report", "html", "fixed-quarto-report-v1"),
+    frictionless_descriptor = c(
+      "metadata", "frictionless", "data-package-v1"
+    ),
     gx_package_writer_abort(
       "A package resource role cannot be represented in manifest-v1.",
       "gx_error_package_write_manifest"
@@ -115,7 +119,7 @@ gx_package_writer_recipe_impl <- function(bundle, recipe) {
   recipe$output <- list(
     timeseries = bundle$timeseries,
     keep_raw = any(bundle$resources$role == "native_raw"),
-    report = FALSE
+    report = gx_package_bundle_is_report_impl(bundle)
   )
   recipe
 }
@@ -166,7 +170,7 @@ gx_package_writer_completeness_impl <- function(bundle, catalog_rows) {
 }
 
 gx_package_writer_manifest_impl <- function(bundle) {
-  gx_package_resources_validate_impl(bundle)
+  gx_package_bundle_validate_impl(bundle)
   catalog <- bundle$input$catalog
   tables <- gx_package_input_catalog_tables_impl(catalog)
   requests <- gx_snapshot_writer_requests(
@@ -224,12 +228,20 @@ gx_package_writer_manifest_impl <- function(bundle) {
     } else {
       NULL
     },
-    resource_profile = "fixed-in-memory-resources-v2",
+    resource_profile = gx_package_bundle_resource_profile_impl(bundle),
     package_input_id = bundle$input$input_id,
     bundle_id = bundle$bundle_id,
     request_export = "manifest-requests-csv-v1",
     request_ledger_scope = "catalog_only"
   )
+  if (gx_package_bundle_is_report_impl(bundle)) {
+    manifest$effective_options$serialization$report <-
+      gx_package_bundle_report_manifest_impl(bundle)
+  }
+  if (gx_package_bundle_is_frictionless_impl(bundle)) {
+    manifest$effective_options$serialization$frictionless <-
+      gx_package_bundle_frictionless_manifest_impl(bundle)
+  }
   manifest$effective_options$package_stage <- bundle$stage
   manifest$effective_options$package_resource_counts <-
     bundle$metadata$counts
@@ -307,7 +319,11 @@ gx_package_writer_cleanup_impl <- function(path) {
 gx_package_writer_assert_verification_impl <- function(
     verification,
     bundle) {
-  valid <- identical(verification$status, "verified") &&
+  profile_valid <- tryCatch({
+    gx_package_bundle_manifest_validate_impl(verification, bundle)
+    TRUE
+  }, error = function(cnd) FALSE, warning = function(cnd) FALSE)
+  valid <- profile_valid && identical(verification$status, "verified") &&
     identical(verification$resources$path, bundle$resources$path) &&
     identical(
       verification$resources$expected_bytes,
@@ -338,9 +354,9 @@ gx_package_publication_metadata_impl <- function(bundle) {
     overwrite = FALSE,
     manifest = TRUE,
     arrow = bundle$metadata$arrow,
-    quarto = FALSE,
-    report = FALSE,
-    frictionless = FALSE,
+    quarto = gx_package_bundle_is_report_impl(bundle),
+    report = gx_package_bundle_is_report_impl(bundle),
+    frictionless = gx_package_bundle_is_frictionless_impl(bundle),
     replayable = FALSE
   )
 }
@@ -391,11 +407,12 @@ gx_package_publication_validate_impl <- function(x) {
     )
   }
   bundle_valid <- tryCatch({
-    gx_package_resources_validate_impl(x$bundle)
+    gx_package_bundle_validate_impl(x$bundle)
     TRUE
   }, error = function(cnd) FALSE, warning = function(cnd) FALSE)
   verification_valid <- tryCatch({
     gx_snapshot_verification_validate_impl(x$verification)
+    gx_package_bundle_manifest_validate_impl(x$verification, x$bundle)
     TRUE
   }, error = function(cnd) FALSE, warning = function(cnd) FALSE)
   root <- tryCatch(
@@ -422,7 +439,10 @@ gx_package_publication_validate_impl <- function(x) {
     ) &&
     identical(x$verification$manifest$replay$replayable, FALSE) &&
     identical(serialization$writer, .gx_package_writer_profile) &&
-    identical(serialization$resource_profile, "fixed-in-memory-resources-v2") &&
+    identical(
+      serialization$resource_profile,
+      gx_package_bundle_resource_profile_impl(x$bundle)
+    ) &&
     identical(serialization$package_input_id, x$bundle$input$input_id) &&
     identical(serialization$bundle_id, x$bundle$bundle_id) &&
     identical(
@@ -474,7 +494,7 @@ gx_package_write_impl <- function(bundle, dir) {
   }, add = TRUE)
   tryCatch(
     {
-      gx_package_resources_validate_impl(bundle)
+      gx_package_bundle_validate_impl(bundle)
       destination <- gx_snapshot_writer_scalar_path(dir)
       if (gx_snapshot_writer_entry_exists(destination$target)) {
         gx_package_writer_abort(
@@ -500,7 +520,7 @@ gx_package_write_impl <- function(bundle, dir) {
       )
       gx_snapshot_assert_fs_type(stage, "directory")
 
-      gx_package_resources_validate_impl(bundle)
+      gx_package_bundle_validate_impl(bundle)
       directories <- gx_package_writer_directories_impl(
         bundle$resources$path
       )

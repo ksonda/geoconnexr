@@ -134,7 +134,7 @@ gx_package_tables_metadata_impl <- function(loaded, tables) {
     columns = unname(as.double(sum(vapply(tables, ncol, integer(1))))),
     reconstructed_objects = FALSE,
     authenticity = FALSE,
-    frictionless = FALSE,
+    frictionless = loaded$metadata$frictionless,
     replayable = FALSE
   )
 }
