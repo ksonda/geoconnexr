@@ -89,6 +89,13 @@ Description: Tools for discovering water-data sites and datasets through the
     inspection preserve the combined evidence, and loading rederives the
     descriptor from verified stored bytes. Live refresh and procedural replay
     remain deferred until a complete request recipe exists. An internal
+    public publisher profile now converts exact catalog site and dataset tables
+    into deterministic local JSON-LD, validates candidate profiles with structured
+    findings, and publishes one bounded XML sitemap through verified staging.
+    Publisher operations do not fetch contexts, submit content remotely, or
+    overwrite existing destinations. An installed language-neutral
+    conformance corpus pins profile, finding, and sitemap known answers for R
+    and a dependency-free Python feasibility harness. An internal
     selection-only fetch plan binds catalog distributions to strict handler
     metadata without constructing requests or executing providers. A separate
     internal host preflight uses bounded direct metadata reads for selected

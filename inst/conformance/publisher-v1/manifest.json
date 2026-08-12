@@ -1,0 +1,44 @@
+{
+  "manifest_version": 1,
+  "profile_version": "1.0.0",
+  "contract_version": "geoconnexr.publisher-conformance/1.0.0",
+  "hash_algorithm": "SHA-256",
+  "canonical_json": "UTF-8 JSON with no insignificant whitespace, no ASCII escaping, and source member order preserved",
+  "resources": [
+    {
+      "path": "expected-findings.json",
+      "bytes": 949,
+      "sha256": "446a64e7e6b4c0574cecd4e830fd9890b9a5af5441fd6dd23fb50ce4d7c23e7e"
+    },
+    {
+      "path": "expected-profile.json",
+      "bytes": 3152,
+      "sha256": "2f4b0b0cb08db59444c7af7cfb9bb89537cdf36307cd9b6ee831b7493376541d"
+    },
+    {
+      "path": "expected-sitemap.xml",
+      "bytes": 230,
+      "sha256": "773ee0b1c1b29c9f40123b9772439ec3888eea96217d2b414304526fa051667c"
+    },
+    {
+      "path": "input.json",
+      "bytes": 3326,
+      "sha256": "cf45331dfb7cb2d6d607da23b3fddaef819ee4b00603c455e58ab31165392ec8"
+    },
+    {
+      "path": "invalid-profile.json",
+      "bytes": 900,
+      "sha256": "55b6ede3021794c5a395cf1dba5b26678effee6186057a7399fa3eafd7ba7a68"
+    },
+    {
+      "path": "sitemap-uris.json",
+      "bytes": 65,
+      "sha256": "80302474eb9b7ecc3d0ff7d4ce5491f138ea055f90c83a1a04f44c39ee7bdc2e"
+    }
+  ],
+  "known_answers": {
+    "profile_canonical_sha256": "7070d70b87bebd79647d0f364c51218aba40bbe8e3a20ee7f6f0ff5c3ec6b5f0",
+    "invalid_finding_count": 3,
+    "sitemap_sha256": "773ee0b1c1b29c9f40123b9772439ec3888eea96217d2b414304526fa051667c"
+  }
+}

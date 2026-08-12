@@ -2,6 +2,20 @@
 
 ## Repository foundation
 
+- Added the P4 shared publisher conformance suite under ADR 0072. One installed
+  synthetic corpus now pins a language-neutral input, deterministic JSON-LD,
+  exact validation findings, and sitemap bytes. R rebuilds every known answer,
+  and a dependency-free Python harness independently reproduces the profile,
+  findings, canonical digest, and sitemap. Dedicated CI runs the harness on
+  Python 3.9 and 3.13 without network access or third-party packages.
+- Completed M10 publisher tools under ADR 0071. `gx_context()` returns the
+  fixed local publisher context, `gx_jsonld_build()` emits deterministic
+  publisher-profile 1.0.0 JSON-LD from exact catalog site and dataset tables,
+  and `gx_jsonld_validate()` reports local profile findings with severity,
+  JSON pointer, rule ID, profile version, and suggested fix. `gx_sitemap()`
+  writes one deterministic, bounded XML sitemap through verified
+  absent-destination staging. These APIs do not fetch contexts, publish
+  profiles remotely, notify search engines, or overwrite existing output.
 - Completed the fixed-package M9 roadmap through M9af under ADR 0070. Public
   `gx_package(..., frictionless = TRUE)` now composes with retained provider
   bodies, fixed Arrow/Parquet observations, and verified report HTML. The

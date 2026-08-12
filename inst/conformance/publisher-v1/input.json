@@ -1,0 +1,90 @@
+{
+  "profile_version": "1.0.0",
+  "provider": {
+    "uri": "https://example.org/provider/fixture",
+    "name": "Fixture Provider",
+    "url": "https://example.org/provider"
+  },
+  "sites": [
+    {
+      "contract_version": "0.1.0",
+      "site_uri": "https://example.org/site/00001",
+      "name": "Example & Test Site",
+      "description": "Publisher round-trip fixture",
+      "site_type": "hydrometricStation",
+      "provider_id": "fixture-provider",
+      "provider_uri": "https://example.org/provider/fixture",
+      "provider_name": "Fixture Provider",
+      "provider_url": "https://example.org/provider",
+      "mainstem_uri": "https://geoconnex.us/ref/mainstems/29559",
+      "landing_url": "https://example.org/site/00001",
+      "source_url": "https://example.org/site/00001.jsonld",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-78.5, 37.25],
+        "crs": "OGC:CRS84"
+      }
+    }
+  ],
+  "datasets": [
+    {
+      "contract_version": "0.1.0",
+      "site_uri": "https://example.org/site/00001",
+      "dataset_id": "20f730ad8e9904f56f01f264773cb0f4d90080b24b25bdd6b289602accb523dc",
+      "dataset_uri": "https://example.org/dataset/flow",
+      "dataset_name": "Flow observations",
+      "dataset_description": "Two distributions and two variables",
+      "temporal_coverage": "2024-01-01T00:00:00Z/2024-12-31T00:00:00Z",
+      "temporal_start": "2024-01-01T00:00:00Z",
+      "temporal_end": "2024-12-31T00:00:00Z",
+      "provider_uri": "https://example.org/provider/fixture",
+      "provider_name": "Fixture Provider",
+      "provider_url": "https://example.org/provider",
+      "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "access_rights": "public",
+      "source_url": "https://example.org/site/00001.jsonld",
+      "distributions": [
+        {
+          "distribution_id": "7b2bc8cbac0dae6f8b755c3bac5523194730cc35114a27eefdbd99ef61034e18",
+          "distribution_url": "https://example.org/data/flow.csv",
+          "media_type": "text/csv",
+          "conforms_to": [
+            "https://example.org/spec/a",
+            "https://example.org/spec/b"
+          ],
+          "handler_id": "csv",
+          "fetchable": true
+        },
+        {
+          "distribution_id": "a714e56317c10ce5d557f50464d42cf993ac60f858dc9d6e2c4a71497709bccd",
+          "distribution_url": "https://example.org/data/flow.json",
+          "media_type": "application/json",
+          "conforms_to": [
+            "https://example.org/spec/a",
+            "https://example.org/spec/b"
+          ],
+          "handler_id": "unknown",
+          "fetchable": false
+        }
+      ],
+      "variables": [
+        {
+          "variable_id": "https://example.org/variable/flow",
+          "variable_uri": "https://example.org/variable/flow",
+          "variable_name": "Flow",
+          "unit_uri": "https://qudt.org/vocab/unit/M3-PER-SEC",
+          "unit_label": "m3/s",
+          "measurement_technique": null
+        },
+        {
+          "variable_id": "https://example.org/variable/temperature",
+          "variable_uri": "https://example.org/variable/temperature",
+          "variable_name": "Temperature",
+          "unit_uri": "https://qudt.org/vocab/unit/DEG_C",
+          "unit_label": "deg C",
+          "measurement_technique": null
+        }
+      ]
+    }
+  ]
+}
