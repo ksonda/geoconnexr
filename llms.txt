@@ -224,6 +224,12 @@ Map provider identifiers and manage the optional NHDPlus lookup.
 
 - [`gx_gage_to_pid()`](https://ksonda.github.io/geoconnexr/reference/gx_gage_to_pid.md)
   : Map provider gage identifiers to Geoconnex reference PIDs
+- [`gx_comid_to_mainstem()`](https://ksonda.github.io/geoconnexr/reference/gx_comid_to_mainstem.md)
+  : Map NHDPlus COMIDs to mainstem PIDs in a pinned release
+- [`gx_huc12_to_mainstem()`](https://ksonda.github.io/geoconnexr/reference/gx_huc12_to_mainstem.md)
+  : Map HUC12 outlets to mainstem PIDs
+- [`gx_mainstem_to_comids()`](https://ksonda.github.io/geoconnexr/reference/gx_mainstem_to_comids.md)
+  : Map mainstem PIDs to NHDPlus COMIDs in a pinned release
 - [`gx_mainstem_lookup_info()`](https://ksonda.github.io/geoconnexr/reference/gx_mainstem_lookup_info.md)
   : Inspect an installed mainstem lookup
 - [`gx_mainstem_lookup_install()`](https://ksonda.github.io/geoconnexr/reference/gx_mainstem_lookup_install.md)

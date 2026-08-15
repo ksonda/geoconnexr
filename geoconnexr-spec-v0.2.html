@@ -53,7 +53,7 @@
 
 <div id="geoconnexr--validated-specification-and-build-roadmap" class="section level1">
 
-<p><strong>Status:</strong> Accepted implementation roadmap; a stable 0.1.0 contract freeze is gated on the remaining P0 decisions and vertical-spike evidence below <strong>Version:</strong> 0.2.0 <strong>Reviewed:</strong> 2026-07-27</p>
+<p><strong>Status:</strong> Accepted implementation roadmap; a stable 0.1.0 contract freeze is gated on the remaining P0 decisions and vertical-spike evidence below <strong>Version:</strong> 0.2.0 <strong>Reviewed:</strong> 2026-08-15</p>
 <div class="section level2">
 <h2 id="id_0-executive-decision">0. Executive decision<a class="anchor" aria-label="anchor" href="#id_0-executive-decision"></a></h2>
 <p>The product concept is worth building and the layered architecture is sound. The earlier v0.1 draft is not build-ready because several live-service assumptions, public contracts, and reproducibility claims are incorrect or incomplete. This revision keeps the core product but makes these changes:</p>
@@ -69,7 +69,7 @@
 <li>splits the original flagship phase into catalog/package and fetch/harmonize phases.</li>
 </ol><p>The target remains an R-first package for discovery, identifier crosswalks, and watershed data snapshots across the Geoconnex ecosystem.</p>
 <div class="section level3">
-<h3 id="implementation-status-2026-08-03">Implementation status (2026-08-03)<a class="anchor" aria-label="anchor" href="#implementation-status-2026-08-03"></a></h3>
+<h3 id="implementation-status-2026-08-15">Implementation status (2026-08-15)<a class="anchor" aria-label="anchor" href="#implementation-status-2026-08-15"></a></h3>
 <table class="table"><colgroup><col width="50%"><col width="50%"></colgroup><thead><tr><th>Module</th>
 <th>Status</th>
 </tr></thead><tbody><tr><td>M1</td>
@@ -77,11 +77,11 @@
 </tr><tr><td>M2</td>
 <td>Experimental PID/JSON-LD/profile slice implemented with a hash-pinned provider corpus; contract freeze remains P0-gated.</td>
 </tr><tr><td>M3</td>
-<td>Experimental native reference-client slice implemented with typed schemas, bounded pagination, and identity-checked fallbacks; cross-vintage and full large-geometry evidence remain open under ADR 0004.</td>
+<td>Experimental native reference-client slice implemented with typed schemas, bounded pagination, and identity-checked fallbacks. ADR 0075 selects <code>mainstems_v3</code>, preserves the shared persistent PID namespace, and records current, superseded, replacement, and full large-geometry evidence.</td>
 </tr><tr><td>M4</td>
-<td>Partial experimental slices M4a/M4b/M4c: <code><a href="reference/gx_gage_to_pid.html">gx_gage_to_pid()</a></code> is implemented, and the v3.2 COMID lookup now has an explicit verified install lifecycle plus internal offline forward and release-scoped inverse mappers; public COMID, HUC12, point, inverse, and currentness contracts remain gated under ADRs 0004, 0008, 0009, and 0015.</td>
+<td>Partial experimental slices M4a through M4d: <code><a href="reference/gx_gage_to_pid.html">gx_gage_to_pid()</a></code>, release-scoped public COMID/inverse wrappers, and the NLDI HUC12 outlet method are implemented. The v3.2 COMID lookup has an explicit verified install lifecycle. ADR 0078 selects NLDI COMID position lookup plus the pinned mapping for points. Bounded live-v3 currentness, HUC12 intersection ranking, point implementation, inverse-gage, and mainstem-resolution work remain open.</td>
 </tr><tr><td>M5</td>
-<td>Partial experimental M5a/M5b: an unexported one-logical-request SELECT/ASK substrate provides strict bounded SPARQL 1.1 Results JSON parsing and provenance, while the public local renderer now consumes an exact-byte-pinned render-only v2 template manifest with explicit disabled execution, chunking, and pagination; public graph APIs, endpoint support, and paging remain gated under ADRs 0004, 0012, and 0013.</td>
+<td>Partial experimental M5a/M5b: an unexported one-logical-request SELECT/ASK substrate provides strict bounded SPARQL 1.1 Results JSON parsing and provenance, while the public local renderer consumes an exact-byte-pinned render-only v2 template manifest with execution, chunking, and pagination disabled. ADR 0074 selects the documented graph root as a configurable experimental contract; public raw graph APIs and paging remain gated.</td>
 </tr><tr><td>M6</td>
 <td>Public bounded slice under ADR 0035: <code><a href="reference/gx_aoi.html">gx_aoi()</a></code> canonicalizes identifiers and custom polygonal geometry; <code><a href="reference/gx_catalog.html">gx_catalog()</a></code> populates the strict catalog value object from one graph page, explicit PID profiles, or named caller-supplied local JSON-LD. Automatic graph discovery remains upstream-dependent, and nonempty reference layers, general merge, full replay, and upstream-derived AOI modes remain gated.</td>
 </tr><tr><td>M7</td>
@@ -96,7 +96,7 @@
 </div>
 <div class="section level2">
 <h2 id="id_1-validation-ledger">1. Validation ledger<a class="anchor" aria-label="anchor" href="#id_1-validation-ledger"></a></h2>
-<p>These observations were checked against production or current primary package documentation on 2026-07-12, 2026-07-13, and 2026-07-20. They are evidence for this plan, not permanent API guarantees.</p>
+<p>These observations were checked against production or current primary package documentation on 2026-07-12, 2026-07-13, 2026-07-20, and 2026-08-15. They are evidence for this plan, not permanent API guarantees.</p>
 <table class="table"><colgroup><col width="33%"><col width="33%"><col width="33%"></colgroup><thead><tr><th>Surface</th>
 <th>Observation</th>
 <th>Planning consequence</th>
@@ -118,14 +118,12 @@
 </tr><tr><td>Gage JSON-LD</td>
 <td>Content negotiation works, but the live document uses a literal hydro-location type, string provider IRI, nested <code>HY_IndirectPosition</code>, and a WKT value object</td>
 <td>Standards expansion plus tolerant profile extraction and diagnostics are required</td>
-</tr><tr><td>Mainstem item</td>
-<td>
-<code>/collections/mainstems/items/29559</code> returned HTTP 500 while filtered collection retrieval worked</td>
-<td>Implement item → filtered collection → negotiated JSON-LD fallbacks; include a large geometry fixture</td>
+</tr><tr><td>Mainstem collections</td>
+<td>The legacy large-item route still needs exact-filter fallback; <code>mainstems_v3</code> returns fuller geometry directly, shares the persistent PID namespace, and exposes supersession replacements</td>
+<td>Default to <code>mainstems_v3</code>; never auto-follow replacements or silently downgrade to legacy geometry</td>
 </tr><tr><td>SPARQL</td>
-<td>POSTing a small SELECT to the graph root works; the verified indirect-position path returns four sites for mainstem <code>1622734</code>
-</td>
-<td>POST only; retain the two-path UNION while the graph shape is mixed</td>
+<td>Official documentation names the graph root and shows POST; bounded SELECT and ASK probes returned SPARQL Results JSON, while the documentation still calls graph querying active development</td>
+<td>Use the root as a configurable experimental default; keep raw graph APIs unexported</td>
 </tr><tr><td>GeoSPARQL</td>
 <td>Spatial functions use namespace <code>http://www.opengis.net/def/function/geosparql/</code> and prefix <code>geof:</code>
 </td>
@@ -133,8 +131,12 @@
 <code>gsp:sfIntersects</code> from v0.1 is a correctness bug and must not appear in templates</td>
 </tr><tr><td>NLDI</td>
 <td>
-<code>huc12pp</code> is advertised, but its HUC12 response contract is not yet fixture-pinned</td>
-<td>Gate HUC12 implementation on bounded response evidence, then resolve any returned COMID through the checksum-pinned mainstem lookup</td>
+<code>huc12pp</code> item probes return one Point with repeated HUC12 identity, COMID, and mainstem; absent HUC12s return 404 problem JSON</td>
+<td>Use the validated advertised mainstem, fall back from COMID only through the pinned mapping, and keep currentness unchecked</td>
+</tr><tr><td>NLDI position</td>
+<td>
+<code>comid/position</code> returns one LineString with repeated NHDPlusV2 COMID identity and no mainstem; an unindexed point returns 404 problem JSON</td>
+<td>Validate and transform points locally, then resolve the returned COMID only through the pinned mapping</td>
 </tr><tr><td><code>nhdplusTools</code></td>
 <td>Current docs expose <code>get_vaa(atts=)</code>, <code>discover_nhdplus_id()</code>, <code>get_nldi_basin()</code>, and Geoconnex reference helpers</td>
 <td>Use guarded wrappers; do not re-export a package in Suggests</td>
@@ -219,9 +221,9 @@ L0  Versioned assets      queries, registry rules, vocabularies, JSON Schemas</c
 <li>MIT vs Apache-2.0 license — closed by ADR 0002;</li>
 <li>CRAN intent and release channel — closed by ADR 0003;</li>
 <li>
-<code>mainstems</code> vs <code>mainstems_v3</code> default and vintage/migration policy — open;</li>
-<li>whether graph POST-at-root is a supported public contract — open;</li>
-<li>support/ownership for weekly live-service alerts — open.</li>
+<code>mainstems</code> vs <code>mainstems_v3</code> default and vintage/migration policy, closed by ADR 0075;</li>
+<li>whether graph POST-at-root is a supported public contract, closed as configurable and experimental by ADR 0074;</li>
+<li>support/ownership for weekly live-service alerts, closed by ADR 0073.</li>
 </ol></div>
 <div class="section level3">
 <h3 id="id_42-required-vertical-spike">4.2 Required vertical spike<a class="anchor" aria-label="anchor" href="#id_42-required-vertical-spike"></a></h3>
@@ -293,11 +295,12 @@ L0  Versioned assets      queries, registry rules, vocabularies, JSON Schemas</c
 <div class="section level3">
 <h3 id="m4--crosswalks">M4 — Crosswalks<a class="anchor" aria-label="anchor" href="#m4--crosswalks"></a></h3>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">gx_comid_to_mainstem</span><span class="op">(</span><span class="va">comid</span>, check <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu">gx_huc12_to_mainstem</span><span class="op">(</span><span class="va">huc12</span>, method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"outlet"</span>, <span class="st">"intersects"</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/gx_comid_to_mainstem.html">gx_comid_to_mainstem</a></span><span class="op">(</span><span class="va">comid</span>, check <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/gx_huc12_to_mainstem.html">gx_huc12_to_mainstem</a></span><span class="op">(</span><span class="va">huc12</span>, method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"outlet"</span>, <span class="st">"intersects"</span><span class="op">)</span>,</span>
+<span>                     check <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu">gx_point_to_mainstem</span><span class="op">(</span><span class="va">points</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/gx_gage_to_pid.html">gx_gage_to_pid</a></span><span class="op">(</span><span class="va">provider_id</span><span class="op">)</span></span>
-<span><span class="fu">gx_mainstem_to_comids</span><span class="op">(</span><span class="va">mainstem_uri</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/gx_mainstem_to_comids.html">gx_mainstem_to_comids</a></span><span class="op">(</span><span class="va">mainstem_uri</span>, check <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu">gx_mainstem_to_gages</span><span class="op">(</span><span class="va">mainstem_uri</span><span class="op">)</span></span>
 <span><span class="fu">gx_mainstem</span><span class="op">(</span><span class="va">mainstem_uri</span><span class="op">)</span></span></code></pre></div>
 <ul><li>COMID→mainstem uses a checksum-pinned, versioned upstream mapping asset or a vetted adapter that exposes that asset. VAA <code>levelpathi</code> is a different identifier namespace and must never be interpolated into a Geoconnex PID. A missing optional adapter or mapping asset produces an actionable classed error and never triggers an undisclosed large download.</li>
@@ -305,11 +308,12 @@ L0  Versioned assets      queries, registry rules, vocabularies, JSON Schemas</c
 <li>HUC12 outlet mode calls NLDI <code>huc12pp</code>, preferring its mainstem value, then resolving its COMID through the checksum-pinned mainstem lookup. Intersects mode returns every spatial match and explicit ranking metrics; it never silently selects one.</li>
 <li>Point mode validates point geometry/CRS before <code>discover_nhdplus_id()</code>.</li>
 <li>Gage and inverse-gage mappings use validated reference queryables first.</li>
-</ul><p>The implemented M4a slice is <code><a href="reference/gx_gage_to_pid.html">gx_gage_to_pid()</a></code>. It verifies that the service honored each provider filter and that feature, property, and advertised PID identities agree; returns explicit not-found and ambiguous rows; preserves duplicate input order while deduplicating transport; and enforces aggregate batch budgets. Advertised mainstem URIs are retained as vintage-unverified related values.</p>
-<p>The implemented M4b substrate pins the <code>ref_rivers</code> v3.2 asset in an immutable runtime registry. <code><a href="reference/gx_mainstem_lookup_install.html">gx_mainstem_lookup_install()</a></code> is the only disclosed download or local-import path; <code><a href="reference/gx_mainstem_lookup_info.html">gx_mainstem_lookup_info()</a></code> re-verifies availability and provenance without network access. The internal vectorized COMID mapper scans verified local bytes in bounded chunks, returns explicit not-found rows, and records that current service state was not checked. It never installs or refreshes implicitly.</p>
-<p>The internal M4c inverse scans the same verified bytes by canonical mainstem URI and returns every member COMID in deterministic order, or one explicit not-found sentinel. It preserves duplicate input order, caps aggregate matches and expanded rows, and carries release and checksum provenance. Completeness and active status are scoped only to that mapping release; current service state is not checked. Neither public direction is exported until supersession/currentness, point-provenance, and ranking contracts are resolved.</p>
+</ul><p>The implemented M4a slice is <code><a href="reference/gx_gage_to_pid.html">gx_gage_to_pid()</a></code>. It verifies that the service honored each provider filter and that feature, property, and advertised PID identities agree; returns explicit not-found and ambiguous rows; preserves duplicate input order while deduplicating transport; and enforces aggregate batch budgets. Advertised mainstem URIs are retained without performing the separate live v3 currentness check selected by ADR 0075.</p>
+<p>The implemented M4b slice pins the <code>ref_rivers</code> v3.2 asset in an immutable runtime registry. <code><a href="reference/gx_mainstem_lookup_install.html">gx_mainstem_lookup_install()</a></code> is the only disclosed download or local-import path; <code><a href="reference/gx_mainstem_lookup_info.html">gx_mainstem_lookup_info()</a></code> re-verifies availability and provenance without network access. The public vectorized COMID mapper scans verified local bytes in bounded chunks, returns explicit not-found rows, and records that current service state was not checked. It never installs or refreshes implicitly.</p>
+<p>The public M4c inverse scans the same verified bytes by canonical mainstem URI and returns every member COMID in deterministic order, or one explicit not-found sentinel. It preserves duplicate input order, caps aggregate matches and expanded rows, and carries release and checksum provenance. Completeness and active status are scoped only to that mapping release; current service state is not checked. Both public functions require <code>check = FALSE</code> and reject <code>check = TRUE</code> with a classed error. ADR 0075 defines supersession and migration; composing the bounded live-v3 check remains a separate M4 slice.</p>
+<p>M4d exposes the HUC12 outlet method through the bounded USGS NLDI <code>huc12pp</code> item endpoint. It validates repeated HUC12 identity, Point geometry, source, COMID, and mainstem PID, deduplicates transport, and preserves not-found rows. The advertised mainstem is preferred. A response with only COMID uses the explicitly installed pinned mapping without triggering a download. The <code>intersects</code> method fails as unavailable until its ranking rule is selected. Point provenance and ranking remain separate gates.</p>
 <p>The intersects spike must decide whether ranking means outlet-in-polygon, intersection length, drainage area, or a documented combination. <code>is_largest</code> alone is not an outlet semantic.</p>
-<p><strong>Acceptance:</strong> retain the checked gage answer; pin and verify the mapping registry, explicit install/import/offline/integrity behavior, both COMID known answers, and release-scoped zero-to-many inverse behavior; add checked HUC12 and superseded fixtures; test leading zeros/duplicates/NA/not-found inputs; and verify all identifier columns remain character.</p>
+<p><strong>Acceptance:</strong> retain the checked gage answer; pin and verify the mapping registry, explicit install/import/offline/integrity behavior, both COMID known answers, release-scoped zero-to-many inverse behavior, the checked HUC12 outlet, and superseded fixtures; test leading zeros/duplicates/NA/not-found inputs; and verify all identifier columns remain character.</p>
 </div>
 <div class="section level3">
 <h3 id="m5--sparql-and-discovery">M5 — SPARQL and discovery<a class="anchor" aria-label="anchor" href="#m5--sparql-and-discovery"></a></h3>
@@ -323,7 +327,7 @@ L0  Versioned assets      queries, registry rules, vocabularies, JSON Schemas</c
 <span>            provider <span class="op">=</span> <span class="cn">NULL</span>, active_during <span class="op">=</span> <span class="cn">NULL</span>, limit <span class="op">=</span> <span class="fl">1000L</span><span class="op">)</span></span></code></pre></div>
 <p><code>gx_sparql()</code> executes exactly once and supports SELECT/ASK with explicit result types. It does not rewrite or paginate arbitrary SPARQL.</p>
 <p>The implemented M5a checkpoint is deliberately narrower and unexported. <code>gx_graph_execute_once()</code> accepts only trusted package-controlled read-only SELECT/ASK text, an explicit graph client and expected result form, and finite row, variable, bound-term, link, request, cumulative-byte, per-response, member, atomic-byte, and depth budgets. It sends one logical POST without rewriting or pagination; package-owned retries may repeat only the unchanged body. Successful responses require SPARQL 1.1 Results JSON and pass semantic validation before cache admission.</p>
-<p>SELECT results preserve response row cardinality plus a sparse binding table with <code>row</code>, <code>variable_index</code>, <code>variable</code>, <code>term_type</code>, <code>value</code>, <code>datatype</code>, <code>language</code>, and an opaque per-result <code>bnode_scope</code>. This distinguishes zero rows, zero-width solutions, all-unbound solutions, and bound empty literals without allocating a dense rows-by-variables table. ASK preserves one logical value. Both forms retain query/document hashes and redacted request/physical- attempt provenance, never the raw query or response body. This checkpoint does not implement or export <code>gx_sparql()</code>, satisfy M5 acceptance, prove the graph root as a supported endpoint, or authorize arbitrary user SPARQL.</p>
+<p>SELECT results preserve response row cardinality plus a sparse binding table with <code>row</code>, <code>variable_index</code>, <code>variable</code>, <code>term_type</code>, <code>value</code>, <code>datatype</code>, <code>language</code>, and an opaque per-result <code>bnode_scope</code>. This distinguishes zero rows, zero-width solutions, all-unbound solutions, and bound empty literals without allocating a dense rows-by-variables table. ASK preserves one logical value. Both forms retain query/document hashes and redacted request/physical- attempt provenance, never the raw query or response body. This checkpoint does not implement or export <code>gx_sparql()</code>, satisfy M5 acceptance, or authorize arbitrary user SPARQL. ADR 0074 later accepts the documented graph root only as a configurable experimental upstream contract.</p>
 <p>The implemented M5b checkpoint replaces the earlier aspirational manifest with a render-only v2 contract. Every reviewed SELECT template declares its exact stored byte count and SHA-256, ordered projected and required variables, the literal <code>ORDER BY</code> variables, result-key uniqueness/scope, a finite row budget, and explicit pagination blockers. Root capabilities enable local rendering but disable execution, chunking, and pagination. Runtime and JSON Schema validation reject unknown fields and malformed cross-field contracts; runtime additionally checks every stored query’s UTF-8 bytes, slots, projection, ordering, and terminal slice controls. This metadata is inspection evidence, not paging authorization.</p>
 <p>HTTP IRI/VALUES parameters are bounded and injection-safe; lists reject exact duplicates and sort by UTF-8 bytes for deterministic rendering. CRS84 WKT AOIs must parse as finite, valid, non-empty, explicitly closed polygons or multipolygons. Integer encoding is locale-independent, while literal and canonical UTC datetime encoders are available for future reviewed templates. No parameter type accepts raw SPARQL. Because SPARQL does not totally order all RDF terms, blank-node labels are response-scoped, optional variables can be unbound, and the graph has no snapshot contract, no current named template paginates.</p>
 <p>Required templates include sites on mainstem, sites in AOI, datasets for site URIs, datasets by variable, sites by provider, and bounded provider coverage. The mainstem template unions the verified indirect and direct paths. Spatial templates use:</p>
@@ -632,7 +636,7 @@ FILTER(geof:sfIntersects(?site_wkt, ?aoi_wkt))</code></pre>
 <li>contract tests for every S3 object and zero-row output;</li>
 <li>installed-package tests for <code><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file()</a></code> assets;</li>
 <li>one offline vertical-slice package and checksum verification;</li>
-<li>bounded live checks run weekly, skipped on CRAN, with an owner and notification path.</li>
+<li>bounded live checks run weekly, skipped on CRAN, with the repository owner assigned through the issue-based notification path in ADR 0073.</li>
 </ol><p>Live checks test stable invariants (PID redirects, advertised collection/queryable, bounded SPARQL semantic answer) and record count drift as a diagnostic rather than failing solely because a mutable count changed.</p>
 </div>
 <div class="section level3">
@@ -707,11 +711,9 @@ FILTER(geof:sfIntersects(?site_wkt, ?aoi_wkt))</code></pre>
 <div class="section level2">
 <h2 id="id_11-remaining-decisions">11. Remaining decisions<a class="anchor" aria-label="anchor" href="#id_11-remaining-decisions"></a></h2>
 <p>Only these product decisions remain open after this review:</p>
-<ol style="list-style-type: decimal"><li>mainstem vintage/default and migration behavior;</li>
-<li>supported SPARQL public endpoint contract;</li>
-<li>whether administrative layers such as water rights are future scope;</li>
-<li>live-monitor ownership and response expectations.</li>
-</ol><p>The old EDR package-status question and the existence of <code>huc12pp</code> are no longer open. SensorThings is evidence-gated rather than assumed.</p>
+<ol style="list-style-type: decimal"><li>whether administrative layers such as water rights are future scope.</li>
+</ol><p>ADR 0073 closes live-monitor ownership and response expectations. ADR 0074 closes the graph endpoint decision without exposing a stable raw-query API. ADR 0075 closes the mainstem vintage and migration decision.</p>
+<p>The old EDR package-status question and the existence of <code>huc12pp</code> are no longer open. SensorThings is evidence-gated rather than assumed.</p>
 </div>
 </div>
 

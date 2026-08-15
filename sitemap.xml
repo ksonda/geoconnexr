@@ -22,6 +22,7 @@
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_catalog.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_classify_distribution.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_client.html</loc></url>
+<url><loc>https://ksonda.github.io/geoconnexr/reference/gx_comid_to_mainstem.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_context.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_contract_hash.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_csv_mapping.html</loc></url>
@@ -32,11 +33,13 @@
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_gage_to_pid.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_handlers.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_harmonize.html</loc></url>
+<url><loc>https://ksonda.github.io/geoconnexr/reference/gx_huc12_to_mainstem.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_jsonld.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_jsonld_build.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_jsonld_validate.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_mainstem_lookup_info.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_mainstem_lookup_install.html</loc></url>
+<url><loc>https://ksonda.github.io/geoconnexr/reference/gx_mainstem_to_comids.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_package.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_package_hydrate.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_package_load.html</loc></url>

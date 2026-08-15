@@ -4,6 +4,30 @@
 
 ### Repository foundation
 
+- Selected the USGS NLDI `comid/position` route as the point-to-COMID
+  provenance boundary under ADR 0078. Bounded live evidence confirms
+  that the route returns NHDPlusV2 COMID identity rather than a
+  Geoconnex mainstem, so point implementation must compose with the
+  pinned mapping and keep currentness unchecked.
+- Added public `gx_huc12_to_mainstem(..., method = "outlet")` under
+  ADR 0077. It performs bounded, deduplicated USGS NLDI `huc12pp`
+  lookups, validates the HUC12 outlet identity and Point geometry,
+  prefers the advertised mainstem, and uses the installed pinned COMID
+  mapping only when needed. Not-found rows and release-only currentness
+  semantics stay explicit; intersection ranking remains gated.
+- Exported release-scoped
+  [`gx_comid_to_mainstem()`](https://ksonda.github.io/geoconnexr/reference/gx_comid_to_mainstem.md)
+  and
+  [`gx_mainstem_to_comids()`](https://ksonda.github.io/geoconnexr/reference/gx_mainstem_to_comids.md)
+  under ADR 0076. Both operate only on an explicitly installed
+  checksum-pinned lookup, keep `currentness_policy = "not_checked"`, and
+  reject `check = TRUE` until the separate bounded live-v3 currentness
+  workflow is implemented.
+- Selected `mainstems_v3` and dataset vintage 3.0 as the default
+  mainstem representation under ADR 0075 while preserving the shared
+  `/ref/mainstems/` PID namespace. The v3 JSON-LD fallback now accepts
+  that exact shared identity. Superseded identifiers and all advertised
+  replacements remain explicit and are never followed automatically.
 - Added an installed HUC10 case study that runs catalog, bounded
   current-USGS daily fetch, harmonization, Frictionless packaging,
   closed-tree verification, typed hydration, and offline stored-state

@@ -8,7 +8,7 @@ cache.
 
 ``` r
 gx_client(
-  endpoint = c("graph", "reference", "pid"),
+  endpoint = c("graph", "reference", "pid", "nldi"),
   timeout = 30,
   retries = 3L,
   min_interval = getOption("geoconnexr.min_interval", 0.1),
@@ -23,7 +23,7 @@ gx_client(
 
 - endpoint:
 
-  One of `"graph"`, `"reference"`, or `"pid"`.
+  One of `"graph"`, `"reference"`, `"pid"`, or `"nldi"`.
 
 - timeout:
 

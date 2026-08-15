@@ -4,7 +4,9 @@ Tries the OGC item route first, then a collection filter using the
 queryable marked `x-ogc-role: id`, and finally direct JSON-LD
 negotiation on the item URL. Every successful path verifies the
 requested identity. The JSON-LD path is marked incomplete because it can
-expose fewer properties than GeoJSON.
+expose fewer properties than GeoJSON. The `mainstems_v3` collection
+shares the persistent `/ref/mainstems/` identity namespace selected by
+ADR 0075.
 
 ## Usage
 
