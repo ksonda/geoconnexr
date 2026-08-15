@@ -395,6 +395,13 @@ FILTER(geof:sfIntersects(?site_wkt, ?aoi_wkt))
 
 An AOI or other selective filter is required unless a finite low limit is supplied. If graph spatial capability becomes unavailable, the function returns a partial-result diagnostic; it must not substitute reference gages and present them as all monitoring sites.
 
+ADR 0085 records the remaining HUC10 discovery gate. A bound known-gage
+`geof:sfIntersects` control succeeds, but exact-polygon, typed-site,
+bounding-box, and reversed-operand unbound searches all exceed the bounded
+transport timeout with `LIMIT 1`. Automatic discovery therefore remains open;
+the package does not replace graph monitoring sites with reference gages or
+claim a truncated bounding-box candidate set is complete.
+
 **Acceptance:** fixture tests for all templates and encoders; mutation tests for injection; stable pagination tests with duplicate/missing page scenarios; live bounded checks for the known mainstem and one AOI; no full-graph counts.
 
 ### M6 — AOI and catalog
