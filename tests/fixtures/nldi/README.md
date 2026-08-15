@@ -10,3 +10,7 @@ and checked companion cases are recorded in
 response for the HUC12 demo outlet coordinates, with one final LF added. Its
 live and stored digests are recorded in
 `data-raw/spike/nldi-position-evidence-v1.json`.
+
+`manifest-v1.json` repeats the stored fixture sizes and SHA-256 digests inside
+the test fixture directory. This lets installed-package checks verify the
+fixtures without depending on the excluded `data-raw` directory.

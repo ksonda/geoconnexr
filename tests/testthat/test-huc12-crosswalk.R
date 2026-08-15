@@ -38,38 +38,27 @@ gx_huc12_test_client <- function(handler) {
   )
 }
 
-test_that("HUC12 fixture remains bound to its evidence record", {
-  evidence <- jsonlite::fromJSON(
-    testthat::test_path(
-      "..", "..", "data-raw", "spike", "huc12pp-contract-evidence-v1.json"
-    ),
+test_that("NLDI fixtures remain bound to their evidence records", {
+  manifest <- jsonlite::fromJSON(
+    testthat::test_path("..", "fixtures", "nldi", "manifest-v1.json"),
     simplifyVector = FALSE
   )
-  path <- testthat::test_path(
-    "..", "fixtures", "nldi", "huc12pp-010100020101.min.geojson"
-  )
-  expect_identical(as.integer(file.info(path)$size), evidence$stored_fixture$bytes)
   expect_identical(
-    digest::digest(file = path, algo = "sha256", serialize = FALSE),
-    evidence$stored_fixture$sha256
+    vapply(manifest$fixtures, `[[`, character(1), "path"),
+    c(
+      "huc12pp-010100020101.min.geojson",
+      "comid-position-9406116.min.geojson"
+    )
   )
-})
-
-test_that("NLDI position fixture remains bound to its evidence record", {
-  evidence <- jsonlite::fromJSON(
-    testthat::test_path(
-      "..", "..", "data-raw", "spike", "nldi-position-evidence-v1.json"
-    ),
-    simplifyVector = FALSE
-  )
-  path <- testthat::test_path(
-    "..", "fixtures", "nldi", "comid-position-9406116.min.geojson"
-  )
-  expect_identical(as.integer(file.info(path)$size), evidence$stored_fixture$bytes)
-  expect_identical(
-    digest::digest(file = path, algo = "sha256", serialize = FALSE),
-    evidence$stored_fixture$sha256
-  )
+  for (fixture in manifest$fixtures) {
+    path <- testthat::test_path("..", "fixtures", "nldi", fixture$path)
+    expect_identical(as.integer(file.info(path)$size), fixture$bytes)
+    expect_identical(
+      digest::digest(file = path, algo = "sha256", serialize = FALSE),
+      fixture$sha256,
+      info = fixture$path
+    )
+  }
 })
 
 test_that("HUC12 outlet crosswalk deduplicates transport and keeps not found", {
