@@ -788,6 +788,13 @@ route. Every COMID then passes through the explicitly installed pinned mapping.
 An NLDI miss and a COMID absent from the mapping release remain distinct rows;
 neither state triggers an implicit download.
 
+`gx_mainstem(mainstem_uri)` performs the separate live currentness check
+against `mainstems_v3`. It deduplicates transport while preserving input order,
+reports current, superseded, and superseded-without-replacement states, and
+retains every advertised replacement PID. It never follows or ranks a
+replacement, never falls back to legacy mainstem geometry, and does not change
+the release-only semantics of the other crosswalks.
+
 JSON-LD and parser contracts remain experimental. The fixture corpus now
 contains six observed, minimized pages from four landing hosts and five
 semantic providers, plus synthetic conformance/adversarial cases. This closes

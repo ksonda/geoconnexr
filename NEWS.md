@@ -2,6 +2,11 @@
 
 ## Repository foundation
 
+- Added public `gx_mainstem()` under ADR 0080. It performs bounded live
+  `mainstems_v3` currentness checks, deduplicates repeated PIDs, preserves every
+  replacement in input order, and keeps unresolved supersession visible. It
+  never follows, ranks, or selects a replacement and never falls back to the
+  legacy collection.
 - Added public `gx_point_to_mainstem()` under ADR 0079. It accepts declared-CRS
   two-dimensional Points, disables PROJ networking while transforming to OGC
   CRS84, deduplicates NLDI position requests, validates repeated COMID identity,

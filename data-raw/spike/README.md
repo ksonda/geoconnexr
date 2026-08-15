@@ -53,6 +53,8 @@ earlier COMID→VAA `levelpathi`→mainstem assumption: those identifiers are no
 interchangeable. M4b now mirrors that audit in an immutable installed registry
 and implements an explicit, integrity-checked download/import/offline lifecycle
 plus public release-scoped forward and inverse mappers. ADR 0077 adds the
-fixture-pinned HUC12 outlet path. Remaining M4 evidence must resolve bounded
-live mainstem currentness, HUC12 intersection ranking, inverse-gage behavior,
-and mainstem resolution.
+fixture-pinned HUC12 outlet path, and ADR 0079 adds the Point position path.
+ADR 0080 exposes the checked `mainstems_v3` currentness and replacement
+contract. Remaining M4 evidence must resolve HUC12 intersection ranking,
+inverse-gage behavior, and composition of live currentness with release-scoped
+crosswalks.
