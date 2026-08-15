@@ -25,7 +25,7 @@ The target remains an R-first package for discovery, identifier crosswalks, and 
 
 | Module | Status |
 |---|---|
-| M1 | Partial experimental slice: bounded transport, cache/offline behavior, redirects, PID resolution, package-owned retries, full physical-attempt accounting, per-host throttling, and the internal central permit, budget, single-flight, and ordered-collection scheduler are implemented. Curl multi transport and public fetch orchestration remain open. |
+| M1 | Partial experimental slice: bounded transport, cache/offline behavior, redirects, PID resolution, package-owned retries, full physical-attempt accounting, per-host throttling, the central scheduler, and internal curl multi transport with cache integration are implemented. Public fetch orchestration remains open. |
 | M2 | Experimental PID/JSON-LD/profile slice implemented with a hash-pinned provider corpus; contract freeze remains P0-gated. |
 | M3 | Experimental native reference-client slice implemented with typed schemas, bounded pagination, and identity-checked fallbacks. ADR 0075 selects `mainstems_v3`, preserves the shared persistent PID namespace, and records current, superseded, replacement, and full large-geometry evidence. |
 | M4 | Complete for the specified public crosswalks through M4i. `gx_gage_to_pid()`, COMID and inverse COMID mapping, both HUC12 methods, Point mapping, bounded live `mainstems_v3` currentness, and direct mainstem-to-gage lookup are implemented. The v3.2 COMID lookup has an explicit verified install lifecycle. `check = TRUE` composes release or NLDI matches with live currentness while preserving every replacement without following it. |
@@ -2111,7 +2111,7 @@ README quickstart, package help, crosswalk and discovery vignettes, cache/offlin
 | Phase | Observed state | Remaining estimate |
 |---|---|---|
 | P0: decisions and spike | Product decisions, safety threat decisions, profiles, mainstem evidence, request plans, and the installed vertical package are complete. Automatic HUC10 graph discovery remains upstream-blocked under ADR 0085. | No internal graph estimate |
-| P1: protocol and identity | M2 and M3 are implemented. M1 request safety, retries, cache, host throttling, and the central bounded scheduler are implemented. | 2 to 4 focused days for curl multi and public fetch orchestration |
+| P1: protocol and identity | M2 and M3 are implemented. M1 request safety, retries, cache, host throttling, the central scheduler, and internal curl multi transport are implemented. | 1 to 2 focused days for public fetch orchestration |
 | P2: crosswalk and discovery | M4 is complete through checked composition. The graph root is configurable and experimental; public raw query APIs remain gated. | Current merge stack plus the external graph gate |
 | P3a: catalog and package | Catalog construction and the fixed offline-verifiable package path are complete. | Included in release hardening |
 | P3b: fetch and harmonize | The frozen six-handler fetch subset, conservative harmonization, fetched packaging, and HUC10 case study are complete. | 1 to 2 focused days per additional named M8 family |

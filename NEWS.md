@@ -2,6 +2,11 @@
 
 ## Repository foundation
 
+- Added the internal M1 curl multi transport under ADR 0089. Central scheduler
+  reservations now drive public-address-pinned concurrent handles with hard
+  streaming ceilings, completion-order-independent results, single-flight
+  cache reuse, offline cache admission, and exact aggregate budget deferral.
+  Public `gx_fetch()` remains sequential until the handler orchestration slice.
 - Added the internal M1 central scheduler under ADR 0088. It reserves total and
   per-host permits plus physical-attempt request and byte budgets before
   dispatch, coalesces compatible identical cache keys, releases unused byte

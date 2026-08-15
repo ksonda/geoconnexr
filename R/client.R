@@ -118,8 +118,9 @@ gx_cache_backend <- function(cache_dir) {
 #' Physical attempts across clients in one R process share a hostname schedule.
 #' Retries and manual redirect hops reserve new slots, while cache hits and
 #' offline misses do not. `min_interval = 0` adds no interval of its own but
-#' still honors a preceding positive reservation from another client. Bounded
-#' concurrent dispatch remains future work.
+#' still honors a preceding positive reservation from another client. The
+#' internal curl multi boundary is bounded, while public workflows remain
+#' sequential until their orchestration opts in.
 #' @export
 gx_client <- function(endpoint = c("graph", "reference", "pid", "nldi"),
                       timeout = 30,
