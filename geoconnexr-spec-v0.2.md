@@ -1,6 +1,6 @@
 # `geoconnexr` — validated specification and build roadmap
 
-**Status:** Accepted implementation roadmap; a stable 0.1.0 contract freeze is gated on the remaining P0 decisions and vertical-spike evidence below
+**Status:** Accepted implementation roadmap; a stable 0.1.0 contract freeze is gated on the remaining HUC10 graph spatial evidence and provider/schema review below
 **Version:** 0.2.0
 **Reviewed:** 2026-08-15
 
@@ -161,7 +161,7 @@ Build disposable code and fixtures—not production abstractions—to prove:
 
 ### 4.3 P0 exit criteria
 
-- A decision log closes gates 1–5 or names an owner and deadline.
+- The decision log closes every product-owner decision.
 - Spike fixtures and an evidence report are committed.
 - The data contracts in Section 6 have survived the vertical slice.
 - A threat model covers provider-controlled URLs, redirects, remote JSON-LD contexts, decompression, and local/private addresses.
