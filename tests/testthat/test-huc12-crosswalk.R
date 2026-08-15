@@ -149,6 +149,41 @@ test_that("HUC12 COMID fallback uses only an installed pinned lookup", {
   expect_identical(attr(out, "gx_crosswalk")$mapping$release, spec$release)
 })
 
+test_that("HUC12 COMID fallback preserves mapping-level not found", {
+  data_dir <- withr::local_tempdir()
+  fixture <- gx_lookup_fixture("nhdpv2-lookup-v3.2.sample.csv")
+  spec <- gx_lookup_test_spec(fixture)
+  gx_lookup_mock_spec(spec)
+  gx_mainstem_lookup_install(
+    source = "file", file = fixture, version = spec$release,
+    confirm = FALSE, offline = TRUE, data_dir = data_dir
+  )
+  payload <- jsonlite::fromJSON(
+    rawToChar(gx_huc12_test_fixture()), simplifyVector = FALSE
+  )
+  payload$features[[1]]$properties$mainstem <- NULL
+  payload$features[[1]]$properties$comid <- 999999999
+  body <- jsonlite::toJSON(payload, auto_unbox = TRUE, null = "null")
+  setup <- gx_huc12_test_client(function(request, state) {
+    gx_huc12_test_response(request, body = body)
+  })
+
+  out <- gx_huc12_to_mainstem(
+    "010100020101",
+    version = spec$release,
+    data_dir = data_dir,
+    client = setup$client
+  )
+  expect_identical(out$status, "not_found")
+  expect_identical(out$comid, "999999999")
+  expect_true(is.na(out$mainstem_uri))
+  expect_identical(out$match_source, "pinned_comid_mapping")
+  expect_identical(
+    out$diagnostics[[1L]]$code,
+    "not_found_in_mapping_release"
+  )
+})
+
 test_that("HUC12 public gates fail before transport", {
   setup <- gx_huc12_test_client(function(request, state) {
     stop("transport forbidden", call. = FALSE)

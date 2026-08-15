@@ -550,17 +550,17 @@ gx_huc12_to_mainstem <- function(
       next
     }
     mapped <- fallback[fallback$requested_comid == item$comid, , drop = FALSE]
-    for (match_index in seq_len(nrow(mapped))) {
-      status <- mapped$status[[match_index]]
+    for (row_index in seq_len(nrow(mapped))) {
+      status <- mapped$status[[row_index]]
       rows[[length(rows) + 1L]] <- tibble::tibble(
         contract_version = .gx_crosswalk_contract_version,
         input_index = as.integer(input_index),
         requested_huc12 = requested,
         status = status,
-        match_index = mapped$match_index[[match_index]],
+        match_index = mapped$match_index[[row_index]],
         huc12 = requested,
         comid = item$comid,
-        mainstem_uri = mapped$mainstem_uri[[match_index]],
+        mainstem_uri = mapped$mainstem_uri[[row_index]],
         match_source = "pinned_comid_mapping",
         mainstem_status = if (status == "not_found") NA_character_ else
           "active_in_mapping_release",
