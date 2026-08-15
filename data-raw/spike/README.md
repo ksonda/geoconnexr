@@ -32,6 +32,10 @@ evidence is recorded in `graph-contract-evidence-v1.json`.
 ADR 0077 uses that evidence for the public outlet method. Spatial intersection
 ranking remains open.
 
+`nldi-position-evidence-v1.json` pins successful and absent NLDI
+`comid/position` responses. ADR 0078 selects that route as the point provenance
+boundary and requires every returned COMID to pass through the pinned mapping.
+
 The installed `huc10-usgs-daily-demo.tgz` fixture records the current USGS
 daily fetch, reviewed flow-unit conversion, Frictionless package, closed-tree
 verification, typed hydration, and offline stored-state inspection for HUC10
@@ -50,5 +54,5 @@ interchangeable. M4b now mirrors that audit in an immutable installed registry
 and implements an explicit, integrity-checked download/import/offline lifecycle
 plus public release-scoped forward and inverse mappers. ADR 0077 adds the
 fixture-pinned HUC12 outlet path. Remaining M4 evidence must resolve bounded
-live mainstem currentness, HUC12 intersection ranking, point provenance,
+live mainstem currentness, HUC12 intersection ranking, point implementation,
 inverse-gage behavior, and mainstem resolution.

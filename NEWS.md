@@ -2,6 +2,11 @@
 
 ## Repository foundation
 
+- Selected the USGS NLDI `comid/position` route as the point-to-COMID
+  provenance boundary under ADR 0078. Bounded live evidence confirms that the
+  route returns NHDPlusV2 COMID identity rather than a Geoconnex mainstem, so
+  point implementation must compose with the pinned mapping and keep
+  currentness unchecked.
 - Added public `gx_huc12_to_mainstem(..., method = "outlet")` under ADR 0077.
   It performs bounded, deduplicated USGS NLDI `huc12pp` lookups, validates the
   HUC12 outlet identity and Point geometry, prefers the advertised mainstem,

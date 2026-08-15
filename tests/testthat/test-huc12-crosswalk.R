@@ -55,6 +55,23 @@ test_that("HUC12 fixture remains bound to its evidence record", {
   )
 })
 
+test_that("NLDI position fixture remains bound to its evidence record", {
+  evidence <- jsonlite::fromJSON(
+    testthat::test_path(
+      "..", "..", "data-raw", "spike", "nldi-position-evidence-v1.json"
+    ),
+    simplifyVector = FALSE
+  )
+  path <- testthat::test_path(
+    "..", "fixtures", "nldi", "comid-position-9406116.min.geojson"
+  )
+  expect_identical(as.integer(file.info(path)$size), evidence$stored_fixture$bytes)
+  expect_identical(
+    digest::digest(file = path, algo = "sha256", serialize = FALSE),
+    evidence$stored_fixture$sha256
+  )
+})
+
 test_that("HUC12 outlet crosswalk deduplicates transport and keeps not found", {
   setup <- gx_huc12_test_client(function(request, state) {
     if (grepl("/huc12pp/010100020101[?]f=json$", request$url)) {
