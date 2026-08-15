@@ -8,3 +8,4 @@
 *.rq text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
+inst/conformance/publisher-v1/expected-sitemap.xml -text

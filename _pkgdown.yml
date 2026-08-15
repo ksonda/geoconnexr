@@ -107,6 +107,10 @@ reference:
 - title: Create and inspect packages and snapshots
   desc: Publish verified packages or catalog snapshots and inspect offline evidence.
   contents:
+  - gx_context
+  - gx_jsonld_build
+  - gx_jsonld_validate
+  - gx_sitemap
   - gx_package
   - gx_package_load
   - gx_package_tables
