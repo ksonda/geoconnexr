@@ -139,7 +139,7 @@ Implementation may scaffold before these finish, but public 0.1.0 contracts may 
 3. CRAN intent and release channel — closed by ADR 0003;
 4. `mainstems` vs `mainstems_v3` default and vintage/migration policy — open;
 5. whether graph POST-at-root is a supported public contract — open;
-6. support/ownership for weekly live-service alerts — open.
+6. support/ownership for weekly live-service alerts, closed by ADR 0073.
 
 ### 4.2 Required vertical spike
 
@@ -2025,7 +2025,8 @@ Performance budgets are measured during P0. The former cold/warm HUC8 targets re
 3. contract tests for every S3 object and zero-row output;
 4. installed-package tests for `system.file()` assets;
 5. one offline vertical-slice package and checksum verification;
-6. bounded live checks run weekly, skipped on CRAN, with an owner and notification path.
+6. bounded live checks run weekly, skipped on CRAN, with the repository owner
+   assigned through the issue-based notification path in ADR 0073.
 
 Live checks test stable invariants (PID redirects, advertised collection/queryable, bounded SPARQL semantic answer) and record count drift as a diagnostic rather than failing solely because a mutable count changed.
 
@@ -2088,7 +2089,8 @@ Only these product decisions remain open after this review:
 
 1. mainstem vintage/default and migration behavior;
 2. supported SPARQL public endpoint contract;
-3. whether administrative layers such as water rights are future scope;
-4. live-monitor ownership and response expectations.
+3. whether administrative layers such as water rights are future scope.
+
+ADR 0073 closes live-monitor ownership and response expectations.
 
 The old EDR package-status question and the existence of `huc12pp` are no longer open. SensorThings is evidence-gated rather than assumed.
