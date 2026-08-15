@@ -271,7 +271,7 @@ The [HUC10 end-to-end case study](vignettes/end-to-end-huc10.Rmd) runs this
 whole chain against the current USGS daily API and includes a verified
 network-free package for local demonstration.
 
-## Available in the P0 scaffold
+## Public workflow and contract examples
 
 ```r
 # Deterministic identifier recipe (no network)
