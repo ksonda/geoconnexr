@@ -96,7 +96,7 @@ gx_csv_execution_time_impl <- function(x) {
       "gx_error_csv_execution_clock"
     )
   }
-  unname(format(value, "%Y-%m-%dT%H:%M:%OS6Z", tz = "UTC"))
+  gx_utc_microsecond_text_impl(value)
 }
 
 gx_csv_execution_parse_time_impl <- function(x) {

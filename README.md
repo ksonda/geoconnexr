@@ -266,6 +266,10 @@ inspection view and never reconstructs live workflow objects. Fixed report
 access is offline and byte-preserving; only explicit package creation with
 `report = TRUE` invokes the reviewed Quarto runtime.
 
+The [HUC10 end-to-end case study](vignettes/end-to-end-huc10.Rmd) runs this
+whole chain against the current USGS daily API and includes a verified
+network-free package for local demonstration.
+
 ## Available in the P0 scaffold
 
 ```r

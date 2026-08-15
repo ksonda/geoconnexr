@@ -184,7 +184,9 @@ Features. Inspect every status row: one failed or unsupported distribution does
 not abort later work. `fetched$results$data` retains handler-native tables or
 `sf`; `fetched$provenance` retains the validated bounded execution evidence.
 See [Fetch WQP and EDR data end to end](end-to-end-fetch.html) for both live
-provider examples and the caller-supplied EDR profile boundary.
+provider examples and the caller-supplied EDR profile boundary. See
+[Build and verify a HUC10 package end to end](end-to-end-huc10.html) for the
+complete fetch, harmonize, package, and offline verification workflow.
 
 ## Where to go next
 

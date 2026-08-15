@@ -2,6 +2,17 @@
 
 ## Repository foundation
 
+- Added an installed HUC10 case study that runs catalog, bounded current-USGS
+  daily fetch, harmonization, Frictionless packaging, closed-tree verification,
+  typed hydration, and offline stored-state inspection. The live guide uses a
+  caller-supplied profile and states that AOI membership is not independently
+  rechecked. Its verified retained-response package provides a network-free
+  demonstration and regression fixture.
+- Fixed exact UTC microsecond serialization for execution ledgers and package
+  catalog views. Fractional instants no longer lose one microsecond when R
+  converts between decimal seconds and `POSIXct`, which had caused valid live
+  USGS, WQP, EDR, and OGC Features executions or package hydration to fail their
+  identity rebound checks intermittently.
 - Added the P4 shared publisher conformance suite under ADR 0072. One installed
   synthetic corpus now pins a language-neutral input, deterministic JSON-LD,
   exact validation findings, and sitemap bytes. R rebuilds every known answer,

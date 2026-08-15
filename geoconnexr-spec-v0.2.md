@@ -2055,6 +2055,12 @@ README quickstart, package help, crosswalk and discovery vignettes, cache/offlin
 
 P0 must replace these ranges with evidence-based estimates. P3a can ship useful discovery/package value even if a provider handler delays P3b.
 
+The installed HUC10 case study now records a bounded current-USGS daily fetch,
+harmonization, Frictionless packaging, closed-tree verification, typed
+hydration, and offline stored-state inspection. It uses a caller-supplied
+profile, so the automatic spatial graph discovery portion of the P0 vertical
+slice remains open.
+
 De-scope in this order: SensorThings, report polish, optional reference layers, mainstem-basin convenience, publisher tools, Python port. Never de-scope contract versioning, diagnostics, request safety, recipe/snapshot distinction, or raw-value preservation.
 
 ## 10. Definition of ready and done

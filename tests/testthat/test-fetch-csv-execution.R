@@ -1,3 +1,13 @@
+test_that("M7g preserves exact microsecond execution timestamps", {
+  stamp <- as.POSIXct("2026-08-15 04:27:54", tz = "UTC") + 0.613437
+  text <- gx_csv_execution_time_impl(stamp)
+
+  expect_identical(text, "2026-08-15T04:27:54.613437Z")
+  expect_identical(gx_csv_execution_time_impl(
+    gx_csv_execution_parse_time_impl(text)
+  ), text)
+})
+
 test_that("M7g executes one bounded direct-CSV response exactly", {
   calls <- new.env(parent = emptyenv())
   calls$requests <- list()

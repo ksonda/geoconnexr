@@ -97,7 +97,7 @@ gx_snapshot_writer_entry_exists <- function(path) {
   nzchar(link) || file.exists(path) || dir.exists(path)
 }
 
-gx_snapshot_writer_time <- function(x) {
+gx_snapshot_time_text_impl <- function(x) {
   value <- tryCatch(
     as.POSIXct(x, tz = "UTC"),
     warning = function(cnd) as.POSIXct(NA, tz = "UTC"),
@@ -109,7 +109,11 @@ gx_snapshot_writer_time <- function(x) {
       "gx_error_snapshot_write_catalog"
     )
   }
-  format(value, "%Y-%m-%dT%H:%M:%OS6Z", tz = "UTC", usetz = FALSE)
+  gx_utc_microsecond_text_impl(value)
+}
+
+gx_snapshot_writer_time <- function(x) {
+  gx_snapshot_time_text_impl(x)
 }
 
 gx_snapshot_writer_character_column <- function(x) {

@@ -131,6 +131,7 @@ articles:
   navbar: ~
   contents:
   - geoconnexr
+  - end-to-end-huc10
   - end-to-end-fetch
 - title: Design and operation
   navbar: ~

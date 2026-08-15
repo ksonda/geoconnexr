@@ -135,16 +135,17 @@ The M7 scope freeze and public result boundary are specified in
 [ADR 0034](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0034-freeze-m7-supported-fetch-subset.md).
 
 <div class="gx-status">
-  <strong>Experimental status.</strong> Catalog → plan → fetch is public now.
+  <strong>Experimental status.</strong> Catalog → plan → fetch → harmonize →
+  package is public now.
   Automatic spatial graph discovery can still time out upstream, so explicit
-  PIDs are the reliable path for known sites. Harmonization and snapshot
-  composition remain roadmap work.
+  PIDs or caller-supplied profiles are the reliable path for known sites.
 </div>
 
 ## Choose your path
 
 - [Get started](articles/geoconnexr.html) with installation and practical workflows.
-- [Fetch WQP and EDR data](articles/end-to-end-fetch.html) through the complete public path.
+- [Run the HUC10 case study](articles/end-to-end-huc10.html), including its installed offline demo.
+- [Fetch WQP and EDR data](articles/end-to-end-fetch.html) through the bounded provider path.
 - Read about [safety and reproducibility](articles/safety-and-reproducibility.html).
 - Browse the complete [function reference](reference/index.html).
 - Follow the [validated build roadmap](https://github.com/ksonda/geoconnexr/blob/main/geoconnexr-spec-v0.2.md).
