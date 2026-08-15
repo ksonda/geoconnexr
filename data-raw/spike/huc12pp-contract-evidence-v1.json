@@ -1,0 +1,62 @@
+{
+  "schema_version": "1",
+  "checked_at": "2026-08-15T10:20:02Z",
+  "service": {
+    "name": "USGS Network Linked Data Index",
+    "base_url": "https://api.water.usgs.gov/nldi/linked-data",
+    "source": "huc12pp",
+    "documentation": [
+      "https://api.water.usgs.gov/docs/nldi/",
+      "https://api.water.usgs.gov/docs/nldi/feature-sources/",
+      "https://api.water.usgs.gov/docs/nldi/response-formats/"
+    ]
+  },
+  "stored_fixture": {
+    "path": "tests/fixtures/nldi/huc12pp-010100020101.min.geojson",
+    "normalization": "live response bytes plus one final LF",
+    "bytes": 517,
+    "sha256": "5ffd408a850b3b7d27810c68a98fb55bc5a1a8b21d55121b25e44648797bcadd"
+  },
+  "probes": [
+    {
+      "huc12": "010100020101",
+      "url": "https://api.water.usgs.gov/nldi/linked-data/huc12pp/010100020101",
+      "status": 200,
+      "media_type": "application/geo+json",
+      "bytes": 516,
+      "sha256": "1d5272a3f81ba4dd6ef18a50a69f090e014ef2e53b468cc1353ae53593dad917",
+      "feature_count": 1,
+      "comid": "720026",
+      "mainstem_uri": "https://geoconnex.us/ref/mainstems/2239149"
+    },
+    {
+      "huc12": "020600050201",
+      "url": "https://api.water.usgs.gov/nldi/linked-data/huc12pp/020600050201",
+      "status": 200,
+      "media_type": "application/geo+json",
+      "bytes": 517,
+      "sha256": "4a56a4cf46a88d4701121e94c7dd212b07dc4458936cff7efe7ceda763348d83",
+      "feature_count": 1,
+      "comid": "9406116",
+      "mainstem_uri": "https://geoconnex.us/ref/mainstems/2146490",
+      "case": "huc12_within_end_to_end_demo_huc10"
+    },
+    {
+      "huc12": "020600050207",
+      "url": "https://api.water.usgs.gov/nldi/linked-data/huc12pp/020600050207",
+      "status": 404,
+      "media_type": "application/problem+json",
+      "bytes": 116,
+      "sha256": "7131d2ab79a8bc1100faeb575afaba204aee81f5880477aa018d77e01faf8e6e",
+      "feature_count": 0,
+      "case": "well_formed_but_absent_huc12"
+    }
+  ],
+  "observations": [
+    "A successful item response is one GeoJSON FeatureCollection containing one Point feature.",
+    "Feature id, properties.identifier, and properties.uri repeat the requested HUC12.",
+    "The checked features expose both an NHDPlusV2 COMID and a canonical Geoconnex mainstem PID.",
+    "An absent HUC12 returns HTTP 404 with application/problem+json.",
+    "The service response does not establish current Geoconnex mainstem state."
+  ]
+}

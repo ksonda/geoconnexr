@@ -2,6 +2,12 @@
 
 ## Repository foundation
 
+- Added public `gx_huc12_to_mainstem(..., method = "outlet")` under ADR 0077.
+  It performs bounded, deduplicated USGS NLDI `huc12pp` lookups, validates the
+  HUC12 outlet identity and Point geometry, prefers the advertised mainstem,
+  and uses the installed pinned COMID mapping only when needed. Not-found rows
+  and release-only currentness semantics stay explicit; intersection ranking
+  remains gated.
 - Exported release-scoped `gx_comid_to_mainstem()` and
   `gx_mainstem_to_comids()` under ADR 0076. Both operate only on an explicitly
   installed checksum-pinned lookup, keep `currentness_policy = "not_checked"`,

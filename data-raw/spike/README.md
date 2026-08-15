@@ -27,6 +27,11 @@ open. ADR 0074 closes the graph endpoint decision by selecting the documented
 root as a configurable experimental contract. Its bounded SELECT and ASK
 evidence is recorded in `graph-contract-evidence-v1.json`.
 
+`huc12pp-contract-evidence-v1.json` pins successful and absent USGS NLDI
+`huc12pp` item responses, including one HUC12 inside the end-to-end demo HUC10.
+ADR 0077 uses that evidence for the public outlet method. Spatial intersection
+ranking remains open.
+
 The installed `huc10-usgs-daily-demo.tgz` fixture records the current USGS
 daily fetch, reviewed flow-unit conversion, Frictionless package, closed-tree
 verification, typed hydration, and offline stored-state inspection for HUC10
@@ -43,6 +48,7 @@ release asset, checksum, and contrasting known answers that invalidated the
 earlier COMID→VAA `levelpathi`→mainstem assumption: those identifiers are not
 interchangeable. M4b now mirrors that audit in an immutable installed registry
 and implements an explicit, integrity-checked download/import/offline lifecycle
-plus a local-only forward mapper. Remaining M4 evidence must resolve mainstem
-currentness/supersession, HUC and point provenance, and inverse ranking before
-their public APIs are exported.
+plus public release-scoped forward and inverse mappers. ADR 0077 adds the
+fixture-pinned HUC12 outlet path. Remaining M4 evidence must resolve bounded
+live mainstem currentness, HUC12 intersection ranking, point provenance,
+inverse-gage behavior, and mainstem resolution.

@@ -5,7 +5,7 @@
 \title{Create a bounded Geoconnex protocol client}
 \usage{
 gx_client(
-  endpoint = c("graph", "reference", "pid"),
+  endpoint = c("graph", "reference", "pid", "nldi"),
   timeout = 30,
   retries = 3L,
   min_interval = getOption("geoconnexr.min_interval", 0.1),
@@ -16,7 +16,7 @@ gx_client(
 )
 }
 \arguments{
-\item{endpoint}{One of \code{"graph"}, \code{"reference"}, or \code{"pid"}.}
+\item{endpoint}{One of \code{"graph"}, \code{"reference"}, \code{"pid"}, or \code{"nldi"}.}
 
 \item{timeout}{Per-attempt timeout in seconds.}
 

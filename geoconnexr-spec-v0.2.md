@@ -28,7 +28,7 @@ The target remains an R-first package for discovery, identifier crosswalks, and 
 | M1 | Partial experimental slice: bounded transport, cache/offline behavior, redirects, PID resolution, package-owned retries, full physical-attempt accounting, and per-host throttling are implemented; bounded concurrency remains open. |
 | M2 | Experimental PID/JSON-LD/profile slice implemented with a hash-pinned provider corpus; contract freeze remains P0-gated. |
 | M3 | Experimental native reference-client slice implemented with typed schemas, bounded pagination, and identity-checked fallbacks. ADR 0075 selects `mainstems_v3`, preserves the shared persistent PID namespace, and records current, superseded, replacement, and full large-geometry evidence. |
-| M4 | Partial experimental slices M4a/M4b/M4c: `gx_gage_to_pid()` is implemented, and the v3.2 COMID lookup has an explicit verified install lifecycle plus internal offline forward and release-scoped inverse mappers. ADR 0075 closes the vintage and migration policy; public COMID wrappers still need an explicit live-v3 or release-only result contract, while HUC12 and point ranking remain gated. |
+| M4 | Partial experimental slices M4a through M4d: `gx_gage_to_pid()`, release-scoped public COMID/inverse wrappers, and the NLDI HUC12 outlet method are implemented. The v3.2 COMID lookup has an explicit verified install lifecycle. ADR 0075 closes the vintage and migration policy; bounded live-v3 currentness, HUC12 intersection ranking, point provenance, inverse-gage, and mainstem-resolution work remain open. |
 | M5 | Partial experimental M5a/M5b: an unexported one-logical-request SELECT/ASK substrate provides strict bounded SPARQL 1.1 Results JSON parsing and provenance, while the public local renderer consumes an exact-byte-pinned render-only v2 template manifest with execution, chunking, and pagination disabled. ADR 0074 selects the documented graph root as a configurable experimental contract; public raw graph APIs and paging remain gated. |
 | M6 | Public bounded slice under ADR 0035: `gx_aoi()` canonicalizes identifiers and custom polygonal geometry; `gx_catalog()` populates the strict catalog value object from one graph page, explicit PID profiles, or named caller-supplied local JSON-LD. Automatic graph discovery remains upstream-dependent, and nonempty reference layers, general merge, full replay, and upstream-derived AOI modes remain gated. |
 | M7 | Complete for the supported subset under ADR 0034. `gx_fetch_plan()` publishes deterministic catalog selection, and `gx_fetch()` returns a validated `gx_fetched` object over direct CSV, WQP Result, EDR position, current USGS continuous, current USGS daily, and OGC API Features. Execution is sequential, bounded, single-page, failure-isolating, and provenance-preserving. Latest/legacy USGS, other EDR queries, pagination, registration, serialization, and replay are deferred enhancements and do not reopen M7. |
@@ -52,7 +52,7 @@ evidence for this plan, not permanent API guarantees.
 | Mainstem collections | The legacy large-item route still needs exact-filter fallback; `mainstems_v3` returns fuller geometry directly, shares the persistent PID namespace, and exposes supersession replacements | Default to `mainstems_v3`; never auto-follow replacements or silently downgrade to legacy geometry |
 | SPARQL | Official documentation names the graph root and shows POST; bounded SELECT and ASK probes returned SPARQL Results JSON, while the documentation still calls graph querying active development | Use the root as a configurable experimental default; keep raw graph APIs unexported |
 | GeoSPARQL | Spatial functions use namespace `http://www.opengis.net/def/function/geosparql/` and prefix `geof:` | `gsp:sfIntersects` from v0.1 is a correctness bug and must not appear in templates |
-| NLDI | `huc12pp` is advertised, but its HUC12 response contract is not yet fixture-pinned | Gate HUC12 implementation on bounded response evidence, then resolve any returned COMID through the checksum-pinned mainstem lookup |
+| NLDI | `huc12pp` item probes return one Point with repeated HUC12 identity, COMID, and mainstem; absent HUC12s return 404 problem JSON | Use the validated advertised mainstem, fall back from COMID only through the pinned mapping, and keep currentness unchecked |
 | `nhdplusTools` | Current docs expose `get_vaa(atts=)`, `discover_nhdplus_id()`, `get_nldi_basin()`, and Geoconnex reference helpers | Use guarded wrappers; do not re-export a package in Suggests |
 | USGS retrieval | Current `dataRetrieval` docs mark `readNWIS*` as legacy and provide `read_waterdata_continuous()` / `read_waterdata_daily()` | New APIs are primary; legacy handlers are compatibility paths |
 | EDR client | Package name is lowercase `edr4r`; CRAN 0.1.1 exists and the repository is `ksonda/edr4r` | Require and test `edr4r >= 0.1.1`; remove the old open question |
@@ -231,7 +231,8 @@ Unfiltered collection-wide retrieval requires `allow_unbounded=TRUE` and still o
 
 ```r
 gx_comid_to_mainstem(comid, check = FALSE)
-gx_huc12_to_mainstem(huc12, method = c("outlet", "intersects"))
+gx_huc12_to_mainstem(huc12, method = c("outlet", "intersects"),
+                     check = FALSE)
 gx_point_to_mainstem(points)
 gx_gage_to_pid(provider_id)
 gx_mainstem_to_comids(mainstem_uri, check = FALSE)
@@ -275,15 +276,20 @@ and active status are scoped only to that mapping release; current service
 state is not checked. Both public functions require `check = FALSE` and reject
 `check = TRUE` with a classed error. ADR 0075 defines supersession and
 migration; composing the bounded live-v3 check remains a separate M4 slice.
-neither public direction is exported until its wrapper composes an explicit
-live-v3 or release-only result contract. Point provenance and ranking remain
-separate gates.
+
+M4d exposes the HUC12 outlet method through the bounded USGS NLDI `huc12pp`
+item endpoint. It validates repeated HUC12 identity, Point geometry, source,
+COMID, and mainstem PID, deduplicates transport, and preserves not-found rows.
+The advertised mainstem is preferred. A response with only COMID uses the
+explicitly installed pinned mapping without triggering a download. The
+`intersects` method fails as unavailable until its ranking rule is selected.
+Point provenance and ranking remain separate gates.
 
 The intersects spike must decide whether ranking means outlet-in-polygon, intersection length, drainage area, or a documented combination. `is_largest` alone is not an outlet semantic.
 
 **Acceptance:** retain the checked gage answer; pin and verify the mapping
 registry, explicit install/import/offline/integrity behavior, both COMID known
-answers, and release-scoped zero-to-many inverse behavior; add checked HUC12
+answers, release-scoped zero-to-many inverse behavior, the checked HUC12 outlet,
 and superseded fixtures; test leading zeros/duplicates/NA/not-found inputs; and
 verify all identifier columns remain character.
 

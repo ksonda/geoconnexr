@@ -92,7 +92,7 @@ gx_cache_backend <- function(cache_dir) {
 #' A client records endpoint-specific request policy. Network calls remain
 #' lazy: constructing a client never contacts a service or writes to its cache.
 #'
-#' @param endpoint One of `"graph"`, `"reference"`, or `"pid"`.
+#' @param endpoint One of `"graph"`, `"reference"`, `"pid"`, or `"nldi"`.
 #' @param timeout Per-attempt timeout in seconds.
 #' @param retries Number of physical retry attempts after the initial request,
 #'   from zero through 1,000.
@@ -121,7 +121,7 @@ gx_cache_backend <- function(cache_dir) {
 #' still honors a preceding positive reservation from another client. Bounded
 #' concurrent dispatch remains future work.
 #' @export
-gx_client <- function(endpoint = c("graph", "reference", "pid"),
+gx_client <- function(endpoint = c("graph", "reference", "pid", "nldi"),
                       timeout = 30,
                       retries = 3L,
                       min_interval = getOption("geoconnexr.min_interval", 0.1),
@@ -133,7 +133,10 @@ gx_client <- function(endpoint = c("graph", "reference", "pid"),
     match.arg(endpoint),
     error = function(cnd) {
       gx_abort(
-        "{.arg endpoint} must be one of 'graph', 'reference', or 'pid'.",
+        paste(
+          "{.arg endpoint} must be one of 'graph', 'reference', 'pid',",
+          "or 'nldi'."
+        ),
         "gx_error_client"
       )
     }

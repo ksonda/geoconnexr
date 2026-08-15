@@ -773,6 +773,13 @@ assert current service state. `gx_comid_to_mainstem(..., check = FALSE)` and
 They return `currentness_policy = "not_checked"`; `check = TRUE` fails with a
 classed error until the bounded live-v3 currentness workflow is implemented.
 
+`gx_huc12_to_mainstem(..., method = "outlet", check = FALSE)` retrieves one
+validated HUC12 pour point from the USGS NLDI `huc12pp` source. It deduplicates
+repeated HUC12 requests, returns explicit not-found rows, and prefers the
+upstream mainstem PID. If NLDI supplies only a COMID, the function uses the
+same explicitly installed pinned mapping. The `intersects` method remains
+unavailable until its multi-match ranking contract is selected.
+
 JSON-LD and parser contracts remain experimental. The fixture corpus now
 contains six observed, minimized pages from four landing hosts and five
 semantic providers, plus synthetic conformance/adversarial cases. This closes

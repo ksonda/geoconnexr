@@ -12,7 +12,8 @@ Description: Tools for discovering water-data sites and datasets through the
     resolution, fail-closed JSON-LD retrieval and expansion, tolerant
     diagnostic-producing Geoconnex profile parsing, and a native bounded OGC
     API Features reference client with a validated provider-gage PID crosswalk
-    and checksum-pinned release-scoped COMID/mainstem crosswalks. Custom
+    checksum-pinned release-scoped COMID/mainstem crosswalks, and a bounded
+    USGS NLDI HUC12 outlet crosswalk. Custom
     polygon AOIs have bounded offline CRS84 recipe construction and
     integrity-checked hydration boundaries, and a public evidence-only
     closed-tree verifier checks manifest-relative snapshot integrity offline

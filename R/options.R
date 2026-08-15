@@ -1,16 +1,19 @@
 .gx_endpoint_defaults <- c(
   graph = "https://graph.geoconnex.us/",
   reference = "https://reference.geoconnex.us",
-  pid = "https://geoconnex.us"
+  pid = "https://geoconnex.us",
+  nldi = "https://api.water.usgs.gov/nldi/linked-data"
 )
 
 #' Effective Geoconnex service endpoints
 #'
-#' Returns the configured service endpoints. These values are defaults, not a
-#' guarantee that an upstream service is available or stable. Override them
+#' Returns the configured service endpoints, including the USGS NLDI base used
+#' by hydrologic crosswalks. These values are defaults, not a guarantee that an
+#' upstream service is available or stable. Override them
 #' with `options(geoconnexr.endpoint_<name> = "...")`.
 #'
-#' @return A named character vector with `graph`, `reference`, and `pid`.
+#' @return A named character vector with `graph`, `reference`, `pid`, and
+#'   `nldi`.
 #' @export
 gx_endpoints <- function() {
   out <- vapply(
