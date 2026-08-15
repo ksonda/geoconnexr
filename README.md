@@ -30,16 +30,17 @@ The initializing prompt was:
 `geoconnexr` is an R-first discovery, identifier-crosswalk, and watershed
 data-packaging client for the Geoconnex ecosystem.
 
-The repository is currently in its P0 architecture-spike phase. The initial
-scaffold provides versioned contracts, safe SPARQL template metadata,
+The repository is in 0.x contract hardening. The initial scaffold provides
+versioned contracts, safe SPARQL template metadata,
 identifier/recipe foundations, recorded infrastructure evidence, and offline
 tests. Its first protocol slices add bounded, cache-aware PID resolution,
 fail-closed JSON-LD negotiation and profile parsing, a native OGC API Features
 client for Geoconnex reference collections, and a validated provider-gage PID
 crosswalk. A second M4 slice provides an explicit, checksum-pinned install
 lifecycle for the optional 120 MB COMID-to-mainstem lookup and public
-release-scoped forward and inverse crosswalks over verified local bytes. These
-crosswalks make no live currentness claim. An unexported M5a
+release-scoped forward and inverse crosswalks over verified local bytes.
+Unchecked calls make no live currentness claim; checked calls add bounded
+`mainstems_v3` observations without replacing or selecting a PID. An unexported M5a
 substrate now
 supports bounded one-shot SELECT/ASK evidence through the package safety and
 cache boundary. The M5b named-query manifest is separately hardened for local

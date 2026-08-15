@@ -25,12 +25,14 @@ and records current, superseded, replacement, and full large-geometry evidence
 in `mainstem-vintage-evidence-v1.json`. The measured delivery estimate remains
 open. ADR 0074 closes the graph endpoint decision by selecting the documented
 root as a configurable experimental contract. Its bounded SELECT and ASK
-evidence is recorded in `graph-contract-evidence-v1.json`.
+evidence is recorded in `graph-contract-evidence-v1.json`. ADR 0085 adds the
+successful bound-site spatial control and the remaining unbound-search timeout
+evidence.
 
 `huc12pp-contract-evidence-v1.json` pins successful and absent USGS NLDI
 `huc12pp` item responses, including one HUC12 inside the end-to-end demo HUC10.
-ADR 0077 uses that evidence for the public outlet method. Spatial intersection
-ranking remains open.
+ADR 0077 uses that evidence for the public outlet method. ADRs 0082 and 0083
+select and implement the spatial intersection ranking.
 
 `nldi-position-evidence-v1.json` pins successful and absent NLDI
 `comid/position` responses. ADRs 0078 and 0079 select and expose that point
@@ -67,5 +69,6 @@ plus public release-scoped forward and inverse mappers. ADR 0077 adds the
 fixture-pinned HUC12 outlet path, and ADR 0079 adds the Point position path.
 ADR 0080 exposes the checked `mainstems_v3` currentness and replacement
 contract. ADR 0081 exposes the direct inverse-gage filter, ADR 0082 selects the
-HUC12 intersection ranking, and ADR 0083 implements that method. Remaining M4
-work must compose live currentness with release-scoped crosswalks.
+HUC12 intersection ranking, and ADR 0083 implements that method. ADR 0084
+composes live currentness with the release-scoped and NLDI crosswalks under one
+aggregate budget.

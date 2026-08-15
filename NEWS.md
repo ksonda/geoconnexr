@@ -2,6 +2,15 @@
 
 ## Repository foundation
 
+- Closed the remaining product-scope decision under ADR 0086. Water rights and
+  other administrative layers stay outside the supported 0.x core until a
+  named source completes a separate authority, licence, identity, temporal,
+  spatial, and legal-semantics review.
+- Recorded the automatic HUC10 graph gate under ADR 0085. A bound-site
+  `geof:sfIntersects` control succeeds, while unbound one-row HUC10 searches
+  still exceed the transport timeout after type, bounding-box, and operand-order
+  probes. The package does not substitute reference gages as a complete graph
+  site catalog.
 - Completed M4 currentness composition under ADR 0084. The public COMID,
   inverse COMID, HUC12 outlet, and Point crosswalks now accept `check = TRUE`,
   retain the original match, preserve every live replacement, and merge the

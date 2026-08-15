@@ -91,6 +91,7 @@ and link both records rather than rewriting history.
 | [0083](0083-public-huc12-intersections.md) | Accepted public boundary | Publish bounded HUC12 mainstem intersections |
 | [0084](0084-composed-crosswalk-currentness.md) | Accepted public boundary | Compose release and NLDI crosswalks with live mainstem currentness |
 | [0085](0085-huc10-graph-spatial-gate.md) | Recorded upstream gate | Keep automatic HUC10 discovery behind a bounded graph spatial probe |
+| [0086](0086-administrative-layers-future-scope.md) | Accepted product scope | Keep administrative layers outside the 0.x core |
 
 Each ADR states its context, decision, consequences, and status. Proposed ADRs
 may change; accepted ADRs govern implementation until superseded.

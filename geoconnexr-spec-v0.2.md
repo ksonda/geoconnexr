@@ -144,7 +144,9 @@ Implementation may scaffold before these finish, but public 0.1.0 contracts may 
    closed by ADR 0075;
 5. whether graph POST-at-root is a supported public contract, closed as
    configurable and experimental by ADR 0074;
-6. support/ownership for weekly live-service alerts, closed by ADR 0073.
+6. support/ownership for weekly live-service alerts, closed by ADR 0073;
+7. administrative layers such as water rights, closed as future scope for the
+   0.x core by ADR 0086.
 
 ### 4.2 Required vertical spike
 
@@ -2145,12 +2147,14 @@ De-scope in this order: SensorThings, report polish, optional reference layers, 
 
 ## 11. Remaining decisions
 
-Only these product decisions remain open after this review:
-
-1. whether administrative layers such as water rights are future scope.
+No product-owner scope decisions remain open. ADR 0086 keeps administrative
+layers such as water rights outside the supported 0.x core until a named
+source completes a separate authority, licence, identity, temporal, and legal
+semantics review.
 
 ADR 0073 closes live-monitor ownership and response expectations. ADR 0074
 closes the graph endpoint decision without exposing a stable raw-query API. ADR
-0075 closes the mainstem vintage and migration decision.
+0075 closes the mainstem vintage and migration decision. ADR 0086 closes the
+administrative-layer scope decision.
 
 The old EDR package-status question and the existence of `huc12pp` are no longer open. SensorThings is evidence-gated rather than assumed.
