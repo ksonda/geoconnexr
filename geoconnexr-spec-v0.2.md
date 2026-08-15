@@ -230,11 +230,11 @@ Unfiltered collection-wide retrieval requires `allow_unbounded=TRUE` and still o
 ### M4 — Crosswalks
 
 ```r
-gx_comid_to_mainstem(comid, check = TRUE)
+gx_comid_to_mainstem(comid, check = FALSE)
 gx_huc12_to_mainstem(huc12, method = c("outlet", "intersects"))
 gx_point_to_mainstem(points)
 gx_gage_to_pid(provider_id)
-gx_mainstem_to_comids(mainstem_uri)
+gx_mainstem_to_comids(mainstem_uri, check = FALSE)
 gx_mainstem_to_gages(mainstem_uri)
 gx_mainstem(mainstem_uri)
 ```
@@ -259,20 +259,22 @@ duplicate input order while deduplicating transport; and enforces aggregate
 batch budgets. Advertised mainstem URIs are retained without performing the
 separate live v3 currentness check selected by ADR 0075.
 
-The implemented M4b substrate pins the `ref_rivers` v3.2 asset in an immutable
+The implemented M4b slice pins the `ref_rivers` v3.2 asset in an immutable
 runtime registry. `gx_mainstem_lookup_install()` is the only disclosed download
 or local-import path; `gx_mainstem_lookup_info()` re-verifies availability and
-provenance without network access. The internal vectorized COMID mapper scans
+provenance without network access. The public vectorized COMID mapper scans
 verified local bytes in bounded chunks, returns explicit not-found rows, and
 records that current service state was not checked. It never installs or
 refreshes implicitly.
 
-The internal M4c inverse scans the same verified bytes by canonical mainstem
+The public M4c inverse scans the same verified bytes by canonical mainstem
 URI and returns every member COMID in deterministic order, or one explicit
 not-found sentinel. It preserves duplicate input order, caps aggregate matches
 and expanded rows, and carries release and checksum provenance. Completeness
 and active status are scoped only to that mapping release; current service
-state is not checked. ADR 0075 now defines supersession and migration, but
+state is not checked. Both public functions require `check = FALSE` and reject
+`check = TRUE` with a classed error. ADR 0075 defines supersession and
+migration; composing the bounded live-v3 check remains a separate M4 slice.
 neither public direction is exported until its wrapper composes an explicit
 live-v3 or release-only result contract. Point provenance and ranking remain
 separate gates.

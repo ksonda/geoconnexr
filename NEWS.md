@@ -2,6 +2,11 @@
 
 ## Repository foundation
 
+- Exported release-scoped `gx_comid_to_mainstem()` and
+  `gx_mainstem_to_comids()` under ADR 0076. Both operate only on an explicitly
+  installed checksum-pinned lookup, keep `currentness_policy = "not_checked"`,
+  and reject `check = TRUE` until the separate bounded live-v3 currentness
+  workflow is implemented.
 - Selected `mainstems_v3` and dataset vintage 3.0 as the default mainstem
   representation under ADR 0075 while preserving the shared
   `/ref/mainstems/` PID namespace. The v3 JSON-LD fallback now accepts that

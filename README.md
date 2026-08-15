@@ -36,10 +36,10 @@ identifier/recipe foundations, recorded infrastructure evidence, and offline
 tests. Its first protocol slices add bounded, cache-aware PID resolution,
 fail-closed JSON-LD negotiation and profile parsing, a native OGC API Features
 client for Geoconnex reference collections, and a validated provider-gage PID
-crosswalk. A second M4 substrate provides an explicit, checksum-pinned install
-lifecycle for the optional 120 MB COMID-to-mainstem lookup without yet exposing
-the evidence-gated public crosswalks; internal forward and release-scoped
-inverse mappers operate only on verified local bytes. An unexported M5a
+crosswalk. A second M4 slice provides an explicit, checksum-pinned install
+lifecycle for the optional 120 MB COMID-to-mainstem lookup and public
+release-scoped forward and inverse crosswalks over verified local bytes. These
+crosswalks make no live currentness claim. An unexported M5a
 substrate now
 supports bounded one-shot SELECT/ASK evidence through the package safety and
 cache boundary. The M5b named-query manifest is separately hardened for local
@@ -765,12 +765,13 @@ The optional NHDPlusV2 lookup is stored outside the expiring HTTP cache and is
 addressed by its pinned v3.2 SHA-256 digest. Installation streams to a staging
 file, validates each HTTPS redirect, exact size, digest, CSV schema, row count,
 known answers, and a non-sensitive provenance receipt before atomic exposure.
-Lookup inspection and the internal vectorized forward and inverse mappers never
+Lookup inspection and the public vectorized forward and inverse mappers never
 download, refresh, or repair data. Inverse matches are complete only within the
 pinned mapping release, use deterministic COMID ordering, and explicitly do not
-assert current service state. The public `gx_comid_to_mainstem()` and
-`gx_mainstem_to_comids()` functions remain unexported until their wrappers
-compose the selected live v3 check or label results as release-only.
+assert current service state. `gx_comid_to_mainstem(..., check = FALSE)` and
+`gx_mainstem_to_comids(..., check = FALSE)` expose this release-only contract.
+They return `currentness_policy = "not_checked"`; `check = TRUE` fails with a
+classed error until the bounded live-v3 currentness workflow is implemented.
 
 JSON-LD and parser contracts remain experimental. The fixture corpus now
 contains six observed, minimized pages from four landing hosts and five

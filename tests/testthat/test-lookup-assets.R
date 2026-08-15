@@ -89,6 +89,40 @@ test_that("zero-length COMID mapping is typed and requires no lookup", {
   expect_identical(metadata$mapping$cache_origin, "not_loaded")
 })
 
+test_that("public release crosswalks make currentness scope explicit", {
+  data_dir <- tempfile("missing-data-")
+  forward <- gx_comid_to_mainstem(character(), data_dir = data_dir)
+  inverse <- gx_mainstem_to_comids(character(), data_dir = data_dir)
+
+  expect_s3_class(forward, "gx_comid_crosswalk")
+  expect_s3_class(inverse, "gx_mainstem_comid_crosswalk")
+  expect_identical(
+    attr(forward, "gx_crosswalk")$mapping$currentness_policy,
+    "not_checked"
+  )
+  expect_identical(
+    attr(inverse, "gx_crosswalk")$mapping$currentness_policy,
+    "not_checked"
+  )
+  expect_false(dir.exists(data_dir))
+
+  for (value in list(TRUE, NA, 1, "false", c(FALSE, FALSE))) {
+    expected <- if (isTRUE(value)) {
+      "gx_error_crosswalk_currentness_unavailable"
+    } else {
+      "gx_error_crosswalk_input"
+    }
+    expect_error(
+      gx_comid_to_mainstem(character(), check = value, data_dir = data_dir),
+      class = expected
+    )
+    expect_error(
+      gx_mainstem_to_comids(character(), check = value, data_dir = data_dir),
+      class = expected
+    )
+  }
+})
+
 test_that("COMID validation fails before lookup or network access", {
   called <- 0L
   withr::local_options(geoconnexr.file_performer = function(...) {
