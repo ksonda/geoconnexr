@@ -7,6 +7,12 @@
 
   Install the package and complete its core public workflows.
 
+- [Build and verify a HUC10 package end to
+  end](https://ksonda.github.io/geoconnexr/articles/end-to-end-huc10.md):
+
+  Run the public USGS daily workflow or inspect its installed offline
+  package.
+
 - [Fetch WQP and EDR data end to
   end](https://ksonda.github.io/geoconnexr/articles/end-to-end-fetch.md):
 

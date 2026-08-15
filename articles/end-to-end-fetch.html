@@ -36,7 +36,8 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/end-to-end-fetch.html">Fetch WQP and EDR data end to end</a></li>
+<li><a class="dropdown-item" href="../articles/end-to-end-huc10.html">Build and verify a HUC10 package end to end</a></li>
+    <li><a class="dropdown-item" href="../articles/end-to-end-fetch.html">Fetch WQP and EDR data end to end</a></li>
     <li><a class="dropdown-item" href="../articles/safety-and-reproducibility.html">Safety and reproducibility</a></li>
   </ul>
 </li>
@@ -86,7 +87,8 @@
 
     
     
-<p>This guide exercises the complete public path available today:</p>
+<p>This guide exercises the provider fetch portion of the public
+path:</p>
 <pre class="text"><code>AOI -&gt; catalog -&gt; fetch plan -&gt; provider response -&gt; typed result</code></pre>
 <p>The examples are deliberately narrow. Each selected distribution gets
 at most one physical request, the scheduler is sequential, and no next
@@ -237,8 +239,9 @@ evidence.</li>
 </ul>
 <p>The current boundary supports direct CSV, WQP Result, EDR position,
 current USGS continuous and daily data, and OGC API Features. It is
-single-page and sequential by contract. Harmonization is the next
-roadmap milestone.</p>
+single-page and sequential by contract. See <a href="end-to-end-huc10.html">Build and verify a HUC10 package end to
+end</a> for the full catalog, fetch, harmonize, package, and offline
+verification workflow.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

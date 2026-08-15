@@ -196,7 +196,10 @@ unsupported distribution does not abort later work.
 See [Fetch WQP and EDR data end to
 end](https://ksonda.github.io/geoconnexr/articles/end-to-end-fetch.md)
 for both live provider examples and the caller-supplied EDR profile
-boundary.
+boundary. See [Build and verify a HUC10 package end to
+end](https://ksonda.github.io/geoconnexr/articles/end-to-end-huc10.md)
+for the complete fetch, harmonize, package, and offline verification
+workflow.
 
 ## Where to go next
 

@@ -1,6 +1,6 @@
 # Fetch WQP and EDR data end to end
 
-This guide exercises the complete public path available today:
+This guide exercises the provider fetch portion of the public path:
 
 ``` text
 AOI -> catalog -> fetch plan -> provider response -> typed result
@@ -173,5 +173,8 @@ succeeded.” Use both tables:
 
 The current boundary supports direct CSV, WQP Result, EDR position,
 current USGS continuous and daily data, and OGC API Features. It is
-single-page and sequential by contract. Harmonization is the next
-roadmap milestone.
+single-page and sequential by contract. See [Build and verify a HUC10
+package end to
+end](https://ksonda.github.io/geoconnexr/articles/end-to-end-huc10.md)
+for the full catalog, fetch, harmonize, package, and offline
+verification workflow.

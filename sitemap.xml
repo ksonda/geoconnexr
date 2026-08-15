@@ -6,6 +6,7 @@
 <url><loc>https://ksonda.github.io/geoconnexr/LICENSE.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/SECURITY.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/articles/end-to-end-fetch.html</loc></url>
+<url><loc>https://ksonda.github.io/geoconnexr/articles/end-to-end-huc10.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/articles/geoconnexr.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/articles/index.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/articles/safety-and-reproducibility.html</loc></url>
@@ -21,6 +22,7 @@
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_catalog.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_classify_distribution.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_client.html</loc></url>
+<url><loc>https://ksonda.github.io/geoconnexr/reference/gx_context.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_contract_hash.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_csv_mapping.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_endpoints.html</loc></url>
@@ -31,6 +33,8 @@
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_handlers.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_harmonize.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_jsonld.html</loc></url>
+<url><loc>https://ksonda.github.io/geoconnexr/reference/gx_jsonld_build.html</loc></url>
+<url><loc>https://ksonda.github.io/geoconnexr/reference/gx_jsonld_validate.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_mainstem_lookup_info.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_mainstem_lookup_install.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_package.html</loc></url>
@@ -47,6 +51,7 @@
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_replay.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_report.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_resolve.html</loc></url>
+<url><loc>https://ksonda.github.io/geoconnexr/reference/gx_sitemap.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_snapshot.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_snapshot_catalog_view.html</loc></url>
 <url><loc>https://ksonda.github.io/geoconnexr/reference/gx_snapshot_requests.html</loc></url>

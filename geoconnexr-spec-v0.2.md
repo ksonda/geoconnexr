@@ -46,7 +46,7 @@ crosswalks, and watershed data snapshots across the Geoconnex ecosystem.
 | M7 | Complete for the supported subset under ADR 0034. [`gx_fetch_plan()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch_plan.md) publishes deterministic catalog selection, and [`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md) returns a validated `gx_fetched` object over direct CSV, WQP Result, EDR position, current USGS continuous, current USGS daily, and OGC API Features. Execution is sequential, bounded, single-page, failure-isolating, and provenance-preserving. Latest/legacy USGS, other EDR queries, pagination, registration, serialization, and replay are deferred enhancements and do not reopen M7. |
 | M8 | Partial M8a–M8e under ADRs 0036–0040: [`gx_target_units()`](https://ksonda.github.io/geoconnexr/reference/gx_target_units.md) selects reviewed dimension-safe targets and [`gx_harmonize()`](https://ksonda.github.io/geoconnexr/reference/gx_harmonize.md) normalizes strict EDR position, current USGS continuous/daily, exact catalog-aligned single-characteristic WQP payloads, explicitly mapped single-variable UTC direct-CSV tables, and explicitly mapped OGC API Features properties offline. WQP civil times use a hash-bound reviewed fixed-offset asset for 23 active WQX timezone codes. [`gx_csv_mapping()`](https://ksonda.github.io/geoconnexr/reference/gx_csv_mapping.md) and [`gx_feature_mapping()`](https://ksonda.github.io/geoconnexr/reference/gx_feature_mapping.md) bind exact field roles and missing tokens without schema inference; generated feature IDs and geometry cannot supply observation roles. The result preserves raw/native access and applies only exact directed rules after catalog/native corroboration. Broader WQP/CSV/Features schemas and broader variable alignment remain open; the fixed M9 CSV/raw package path now admits harmonized inputs. |
 | M9 | Fixed-package roadmap complete through M9af: public [`gx_snapshot_verify()`](https://ksonda.github.io/geoconnexr/reference/gx_snapshot_verify.md) wraps the hardened offline verifier, which validates the bounded manifest and request-ledger shape, rebinds AOI identity through M6b, inventories a closed portable tree, and returns exact unsigned integrity evidence without loading or replay. Public [`gx_snapshot()`](https://ksonda.github.io/geoconnexr/reference/gx_snapshot.md) exposes the creation-only writer for exact `gx_catalog` inputs: it stages, verifies, and publishes four deterministic redacted catalog CSV resources plus manifest-v1 only to an absent destination, then returns embedded M9c evidence. Public [`gx_snapshot_requests()`](https://ksonda.github.io/geoconnexr/reference/gx_snapshot_requests.md) binds canonical `requests.csv` bytes to the authoritative typed manifest ledger and re-verifies the tree. M9g loads the remaining fixed catalog CSVs as canonical character tables, M9h derives an exact typed redacted view without reconstructing live identities, and public [`gx_snapshot_catalog_view()`](https://ksonda.github.io/geoconnexr/reference/gx_snapshot_catalog_view.md) exposes that exact view as offline, read-only, and non-replayable. Internal M9j admits exact catalog, fetched, and harmonized package inputs; M9k derives deterministic in-memory resources; M9l publishes only to an absent destination; and public [`gx_package()`](https://ksonda.github.io/geoconnexr/reference/gx_package.md) exposes that path under M9m. Public [`gx_package_load()`](https://ksonda.github.io/geoconnexr/reference/gx_package_load.md), [`gx_package_tables()`](https://ksonda.github.io/geoconnexr/reference/gx_package_tables.md), and [`gx_package_hydrate()`](https://ksonda.github.io/geoconnexr/reference/gx_package_hydrate.md) provide byte, canonical-character, and fixed-typed inspection through M9n–M9q. Internal M9r admits replacement only for a completely verified fixed-writer package, stages and verifies the new bundle before moving the prior tree to a sibling backup, synchronously rolls back detected failures, and reports retained recovery paths when restoration cannot complete. M9s exposes that exact substrate through public `gx_package(..., overwrite = TRUE)` and returns evidence binding prior and final verified generations. Internal M9t safely inspects Arrow and Quarto package metadata without loading either namespace. M9u pins Arrow R 14.0.0, resolves reviewed exports after loading, and verifies a fixed redacted typed Parquet-2.4 profile entirely in memory. M9v exposes that profile end to end for harmonized `gx_package(..., timeseries = "parquet")` creation and replacement; loading remains byte-preserving without Arrow, table views leave Parquet opaque, and typed hydration revalidates it through Arrow. M9w pins Quarto R 1.5.1 and resolves the reviewed report-facing exports and formals after metadata/namespace race checks without locating the CLI or rendering. M9x resolves one normalized executable, runs only a bounded `--version`, detects file races, and admits Quarto CLI 1.8.27 or newer without rendering. M9y derives a fixed code-free source from one typed package view, renders only through that admitted CLI with execution and caching disabled, verifies a closed two-file tree and bounded minimal HTML without active or external content, retains exact bytes in memory, and removes its private stage. M9z binds those bytes to their exact originating M9k bundle as one private report resource and carries the profile through staged creation and owned replacement. M9aa publicly exposes explicit report creation through `gx_package(report = TRUE)`, admits report packages through offline loading and typed inspection, and adds [`gx_report()`](https://ksonda.github.io/geoconnexr/reference/gx_report.md) for exact in-memory access or absent-file export without rendering. M9ab adds public offline `gx_replay(refresh = FALSE)` stored-state inspection over only those fixed typed loading profiles, including optional stored-report evidence, while explicitly withholding recipe execution and replayability. M9ac internally describes exact fixed resource bundles as deterministic Frictionless Data Package v1 descriptors, binds paths, sizes, hashes, and exact CSV string schemas, and validates the catalog, fetched, and harmonized CSV profiles with pinned Python Frictionless CLI 5.19.0 in CI. M9ad exposes that reviewed all-CSV profile through explicit `gx_package(..., frictionless = TRUE)`, publishes `datapackage.json` as a manifest-bound non-self-referential resource, carries it through verified replacement and offline typed inspection, rederives it during loading, and validates a public generated package with the pinned CLI. M9ae validates real retained-raw, Arrow/Parquet, and verified-report bundles as opaque Frictionless file resources with core CLI 5.19.0 while retaining exact true-format metadata. M9af publishes those mixed-resource descriptors through the public fixed-package creation, replacement, loading, typed inspection, report, and offline stored-state boundaries. Live refresh and procedural replay are deferred under ADR 0066 until a complete reproducible request recipe exists and are not another fixed-package M9 gate. |
-| M10 | Planned. |
+| M10 | Complete under ADRs 0071 and 0072: [`gx_context()`](https://ksonda.github.io/geoconnexr/reference/gx_context.md) returns the fixed local publisher context; [`gx_jsonld_build()`](https://ksonda.github.io/geoconnexr/reference/gx_jsonld_build.md) converts exact catalog 0.1.0 site and dataset tables into deterministic publisher-profile 1.0.0 JSON-LD; [`gx_jsonld_validate()`](https://ksonda.github.io/geoconnexr/reference/gx_jsonld_validate.md) returns structured local findings; and [`gx_sitemap()`](https://ksonda.github.io/geoconnexr/reference/gx_sitemap.md) publishes one bounded, verified XML sitemap through absent-destination staging. The profile accepts canonical location-type IRIs plus the checked `hydrometricStation` and `Unknown` literals. Dataset rows must form complete distribution by variable products before serialization. An installed language-neutral corpus pins exact profile, finding, and sitemap known answers, which both R and a dependency-free Python harness reproduce. Sitemap indexes, remote publication, search-engine notification, and a supported Python client remain out of scope. |
 
 ## 1. Validation ledger
 
@@ -2258,6 +2258,39 @@ on the P0 evidence; the package must not claim that current production
 pages uniformly follow a stricter ideal. Validation findings have
 severity, JSON pointer, rule ID, profile version, and suggested fix.
 
+ADR 0071 implements publisher profile 1.0.0 over the exact catalog 0.1.0
+site and dataset contracts. The fixed local context requires no network
+access.
+[`gx_jsonld_build()`](https://ksonda.github.io/geoconnexr/reference/gx_jsonld_build.md)
+preserves site, provider, mainstem, point geometry, dataset,
+distribution, and variable facts in deterministic order. It rejects
+provider disagreement, unsupported location-type literals, and sparse
+distribution by variable products before serialization. The accepted
+literal types are `hydrometricStation` and `Unknown`, which are both
+present in the P0 evidence corpus; canonical location-type IRIs remain
+preferred.
+
+[`gx_jsonld_validate()`](https://ksonda.github.io/geoconnexr/reference/gx_jsonld_validate.md)
+safely expands and parses a candidate, then returns an exact findings
+table with severity, JSON pointer, stable rule ID, profile version,
+message, and suggested fix. Errors make the result invalid and warnings
+do not.
+[`gx_sitemap()`](https://ksonda.github.io/geoconnexr/reference/gx_sitemap.md)
+sorts 1 to 50,000 unique canonical HTTP(S) URIs, emits one deterministic
+XML file within the 50 MiB protocol ceiling, and publishes only to an
+absent directory through verified sibling staging. No M10 function
+performs remote publication or search-engine notification.
+
+**M10 acceptance:** built profiles round-trip through the existing safe
+expansion and tolerant parsers; exact publisher facts and supported
+location types survive; lossy dataset cardinalities fail before
+serialization; validation reports malformed documents and profile
+violations as structured findings; sitemap output is deterministic,
+escaped, count- and byte-bounded, and byte-verified after publication.
+ADR 0072 supplies the shared installed conformance corpus. R and a
+Python standard-library harness reproduce its profile,
+validation-finding, canonical-digest, and sitemap known answers.
+
 ## 6. Data contracts
 
 All contracts include `contract_version`; exact columns freeze after the
@@ -2427,10 +2460,16 @@ policy, and support expectations.
 | P2 — Crosswalk and discovery | M4–M5; provider audit; schema freeze for v1 | Crosswalk/discovery ACs; contracts v1 | 4–5 weeks |
 | P3a — Catalog and package | M6 plus catalog-only M9 | Offline-verifiable catalog snapshot case study | 3–4 weeks |
 | P3b — Fetch and harmonize | M7–M8 plus fetched M9; USGS, EDR, WQP, Features, CSV | End-to-end HUC case study; 0.5.0 | 5–7 weeks |
-| P4 — Report/publisher/port | Report polish, M10, shared conformance assets, Python feasibility | Round trip and shared known-answer suite | 4–6 weeks |
+| P4: Report/publisher/port | Report polish, M10, shared conformance assets, Python feasibility | M10 and the shared R/Python known-answer suite are complete; broader report polish remains | 4-6 weeks |
 
 P0 must replace these ranges with evidence-based estimates. P3a can ship
 useful discovery/package value even if a provider handler delays P3b.
+
+The installed HUC10 case study now records a bounded current-USGS daily
+fetch, harmonization, Frictionless packaging, closed-tree verification,
+typed hydration, and offline stored-state inspection. It uses a
+caller-supplied profile, so the automatic spatial graph discovery
+portion of the P0 vertical slice remains open.
 
 De-scope in this order: SensorThings, report polish, optional reference
 layers, mainstem-basin convenience, publisher tools, Python port. Never

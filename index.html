@@ -38,7 +38,8 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/end-to-end-fetch.html">Fetch WQP and EDR data end to end</a></li>
+<li><a class="dropdown-item" href="articles/end-to-end-huc10.html">Build and verify a HUC10 package end to end</a></li>
+    <li><a class="dropdown-item" href="articles/end-to-end-fetch.html">Fetch WQP and EDR data end to end</a></li>
     <li><a class="dropdown-item" href="articles/safety-and-reproducibility.html">Safety and reproducibility</a></li>
   </ul>
 </li>
@@ -188,7 +189,7 @@ Represent partial results and upstream failures explicitly, with no invented aut
 </h3>
 <p>M7 is complete for a frozen supported subset. Public <code><a href="reference/gx_fetch_plan.html">gx_fetch_plan()</a></code> builds a deterministic bounded plan from a validated catalog, and public <code><a href="reference/gx_fetch.html">gx_fetch()</a></code> returns <code>gx_fetched</code> 0.1.0 with one status row per distribution, one handler-native payload per success, and validated execution provenance. The sequential scheduler supports direct CSV, WQP Result, EDR position, current USGS continuous and daily data, and OGC API Features in one global order. It shares count and byte admission limits, continues after typed handler failures, and offers a deterministic no-host dry run. Every provider path is single-page; advertised next links are reported as truncation and never followed. Latest and legacy USGS, other EDR queries, pagination, registration, and replay are later fetch enhancements rather than blockers for M8 harmonization. See <a href="https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0027-bounded-direct-csv-orchestration.md" class="external-link">ADR 0027</a> and <a href="https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0028-single-page-oaf-handler.md" class="external-link">ADR 0028</a>, then <a href="https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0029-cross-handler-orchestration.md" class="external-link">ADR 0029</a>. The WQP boundary is specified in <a href="https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0030-single-response-wqp-handler.md" class="external-link">ADR 0030</a>. The EDR boundary is specified in <a href="https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0031-single-response-edr-position-handler.md" class="external-link">ADR 0031</a>. The current USGS continuous boundary is specified in <a href="https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0032-single-page-usgs-continuous-handler.md" class="external-link">ADR 0032</a>. The current USGS daily boundary is specified in <a href="https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0033-single-page-usgs-daily-handler.md" class="external-link">ADR 0033</a>. The M7 scope freeze and public result boundary are specified in <a href="https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0034-freeze-m7-supported-fetch-subset.md" class="external-link">ADR 0034</a>.</p>
 <div class="gx-status">
-<p><strong>Experimental status.</strong> Catalog → plan → fetch is public now. Automatic spatial graph discovery can still time out upstream, so explicit PIDs are the reliable path for known sites. Harmonization and snapshot composition remain roadmap work.</p>
+<p><strong>Experimental status.</strong> Catalog → plan → fetch → harmonize → package is public now. Automatic spatial graph discovery can still time out upstream, so explicit PIDs or caller-supplied profiles are the reliable path for known sites.</p>
 </div>
 </div>
 </div>
@@ -199,7 +200,9 @@ Represent partial results and upstream failures explicitly, with no invented aut
 <li>
 <a href="articles/geoconnexr.html">Get started</a> with installation and practical workflows.</li>
 <li>
-<a href="articles/end-to-end-fetch.html">Fetch WQP and EDR data</a> through the complete public path.</li>
+<a href="articles/end-to-end-huc10.html">Run the HUC10 case study</a>, including its installed offline demo.</li>
+<li>
+<a href="articles/end-to-end-fetch.html">Fetch WQP and EDR data</a> through the bounded provider path.</li>
 <li>Read about <a href="articles/safety-and-reproducibility.html">safety and reproducibility</a>.</li>
 <li>Browse the complete <a href="reference/index.html">function reference</a>.</li>
 <li>Follow the <a href="https://github.com/ksonda/geoconnexr/blob/main/geoconnexr-spec-v0.2.md" class="external-link">validated build roadmap</a>.</li>

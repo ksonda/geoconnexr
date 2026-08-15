@@ -4,6 +4,40 @@
 
 ### Repository foundation
 
+- Added an installed HUC10 case study that runs catalog, bounded
+  current-USGS daily fetch, harmonization, Frictionless packaging,
+  closed-tree verification, typed hydration, and offline stored-state
+  inspection. The live guide uses a caller-supplied profile and states
+  that AOI membership is not independently rechecked. Its verified
+  retained-response package provides a network-free demonstration and
+  regression fixture.
+- Fixed exact UTC microsecond serialization for execution ledgers and
+  package catalog views. Fractional instants no longer lose one
+  microsecond when R converts between decimal seconds and `POSIXct`,
+  which had caused valid live USGS, WQP, EDR, and OGC Features
+  executions or package hydration to fail their identity rebound checks
+  intermittently.
+- Added the P4 shared publisher conformance suite under ADR 0072. One
+  installed synthetic corpus now pins a language-neutral input,
+  deterministic JSON-LD, exact validation findings, and sitemap bytes. R
+  rebuilds every known answer, and a dependency-free Python harness
+  independently reproduces the profile, findings, canonical digest, and
+  sitemap. Dedicated CI runs the harness on Python 3.9 and 3.13 without
+  network access or third-party packages.
+- Completed M10 publisher tools under ADR 0071.
+  [`gx_context()`](https://ksonda.github.io/geoconnexr/reference/gx_context.md)
+  returns the fixed local publisher context,
+  [`gx_jsonld_build()`](https://ksonda.github.io/geoconnexr/reference/gx_jsonld_build.md)
+  emits deterministic publisher-profile 1.0.0 JSON-LD from exact catalog
+  site and dataset tables, and
+  [`gx_jsonld_validate()`](https://ksonda.github.io/geoconnexr/reference/gx_jsonld_validate.md)
+  reports local profile findings with severity, JSON pointer, rule ID,
+  profile version, and suggested fix.
+  [`gx_sitemap()`](https://ksonda.github.io/geoconnexr/reference/gx_sitemap.md)
+  writes one deterministic, bounded XML sitemap through verified
+  absent-destination staging. These APIs do not fetch contexts, publish
+  profiles remotely, notify search engines, or overwrite existing
+  output.
 - Completed the fixed-package M9 roadmap through M9af under ADR 0070.
   Public `gx_package(..., frictionless = TRUE)` now composes with
   retained provider bodies, fixed Arrow/Parquet observations, and

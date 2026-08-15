@@ -92,6 +92,14 @@ series.
 Publish verified packages or catalog snapshots and inspect offline
 evidence.
 
+- [`gx_context()`](https://ksonda.github.io/geoconnexr/reference/gx_context.md)
+  : Return the Geoconnex publisher JSON-LD context
+- [`gx_jsonld_build()`](https://ksonda.github.io/geoconnexr/reference/gx_jsonld_build.md)
+  : Build a versioned Geoconnex publisher profile
+- [`gx_jsonld_validate()`](https://ksonda.github.io/geoconnexr/reference/gx_jsonld_validate.md)
+  : Validate a Geoconnex publisher JSON-LD profile
+- [`gx_sitemap()`](https://ksonda.github.io/geoconnexr/reference/gx_sitemap.md)
+  : Write a bounded XML sitemap
 - [`gx_package()`](https://ksonda.github.io/geoconnexr/reference/gx_package.md)
   : Create or replace a verified geoconnexr data package
 - [`gx_package_load()`](https://ksonda.github.io/geoconnexr/reference/gx_package_load.md)

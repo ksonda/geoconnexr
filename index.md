@@ -150,19 +150,22 @@ The current USGS daily boundary is specified in [ADR
 The M7 scope freeze and public result boundary are specified in [ADR
 0034](https://github.com/ksonda/geoconnexr/blob/main/docs/decisions/0034-freeze-m7-supported-fetch-subset.md).
 
-**Experimental status.** Catalog → plan → fetch is public now. Automatic
-spatial graph discovery can still time out upstream, so explicit PIDs
-are the reliable path for known sites. Harmonization and snapshot
-composition remain roadmap work.
+**Experimental status.** Catalog → plan → fetch → harmonize → package is
+public now. Automatic spatial graph discovery can still time out
+upstream, so explicit PIDs or caller-supplied profiles are the reliable
+path for known sites.
 
 ## Choose your path
 
 - [Get
   started](https://ksonda.github.io/geoconnexr/articles/geoconnexr.md)
   with installation and practical workflows.
+- [Run the HUC10 case
+  study](https://ksonda.github.io/geoconnexr/articles/end-to-end-huc10.md),
+  including its installed offline demo.
 - [Fetch WQP and EDR
   data](https://ksonda.github.io/geoconnexr/articles/end-to-end-fetch.md)
-  through the complete public path.
+  through the bounded provider path.
 - Read about [safety and
   reproducibility](https://ksonda.github.io/geoconnexr/articles/safety-and-reproducibility.md).
 - Browse the complete [function
