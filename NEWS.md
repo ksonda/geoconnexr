@@ -2,6 +2,11 @@
 
 ## Repository foundation
 
+- Added public `gx_point_to_mainstem()` under ADR 0079. It accepts declared-CRS
+  two-dimensional Points, disables PROJ networking while transforming to OGC
+  CRS84, deduplicates NLDI position requests, validates repeated COMID identity,
+  and resolves only through the installed pinned mapping. NLDI and mapping
+  not-found states remain distinct, and live mainstem currentness is unchecked.
 - Selected the USGS NLDI `comid/position` route as the point-to-COMID
   provenance boundary under ADR 0078. Bounded live evidence confirms that the
   route returns NHDPlusV2 COMID identity rather than a Geoconnex mainstem, so

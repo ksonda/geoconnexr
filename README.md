@@ -780,6 +780,14 @@ upstream mainstem PID. If NLDI supplies only a COMID, the function uses the
 same explicitly installed pinned mapping. The `intersects` method remains
 unavailable until its multi-match ranking contract is selected.
 
+`gx_point_to_mainstem(points, check = FALSE)` accepts nonempty
+two-dimensional `sf` or `sfc` Points with a declared CRS. It transforms them to
+OGC CRS84 with PROJ networking disabled, deduplicates identical transformed
+points, and retrieves containing COMIDs through the bounded NLDI position
+route. Every COMID then passes through the explicitly installed pinned mapping.
+An NLDI miss and a COMID absent from the mapping release remain distinct rows;
+neither state triggers an implicit download.
+
 JSON-LD and parser contracts remain experimental. The fixture corpus now
 contains six observed, minimized pages from four landing hosts and five
 semantic providers, plus synthetic conformance/adversarial cases. This closes
