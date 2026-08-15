@@ -24,7 +24,7 @@ gx_crosswalk_huc12s <- function(huc12) {
 }
 
 gx_huc12_method <- function(method) {
-  method <- tryCatch(
+  tryCatch(
     match.arg(method, c("outlet", "intersects")),
     error = function(cnd) {
       gx_abort(
@@ -33,16 +33,6 @@ gx_huc12_method <- function(method) {
       )
     }
   )
-  if (identical(method, "intersects")) {
-    gx_abort(
-      paste(
-        "HUC12 intersection ranking is not part of the public contract yet;",
-        "use {.code method = \"outlet\"}."
-      ),
-      "gx_error_crosswalk_method_unavailable"
-    )
-  }
-  method
 }
 
 gx_huc12_client <- function(client) {
@@ -451,19 +441,23 @@ gx_new_huc12_crosswalk <- function(x, metadata) {
 #'
 #' @param huc12 Character vector containing exact 12-digit hydrologic unit
 #'   codes.
-#' @param method Only `"outlet"` is currently available. Intersection ranking
-#'   remains a separate roadmap decision.
+#' @param method `"outlet"` uses the NLDI pour point. `"intersects"` retrieves
+#'   the reference HUC12 polygon and returns every locally intersecting
+#'   `mainstems_v3` geometry with disclosed ranking metrics.
 #' @param check Must currently be `FALSE`; returned mainstems do not assert
 #'   current live-service state.
 #' @param version Registered mapping release used only when an NLDI response
 #'   omits its mainstem PID.
 #' @param data_dir Package data directory containing an explicitly installed
 #'   lookup when COMID fallback is needed.
-#' @param client An NLDI client created by [gx_client()].
+#' @param client An NLDI client for `method = "outlet"`, a reference client for
+#'   `method = "intersects"`, or `NULL` to construct the matching default.
 #'
-#' @return A `gx_huc12_crosswalk` tibble with one or more rows per input. Its
-#'   `gx_crosswalk` attribute records NLDI requests, diagnostics, counts, and
-#'   release provenance when the COMID fallback was used.
+#' @return For `method = "outlet"`, a `gx_huc12_crosswalk` tibble with NLDI and
+#'   optional mapping provenance. For `method = "intersects"`, a
+#'   `gx_huc12_intersection_crosswalk` tibble containing every ranked geometry
+#'   match, its metrics, observed currentness, replacements, and reference
+#'   request ledger.
 #' @export
 gx_huc12_to_mainstem <- function(
     huc12,
@@ -471,10 +465,16 @@ gx_huc12_to_mainstem <- function(
     check = FALSE,
     version = "v3.2",
     data_dir = gx_default_data_dir(),
-    client = gx_client("nldi")) {
+    client = NULL) {
   method <- gx_huc12_method(method)
   gx_crosswalk_release_check(check)
   huc12 <- gx_crosswalk_huc12s(huc12)
+  if (is.null(client)) {
+    client <- gx_client(if (identical(method, "outlet")) "nldi" else "reference")
+  }
+  if (identical(method, "intersects")) {
+    return(gx_huc12_to_mainstem_intersects(huc12, client))
+  }
   gx_huc12_client(client)
   if (!length(huc12)) {
     out <- gx_empty_huc12_crosswalk()

@@ -66,6 +66,6 @@ and implements an explicit, integrity-checked download/import/offline lifecycle
 plus public release-scoped forward and inverse mappers. ADR 0077 adds the
 fixture-pinned HUC12 outlet path, and ADR 0079 adds the Point position path.
 ADR 0080 exposes the checked `mainstems_v3` currentness and replacement
-contract. ADR 0081 exposes the direct inverse-gage filter, and ADR 0082 selects
-the HUC12 intersection ranking. Remaining M4 work must implement that method
-and compose live currentness with release-scoped crosswalks.
+contract. ADR 0081 exposes the direct inverse-gage filter, ADR 0082 selects the
+HUC12 intersection ranking, and ADR 0083 implements that method. Remaining M4
+work must compose live currentness with release-scoped crosswalks.

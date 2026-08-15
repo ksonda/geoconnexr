@@ -778,7 +778,10 @@ validated HUC12 pour point from the USGS NLDI `huc12pp` source. It deduplicates
 repeated HUC12 requests, returns explicit not-found rows, and prefers the
 upstream mainstem PID. If NLDI supplies only a COMID, the function uses the
 same explicitly installed pinned mapping. The `intersects` method remains
-unavailable until its multi-match ranking contract is selected.
+separate: it retrieves the reference HUC12 polygon and bounded `mainstems_v3`
+bounding-box candidates, computes true intersections locally with S2, and
+returns every match. Rows are ranked by disclosed currentness, outlet-HUC12,
+intersection-length, drainage-area, and PID metrics without selecting one.
 
 `gx_point_to_mainstem(points, check = FALSE)` accepts nonempty
 two-dimensional `sf` or `sfc` Points with a declared CRS. It transforms them to

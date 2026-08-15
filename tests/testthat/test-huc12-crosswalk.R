@@ -178,10 +178,6 @@ test_that("HUC12 public gates fail before transport", {
     stop("transport forbidden", call. = FALSE)
   })
   expect_error(
-    gx_huc12_to_mainstem("010100020101", method = "intersects", client = setup$client),
-    class = "gx_error_crosswalk_method_unavailable"
-  )
-  expect_error(
     gx_huc12_to_mainstem("010100020101", check = TRUE, client = setup$client),
     class = "gx_error_crosswalk_currentness_unavailable"
   )

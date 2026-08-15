@@ -2,6 +2,11 @@
 
 ## Repository foundation
 
+- Added public `gx_huc12_to_mainstem(..., method = "intersects")` under ADR
+  0083. It validates reference HUC12 and `mainstems_v3` contracts, rejects
+  incomplete bounding-box candidate sets, computes true intersections locally
+  with S2, and returns every ranked match with currentness and replacements.
+  It never selects the first row.
 - Selected the HUC12 intersection ranking under ADR 0082. The bounded reference
   probe reduces 41 bounding-box candidates to 17 local S2 intersections and
   ranks every retained result by currentness, exact outlet-HUC12 agreement,
@@ -31,8 +36,7 @@
   It performs bounded, deduplicated USGS NLDI `huc12pp` lookups, validates the
   HUC12 outlet identity and Point geometry, prefers the advertised mainstem,
   and uses the installed pinned COMID mapping only when needed. Not-found rows
-  and release-only currentness semantics stay explicit; intersection ranking
-  remains gated.
+  and release-only currentness semantics stay explicit.
 - Exported release-scoped `gx_comid_to_mainstem()` and
   `gx_mainstem_to_comids()` under ADR 0076. Both operate only on an explicitly
   installed checksum-pinned lookup, keep `currentness_policy = "not_checked"`,

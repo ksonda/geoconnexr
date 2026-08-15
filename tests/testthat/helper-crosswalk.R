@@ -44,7 +44,8 @@ gx_cw_test_router <- function(handler) {
 }
 
 gx_cw_test_client <- function(handler, max_bytes = 1024L * 1024L,
-                              retries = 0L) {
+                              retries = 0L,
+                              .local_envir = parent.frame()) {
   routed <- gx_cw_test_router(handler)
   withr::local_options(
     list(
@@ -54,7 +55,7 @@ gx_cw_test_client <- function(handler, max_bytes = 1024L * 1024L,
       geoconnexr.cache_dir = withr::local_tempdir(),
       geoconnexr.offline = FALSE
     ),
-    .local_envir = parent.frame()
+    .local_envir = .local_envir
   )
   list(
     client = gx_client(
