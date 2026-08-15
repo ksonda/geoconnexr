@@ -223,8 +223,8 @@ test_that("point gates fail before transport", {
     stop("transport forbidden", call. = FALSE)
   })
   expect_error(
-    gx_point_to_mainstem(gx_point_test_geometry(), check = TRUE, client = setup$client),
-    class = "gx_error_crosswalk_currentness_unavailable"
+    gx_point_to_mainstem(gx_point_test_geometry(), check = NA, client = setup$client),
+    class = "gx_error_crosswalk_input"
   )
   invalid <- list(
     c(-75, 39),
@@ -240,6 +240,54 @@ test_that("point gates fail before transport", {
     )
   }
   expect_identical(length(setup$state$calls), 0L)
+})
+
+test_that("Point matches compose live currentness", {
+  data_dir <- withr::local_tempdir()
+  fixture <- gx_lookup_fixture("nhdpv2-lookup-v3.2.sample.csv")
+  spec <- gx_lookup_test_spec(fixture)
+  gx_lookup_mock_spec(spec)
+  gx_mainstem_lookup_install(
+    source = "file", file = fixture, version = spec$release,
+    confirm = FALSE, offline = TRUE, data_dir = data_dir
+  )
+  setup <- gx_point_test_client(function(request, state) {
+    if (grepl("/comid/position[?]", request$url)) {
+      return(gx_point_test_response(request, body = gx_point_test_body()))
+    }
+    if (grepl("/collections/mainstems_v3/queryables$", request$url)) {
+      return(gx_currentness_test_response(
+        request,
+        gx_currentness_test_queryables(),
+        content_type = "application/schema+json"
+      ))
+    }
+    gx_currentness_test_response(
+      request,
+      gx_currentness_test_feature("1622734"),
+      content_type = "application/geo+json"
+    )
+  })
+  currentness_client <- gx_client(
+    "reference", retries = 0L, cache = FALSE
+  )
+  out <- gx_point_to_mainstem(
+    gx_point_test_geometry(),
+    check = TRUE,
+    version = spec$release,
+    data_dir = data_dir,
+    client = setup$client,
+    currentness_client = currentness_client
+  )
+
+  expect_identical(out$mainstem_status, "current")
+  expect_identical(out$replacement_uris, list(character()))
+  expect_false(is.na(out$mainstem_observed_at))
+  expect_identical(out$mainstem_retrieval_mode, "item")
+  metadata <- attr(out, "gx_crosswalk")
+  expect_identical(metadata$currentness_policy, "live_v3_observed")
+  expect_identical(metadata$currentness_dataset_vintage, "3.0")
+  expect_identical(nrow(metadata$requests), 3L)
 })
 
 test_that("point position identity mismatches fail closed", {

@@ -102,12 +102,22 @@ gx_empty_point_crosswalk <- function() {
     mapping_release = character(),
     match_source = character(),
     mainstem_status = character(),
+    replacement_uris = list(),
+    mainstem_observed_at = as.POSIXct(character(), tz = "UTC"),
+    mainstem_retrieval_mode = character(),
     diagnostics = list()
   )
 }
 
 gx_point_row_diagnostics <- function(status, input_index,
-                                     source = NA_character_) {
+                                     source = NA_character_,
+                                     mainstem_status = if (
+                                       identical(status, "not_found")
+                                     ) {
+                                       NA_character_
+                                     } else {
+                                       "active_in_mapping_release"
+                                     }) {
   path <- paste0("/inputs/", input_index - 1L)
   if (identical(status, "not_found")) {
     mapped <- identical(source, "pinned_comid_mapping")
@@ -122,9 +132,8 @@ gx_point_row_diagnostics <- function(status, input_index,
       }
     ))
   }
-  diagnostics <- gx_diagnostic(
-    "info",
-    "mainstem_currentness_not_checked",
+  diagnostics <- gx_crosswalk_currentness_diagnostic(
+    mainstem_status,
     path,
     "The point match is scoped to the pinned mapping release; current service state was not checked."
   )
@@ -271,8 +280,16 @@ gx_point_fetch_one <- function(wkt, client, state, max_requests,
   )
 }
 
-gx_point_metadata <- function(x, point_count, unique_count, requests,
-                              client, mapping = NULL) {
+gx_point_metadata <- function(
+    x,
+    point_count,
+    unique_count,
+    requests,
+    client,
+    mapping = NULL,
+    currentness_policy = "not_checked",
+    currentness_collection = NA_character_,
+    currentness_dataset_vintage = NA_character_) {
   statuses <- if (point_count) {
     vapply(seq_len(point_count), function(index) {
       values <- unique(x$status[x$input_index == index])
@@ -289,7 +306,9 @@ gx_point_metadata <- function(x, point_count, unique_count, requests,
   list(
     contract_version = .gx_crosswalk_contract_version,
     operation = "point_to_mainstem",
-    currentness_policy = "not_checked",
+    currentness_policy = currentness_policy,
+    currentness_collection = currentness_collection,
+    currentness_dataset_vintage = currentness_dataset_vintage,
     input_count = as.integer(point_count),
     unique_input_count = as.integer(unique_count),
     matched_input_count = as.integer(sum(statuses == "matched")),
@@ -310,7 +329,8 @@ gx_validate_point_crosswalk <- function(x, metadata = attr(x, "gx_crosswalk")) {
   expected <- names(gx_empty_point_crosswalk())
   diagnostic_names <- names(gx_empty_diagnostics())
   metadata_expected <- c(
-    "contract_version", "operation", "currentness_policy", "input_count",
+    "contract_version", "operation", "currentness_policy",
+    "currentness_collection", "currentness_dataset_vintage", "input_count",
     "unique_input_count", "matched_input_count", "match_count",
     "not_found_input_count", "ambiguous_input_count", "complete",
     "retrieved_at", "requests", "diagnostics", "nldi", "mapping"
@@ -329,6 +349,9 @@ gx_validate_point_crosswalk <- function(x, metadata = attr(x, "gx_crosswalk")) {
     is.double(x$latitude) && is.character(x$comid) &&
     is.character(x$mainstem_uri) && is.character(x$mapping_release) &&
     is.character(x$match_source) && is.character(x$mainstem_status) &&
+    is.list(x$replacement_uris) &&
+    inherits(x$mainstem_observed_at, "POSIXct") &&
+    is.character(x$mainstem_retrieval_mode) &&
     is.list(x$diagnostics) &&
     all(vapply(x$diagnostics, function(item) {
       is.data.frame(item) && identical(names(item), diagnostic_names)
@@ -336,7 +359,11 @@ gx_validate_point_crosswalk <- function(x, metadata = attr(x, "gx_crosswalk")) {
     is.list(metadata) && identical(names(metadata), metadata_expected) &&
     identical(metadata$contract_version, .gx_crosswalk_contract_version) &&
     identical(metadata$operation, "point_to_mainstem") &&
-    identical(metadata$currentness_policy, "not_checked") &&
+    metadata$currentness_policy %in% c("not_checked", "live_v3_observed") &&
+    is.character(metadata$currentness_collection) &&
+    length(metadata$currentness_collection) == 1L &&
+    is.character(metadata$currentness_dataset_vintage) &&
+    length(metadata$currentness_dataset_vintage) == 1L &&
     all(vapply(metadata[count_names], function(value) {
       is.integer(value) && length(value) == 1L && !is.na(value) && value >= 0L
     }, logical(1))) &&
@@ -360,6 +387,14 @@ gx_validate_point_crosswalk <- function(x, metadata = attr(x, "gx_crosswalk")) {
     mapped <- !is.na(x$match_source) &
       x$match_source == "pinned_comid_mapping"
     nldi_missing <- !mapped & !found
+    allowed_mainstem_status <- if (identical(
+      metadata$currentness_policy,
+      "not_checked"
+    )) {
+      "active_in_mapping_release"
+    } else {
+      c("current", "superseded", "superseded_unresolved")
+    }
     rows_ok <- all(is.finite(x$longitude)) && all(is.finite(x$latitude)) &&
       all(x$longitude >= -180 & x$longitude <= 180) &&
       all(x$latitude >= -90 & x$latitude <= 90) &&
@@ -374,17 +409,46 @@ gx_validate_point_crosswalk <- function(x, metadata = attr(x, "gx_crosswalk")) {
       all(vapply(
         x$mainstem_uri[found], gx_crosswalk_valid_mainstem_uri,
         logical(1), allow_na = FALSE
-      )) &&
-      all(x$mainstem_status[found] == "active_in_mapping_release")
+      )) && all(x$mainstem_status[found] %in% allowed_mainstem_status)
+    currentness_rows_ok <- all(vapply(seq_len(nrow(x)), function(row) {
+      replacements <- x$replacement_uris[[row]]
+      valid_replacements <- all(vapply(
+        replacements,
+        gx_crosswalk_valid_mainstem_uri,
+        logical(1),
+        allow_na = FALSE
+      )) && !anyDuplicated(replacements)
+      if (!valid_replacements) return(FALSE)
+      if (!found[[row]]) {
+        return(length(replacements) == 0L &&
+          is.na(x$mainstem_observed_at[[row]]) &&
+          is.na(x$mainstem_retrieval_mode[[row]]))
+      }
+      if (identical(metadata$currentness_policy, "not_checked")) {
+        return(length(replacements) == 0L &&
+          is.na(x$mainstem_observed_at[[row]]) &&
+          is.na(x$mainstem_retrieval_mode[[row]]))
+      }
+      state_ok <- if (identical(x$mainstem_status[[row]], "current")) {
+        length(replacements) == 0L
+      } else if (identical(x$mainstem_status[[row]], "superseded")) {
+        length(replacements) > 0L
+      } else {
+        length(replacements) == 0L
+      }
+      state_ok && !is.na(x$mainstem_observed_at[[row]]) &&
+        x$mainstem_retrieval_mode[[row]] %in% c("item", "filter")
+    }, logical(1)))
     diagnostics_ok <- all(vapply(seq_len(nrow(x)), function(row) {
       identical(
         x$diagnostics[[row]],
         gx_point_row_diagnostics(
-          x$status[[row]], x$input_index[[row]], x$match_source[[row]]
+          x$status[[row]], x$input_index[[row]], x$match_source[[row]],
+          x$mainstem_status[[row]]
         )
       )
     }, logical(1)))
-    if (!rows_ok || !diagnostics_ok) {
+    if (!rows_ok || !currentness_rows_ok || !diagnostics_ok) {
       gx_abort(
         "Point crosswalk rows do not satisfy their identity contract.",
         "gx_error_crosswalk_contract"
@@ -451,13 +515,26 @@ gx_validate_point_crosswalk <- function(x, metadata = attr(x, "gx_crosswalk")) {
       "gx_error_crosswalk_contract"
     )
   }
+  currentness_metadata_ok <- if (identical(
+    metadata$currentness_policy,
+    "not_checked"
+  )) {
+    is.na(metadata$currentness_collection) &&
+      is.na(metadata$currentness_dataset_vintage)
+  } else {
+    identical(metadata$currentness_collection, .gx_mainstem_collection) &&
+      identical(
+        metadata$currentness_dataset_vintage,
+        .gx_mainstem_dataset_vintage
+      )
+  }
   time_ok <- if (nrow(metadata$requests)) {
     !is.na(metadata$retrieved_at) &&
       identical(metadata$retrieved_at, max(metadata$requests$retrieved_at))
   } else {
     is.na(metadata$retrieved_at)
   }
-  if (!time_ok) {
+  if (!time_ok || !isTRUE(currentness_metadata_ok)) {
     gx_abort(
       "Point crosswalk retrieval time does not reconcile with its ledger.",
       "gx_error_crosswalk_contract"
@@ -473,21 +550,64 @@ gx_new_point_crosswalk <- function(x, metadata) {
   x
 }
 
+gx_point_compose_currentness <- function(
+    out,
+    metadata,
+    client,
+    max_requests,
+    max_total_bytes) {
+  composed <- gx_crosswalk_apply_currentness(
+    out,
+    client,
+    requests = metadata$requests,
+    max_requests = max_requests,
+    max_total_bytes = max_total_bytes
+  )
+  out <- composed$rows
+  out$diagnostics <- lapply(seq_len(nrow(out)), function(row) {
+    gx_point_row_diagnostics(
+      out$status[[row]], out$input_index[[row]], out$match_source[[row]],
+      out$mainstem_status[[row]]
+    )
+  })
+  metadata$currentness_policy <- composed$currentness_policy
+  metadata$currentness_collection <- composed$currentness_collection
+  metadata$currentness_dataset_vintage <-
+    composed$currentness_dataset_vintage
+  metadata$retrieved_at <- gx_crosswalk_retrieved_at(composed$requests)
+  metadata$requests <- composed$requests
+  metadata$diagnostics <- if (nrow(out)) {
+    do.call(
+      gx_bind_diagnostics,
+      c(list(gx_empty_diagnostics()), out$diagnostics)
+    )
+  } else {
+    gx_empty_diagnostics()
+  }
+  attr(out, "gx_crosswalk") <- NULL
+  class(out) <- intersect(class(out), c("tbl_df", "tbl", "data.frame"))
+  gx_new_point_crosswalk(out, metadata)
+}
+
 #' Map Points to release-scoped mainstem PIDs
 #'
 #' Transforms Point geometries to OGC CRS84 with PROJ networking disabled,
 #' retrieves containing NHDPlusV2 COMIDs from the USGS NLDI position route,
 #' then maps those COMIDs through the explicitly installed checksum-pinned
-#' lookup. Lookup data is never installed or refreshed implicitly.
+#' lookup. Lookup data is never installed or refreshed implicitly. With
+#' `check = TRUE`, matched PIDs are checked against live `mainstems_v3` while
+#' retaining every advertised replacement.
 #'
 #' @param points An `sf` or `sfc` object containing nonempty two-dimensional
 #'   Point geometries with a declared CRS.
-#' @param check Must currently be `FALSE`; results do not assert current
-#'   live-service mainstem state.
+#' @param check Whether to compose mapping matches with bounded live
+#'   `mainstems_v3` currentness.
 #' @param version Registered mapping release.
 #' @param data_dir Package data directory containing an explicitly installed
 #'   lookup.
 #' @param client An NLDI client created by [gx_client()].
+#' @param currentness_client A reference client used when `check = TRUE`, or
+#'   `NULL` to construct the default.
 #'
 #' @return A `gx_point_crosswalk` tibble. Its `gx_crosswalk` attribute records
 #'   NLDI requests, mapping provenance, counts, and diagnostics.
@@ -497,19 +617,27 @@ gx_point_to_mainstem <- function(
     check = FALSE,
     version = "v3.2",
     data_dir = gx_default_data_dir(),
-    client = gx_client("nldi")) {
-  gx_crosswalk_release_check(check)
+    client = gx_client("nldi"),
+    currentness_client = NULL) {
+  check <- gx_crosswalk_check(check)
   gx_huc12_client(client)
   normalized <- gx_crosswalk_points(points)
+  max_requests <- gx_crosswalk_max_requests()
+  max_total_bytes <- gx_crosswalk_total_bytes(client)
+  if (check && is.null(currentness_client)) {
+    currentness_client <- gx_client("reference")
+  }
   if (!length(normalized$wkt)) {
     out <- gx_empty_point_crosswalk()
     metadata <- gx_point_metadata(
       out, 0L, 0L, gx_crosswalk_empty_requests(), client
     )
-    return(gx_new_point_crosswalk(out, metadata))
+    out <- gx_new_point_crosswalk(out, metadata)
+    if (!check) return(out)
+    return(gx_point_compose_currentness(
+      out, metadata, currentness_client, max_requests, max_total_bytes
+    ))
   }
-  max_requests <- gx_crosswalk_max_requests()
-  max_total_bytes <- gx_crosswalk_total_bytes(client)
   state <- new.env(parent = emptyenv())
   state$requests <- gx_crosswalk_empty_requests()
   unique_wkt <- unique(normalized$wkt)
@@ -544,6 +672,9 @@ gx_point_to_mainstem <- function(
         mapping_release = NA_character_,
         match_source = NA_character_,
         mainstem_status = NA_character_,
+        replacement_uris = list(character()),
+        mainstem_observed_at = as.POSIXct(NA, tz = "UTC"),
+        mainstem_retrieval_mode = NA_character_,
         diagnostics = list(gx_point_row_diagnostics(
           "not_found", input_index
         ))
@@ -565,6 +696,9 @@ gx_point_to_mainstem <- function(
         mapping_release = matches$mapping_release[[row_index]],
         match_source = "pinned_comid_mapping",
         mainstem_status = matches$mainstem_status[[row_index]],
+        replacement_uris = list(character()),
+        mainstem_observed_at = as.POSIXct(NA, tz = "UTC"),
+        mainstem_retrieval_mode = NA_character_,
         diagnostics = list(gx_point_row_diagnostics(
           status, input_index, "pinned_comid_mapping"
         ))
@@ -580,5 +714,9 @@ gx_point_to_mainstem <- function(
     client,
     mapping = mapping
   )
-  gx_new_point_crosswalk(out, metadata)
+  out <- gx_new_point_crosswalk(out, metadata)
+  if (!check) return(out)
+  gx_point_compose_currentness(
+    out, metadata, currentness_client, max_requests, max_total_bytes
+  )
 }

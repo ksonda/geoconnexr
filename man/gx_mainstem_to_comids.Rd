@@ -8,28 +8,33 @@ gx_mainstem_to_comids(
   mainstem_uri,
   check = FALSE,
   version = "v3.2",
-  data_dir = gx_default_data_dir()
+  data_dir = gx_default_data_dir(),
+  currentness_client = NULL
 )
 }
 \arguments{
 \item{mainstem_uri}{Character vector of canonical Geoconnex mainstem PIDs.}
 
-\item{check}{Must currently be \code{FALSE}. Live \code{mainstems_v3} currentness and
-supersession checks remain a separate roadmap slice.}
+\item{check}{Whether to compose release membership with bounded live
+\code{mainstems_v3} currentness.}
 
 \item{version}{Registered mapping release.}
 
 \item{data_dir}{Package data directory containing an explicitly installed
 lookup. See \code{\link[=gx_mainstem_lookup_install]{gx_mainstem_lookup_install()}}.}
+
+\item{currentness_client}{A reference client used only when \code{check = TRUE},
+or \code{NULL} to construct the default.}
 }
 \value{
 A \code{gx_mainstem_comid_crosswalk} tibble. Its \code{gx_crosswalk} attribute
-records mapping release, checksum provenance, counts, and the
-\code{not_checked} currentness policy.
+records mapping release, checksum provenance, counts, currentness policy,
+and the redacted live request ledger.
 }
 \description{
 Returns every NHDPlus COMID associated with each canonical mainstem PID in
 an explicitly installed, checksum-pinned \code{ref_rivers} lookup. The function
-never downloads or refreshes lookup data. Results are complete only within
-that mapping release and do not claim current live-service state.
+never downloads or refreshes lookup data. With \code{check = TRUE}, the requested
+PIDs are also checked against \code{mainstems_v3}, including PIDs with no COMID in
+the selected mapping release.
 }

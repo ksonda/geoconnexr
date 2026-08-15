@@ -55,7 +55,7 @@ gx_crosswalk_total_bytes <- function(client) {
   )
 }
 
-gx_crosswalk_release_check <- function(check) {
+gx_crosswalk_check <- function(check) {
   valid <- is.logical(check) && length(check) == 1L && !is.na(check) &&
     is.null(attributes(check))
   if (!valid) {
@@ -64,17 +64,167 @@ gx_crosswalk_release_check <- function(check) {
       "gx_error_crosswalk_input"
     )
   }
-  if (isTRUE(check)) {
+  isTRUE(check)
+}
+
+gx_crosswalk_currentness_diagnostic <- function(
+    mainstem_status,
+    path,
+    unchecked_message) {
+  if (mainstem_status %in% c(
+    "active_in_mapping_release",
+    "currentness_not_checked"
+  )) {
+    return(gx_diagnostic(
+      "info",
+      "mainstem_currentness_not_checked",
+      path,
+      unchecked_message
+    ))
+  }
+  if (identical(mainstem_status, "current")) {
+    return(gx_diagnostic(
+      "info",
+      "mainstem_current",
+      path,
+      "The matched mainstem is current in the observed mainstems_v3 feature."
+    ))
+  }
+  if (identical(mainstem_status, "superseded")) {
+    return(gx_diagnostic(
+      "warning",
+      "mainstem_superseded",
+      path,
+      "The matched mainstem is superseded; every advertised replacement is preserved."
+    ))
+  }
+  if (identical(mainstem_status, "superseded_unresolved")) {
+    return(gx_diagnostic(
+      "warning",
+      "mainstem_superseded_unresolved",
+      path,
+      "The matched mainstem is superseded but the observed feature advertises no replacement."
+    ))
+  }
+  gx_abort(
+    "The crosswalk row has an unsupported mainstem currentness state.",
+    "gx_error_crosswalk_contract"
+  )
+}
+
+gx_crosswalk_retrieved_at <- function(
+    requests,
+    fallback = as.POSIXct(NA, tz = "UTC")) {
+  values <- c(fallback, requests$retrieved_at)
+  if (!length(values) || all(is.na(values))) return(as.POSIXct(NA, tz = "UTC"))
+  max(values, na.rm = TRUE)
+}
+
+gx_crosswalk_apply_currentness <- function(
+    x,
+    client,
+    requests = gx_crosswalk_empty_requests(),
+    max_requests = gx_crosswalk_max_requests(),
+    max_total_bytes = gx_crosswalk_total_bytes(client),
+    uri_column = "mainstem_uri") {
+  gx_ref_client(client)
+  required <- c(
+    uri_column, "mainstem_status", "replacement_uris",
+    "mainstem_observed_at", "mainstem_retrieval_mode"
+  )
+  if (!is.data.frame(x) || !all(required %in% names(x)) ||
+      !is.data.frame(requests) ||
+      !identical(names(requests), names(gx_crosswalk_empty_requests()))) {
     gx_abort(
-      paste(
-        "Live mainstem currentness checks are not part of the public",
-        "crosswalk contract yet; use {.code check = FALSE} for the",
-        "checksum-pinned release mapping."
-      ),
-      "gx_error_crosswalk_currentness_unavailable"
+      "The crosswalk cannot be composed with live currentness.",
+      "gx_error_crosswalk_contract"
     )
   }
-  FALSE
+  remaining_requests <- max_requests - nrow(requests)
+  remaining_bytes <- floor(max_total_bytes - sum(as.double(requests$bytes)))
+  if (remaining_requests < 0L || !is.finite(remaining_bytes) ||
+      remaining_bytes < 0) {
+    gx_abort(
+      "The composed currentness workflow exhausted its aggregate budget.",
+      "gx_error_crosswalk_budget",
+      requests = requests
+    )
+  }
+  row_uris <- x[[uri_column]]
+  uris <- unique(row_uris[!is.na(row_uris)])
+  if (!length(uris)) {
+    return(list(
+      rows = x,
+      requests = requests,
+      currentness_policy = "live_v3_observed",
+      currentness_collection = .gx_mainstem_collection,
+      currentness_dataset_vintage = .gx_mainstem_dataset_vintage
+    ))
+  }
+  if (remaining_requests < 1L || remaining_bytes < 1) {
+    gx_abort(
+      "The composed currentness workflow exhausted its aggregate budget.",
+      "gx_error_crosswalk_budget",
+      requests = requests
+    )
+  }
+  call_client <- client
+  call_client$retries <- 0L
+  call_client$max_bytes <- as.integer(min(
+    as.double(client$max_bytes),
+    remaining_bytes
+  ))
+  checked <- tryCatch(
+    gx_mainstem_impl(
+      uris,
+      client = call_client,
+      max_requests = as.integer(remaining_requests),
+      max_total_bytes = as.integer(remaining_bytes)
+    ),
+    error = function(cnd) gx_crosswalk_rethrow(cnd, requests)
+  )
+  checked_metadata <- attr(checked, "gx_crosswalk")
+  merged_requests <- gx_crosswalk_merge_requests(
+    requests,
+    checked_metadata$requests
+  )
+  if (nrow(merged_requests) > max_requests ||
+      sum(as.double(merged_requests$bytes)) > max_total_bytes) {
+    gx_abort(
+      "The composed currentness workflow exceeded its aggregate budget.",
+      "gx_error_crosswalk_budget",
+      requests = merged_requests
+    )
+  }
+  for (row in seq_len(nrow(x))) {
+    uri <- row_uris[[row]]
+    if (is.na(uri)) next
+    observed <- checked[checked$requested_mainstem_uri == uri, , drop = FALSE]
+    statuses <- unique(observed$status)
+    observed_at <- unique(observed$observed_at)
+    retrieval_mode <- unique(observed$retrieval_mode)
+    if (length(statuses) != 1L || length(observed_at) != 1L ||
+        length(retrieval_mode) != 1L) {
+      gx_abort(
+        "Live currentness did not preserve one observed state per mainstem.",
+        "gx_error_crosswalk_currentness_contract",
+        requests = merged_requests
+      )
+    }
+    x$mainstem_status[[row]] <- statuses[[1L]]
+    x$replacement_uris[[row]] <- observed$replacement_uri[
+      !is.na(observed$replacement_uri)
+    ]
+    x$mainstem_observed_at[[row]] <- observed_at[[1L]]
+    x$mainstem_retrieval_mode[[row]] <- retrieval_mode[[1L]]
+  }
+  list(
+    rows = x,
+    requests = merged_requests,
+    currentness_policy = "live_v3_observed",
+    currentness_collection = .gx_mainstem_collection,
+    currentness_dataset_vintage = .gx_mainstem_dataset_vintage
+  )
 }
 
 gx_crosswalk_provider_ids <- function(provider_id) {

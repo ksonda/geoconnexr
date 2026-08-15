@@ -178,8 +178,8 @@ test_that("HUC12 public gates fail before transport", {
     stop("transport forbidden", call. = FALSE)
   })
   expect_error(
-    gx_huc12_to_mainstem("010100020101", check = TRUE, client = setup$client),
-    class = "gx_error_crosswalk_currentness_unavailable"
+    gx_huc12_to_mainstem("010100020101", check = NA, client = setup$client),
+    class = "gx_error_crosswalk_input"
   )
   for (value in list(10100020101, NA_character_, "01010002010", "01010002010x")) {
     expect_error(
@@ -188,6 +188,50 @@ test_that("HUC12 public gates fail before transport", {
     )
   }
   expect_identical(length(setup$state$calls), 0L)
+})
+
+test_that("HUC12 outlet matches compose live currentness", {
+  replacement <- "https://geoconnex.us/ref/mainstems/2239150"
+  setup <- gx_huc12_test_client(function(request, state) {
+    if (grepl("/huc12pp/010100020101[?]f=json$", request$url)) {
+      return(gx_huc12_test_response(
+        request,
+        body = gx_huc12_test_fixture()
+      ))
+    }
+    if (grepl("/collections/mainstems_v3/queryables$", request$url)) {
+      return(gx_currentness_test_response(
+        request,
+        gx_currentness_test_queryables(),
+        content_type = "application/schema+json"
+      ))
+    }
+    gx_currentness_test_response(
+      request,
+      gx_currentness_test_feature(
+        "2239149", TRUE, paste0("['", replacement, "']")
+      ),
+      content_type = "application/geo+json"
+    )
+  })
+  currentness_client <- gx_client(
+    "reference", retries = 0L, cache = FALSE
+  )
+  out <- gx_huc12_to_mainstem(
+    "010100020101",
+    check = TRUE,
+    client = setup$client,
+    currentness_client = currentness_client
+  )
+
+  expect_identical(out$mainstem_status, "superseded")
+  expect_identical(out$replacement_uris, list(replacement))
+  expect_false(is.na(out$mainstem_observed_at))
+  expect_identical(out$mainstem_retrieval_mode, "item")
+  metadata <- attr(out, "gx_crosswalk")
+  expect_identical(metadata$currentness_policy, "live_v3_observed")
+  expect_identical(metadata$currentness_collection, "mainstems_v3")
+  expect_identical(nrow(metadata$requests), 3L)
 })
 
 test_that("HUC12 identity mismatches fail closed", {

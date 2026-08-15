@@ -286,23 +286,11 @@ gx_new_mainstem_currentness <- function(x, metadata) {
   x
 }
 
-#' Check current and superseded mainstem PIDs
-#'
-#' Retrieves each unique PID from the `mainstems_v3` reference collection and
-#' preserves the requested PID, superseded state, every advertised replacement,
-#' collection, dataset vintage, observation time, retrieval mode, and request
-#' ledger. Replacement PIDs are never followed or ranked automatically.
-#'
-#' @param mainstem_uri Character vector of canonical Geoconnex mainstem PIDs.
-#' @param client A reference client created by [gx_client()].
-#'
-#' @return A `gx_mainstem_currentness` tibble. Superseded one-to-many mappings
-#'   occupy one row per replacement. Its `gx_crosswalk` attribute contains
-#'   aggregate counts, diagnostics, and the redacted request ledger.
-#' @export
-gx_mainstem <- function(
+gx_mainstem_impl <- function(
     mainstem_uri,
-    client = gx_client("reference")) {
+    client,
+    max_requests,
+    max_total_bytes) {
   mainstem_uri <- gx_crosswalk_mainstem_uris(mainstem_uri)
   gx_ref_client(client)
   if (!length(mainstem_uri)) {
@@ -313,8 +301,6 @@ gx_mainstem <- function(
     return(gx_new_mainstem_currentness(out, metadata))
   }
   unique_uri <- unique(mainstem_uri)
-  max_requests <- gx_crosswalk_max_requests()
-  max_total_bytes <- gx_crosswalk_total_bytes(client)
   if (length(unique_uri) * 4 > max_requests) {
     gx_abort(
       "Mainstem currentness inputs exceed the conservative request allocation.",
@@ -372,4 +358,29 @@ gx_mainstem <- function(
   out <- tibble::as_tibble(do.call(rbind, rows))
   metadata <- gx_mainstem_currentness_metadata(out, mainstem_uri, requests)
   gx_new_mainstem_currentness(out, metadata)
+}
+
+#' Check current and superseded mainstem PIDs
+#'
+#' Retrieves each unique PID from the `mainstems_v3` reference collection and
+#' preserves the requested PID, superseded state, every advertised replacement,
+#' collection, dataset vintage, observation time, retrieval mode, and request
+#' ledger. Replacement PIDs are never followed or ranked automatically.
+#'
+#' @param mainstem_uri Character vector of canonical Geoconnex mainstem PIDs.
+#' @param client A reference client created by [gx_client()].
+#'
+#' @return A `gx_mainstem_currentness` tibble. Superseded one-to-many mappings
+#'   occupy one row per replacement. Its `gx_crosswalk` attribute contains
+#'   aggregate counts, diagnostics, and the redacted request ledger.
+#' @export
+gx_mainstem <- function(
+    mainstem_uri,
+    client = gx_client("reference")) {
+  gx_mainstem_impl(
+    mainstem_uri,
+    client = client,
+    max_requests = gx_crosswalk_max_requests(),
+    max_total_bytes = gx_crosswalk_total_bytes(client)
+  )
 }

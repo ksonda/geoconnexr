@@ -2,6 +2,10 @@
 
 ## Repository foundation
 
+- Completed M4 currentness composition under ADR 0084. The public COMID,
+  inverse COMID, HUC12 outlet, and Point crosswalks now accept `check = TRUE`,
+  retain the original match, preserve every live replacement, and merge the
+  bounded request evidence. No replacement is followed or selected.
 - Added public `gx_huc12_to_mainstem(..., method = "intersects")` under ADR
   0083. It validates reference HUC12 and `mainstems_v3` contracts, rejects
   incomplete bounding-box candidate sets, computes true intersections locally
@@ -39,9 +43,9 @@
   and release-only currentness semantics stay explicit.
 - Exported release-scoped `gx_comid_to_mainstem()` and
   `gx_mainstem_to_comids()` under ADR 0076. Both operate only on an explicitly
-  installed checksum-pinned lookup, keep `currentness_policy = "not_checked"`,
-  and reject `check = TRUE` until the separate bounded live-v3 currentness
-  workflow is implemented.
+  installed checksum-pinned lookup and keep
+  `currentness_policy = "not_checked"` unless the caller requests the separate
+  bounded live-v3 composition.
 - Selected `mainstems_v3` and dataset vintage 3.0 as the default mainstem
   representation under ADR 0075 while preserving the shared
   `/ref/mainstems/` PID namespace. The v3 JSON-LD fallback now accepts that

@@ -770,8 +770,10 @@ download, refresh, or repair data. Inverse matches are complete only within the
 pinned mapping release, use deterministic COMID ordering, and explicitly do not
 assert current service state. `gx_comid_to_mainstem(..., check = FALSE)` and
 `gx_mainstem_to_comids(..., check = FALSE)` expose this release-only contract.
-They return `currentness_policy = "not_checked"`; `check = TRUE` fails with a
-classed error until the bounded live-v3 currentness workflow is implemented.
+They return `currentness_policy = "not_checked"`. With `check = TRUE`, each
+source match keeps its original PID and adds bounded live-v3 status, observation
+provenance, and every advertised replacement. The inverse also checks a
+requested PID that is absent from the selected mapping release.
 
 `gx_huc12_to_mainstem(..., method = "outlet", check = FALSE)` retrieves one
 validated HUC12 pour point from the USGS NLDI `huc12pp` source. It deduplicates
@@ -789,14 +791,16 @@ OGC CRS84 with PROJ networking disabled, deduplicates identical transformed
 points, and retrieves containing COMIDs through the bounded NLDI position
 route. Every COMID then passes through the explicitly installed pinned mapping.
 An NLDI miss and a COMID absent from the mapping release remain distinct rows;
-neither state triggers an implicit download.
+neither state triggers an implicit download. `check = TRUE` adds the same
+bounded live currentness record to every matched PID.
 
 `gx_mainstem(mainstem_uri)` performs the separate live currentness check
 against `mainstems_v3`. It deduplicates transport while preserving input order,
 reports current, superseded, and superseded-without-replacement states, and
 retains every advertised replacement PID. It never follows or ranks a
-replacement, never falls back to legacy mainstem geometry, and does not change
-the release-only semantics of the other crosswalks.
+replacement or falls back to legacy mainstem geometry. ADR 0084 composes this
+contract into the checked COMID, HUC12 outlet, and Point crosswalks without
+changing their source matches.
 
 `gx_mainstem_to_gages(mainstem_uri)` queries the reference service's advertised
 `mainstem_uri` property and returns every matching gage in deterministic PID

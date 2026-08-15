@@ -9,15 +9,16 @@ gx_point_to_mainstem(
   check = FALSE,
   version = "v3.2",
   data_dir = gx_default_data_dir(),
-  client = gx_client("nldi")
+  client = gx_client("nldi"),
+  currentness_client = NULL
 )
 }
 \arguments{
 \item{points}{An \code{sf} or \code{sfc} object containing nonempty two-dimensional
 Point geometries with a declared CRS.}
 
-\item{check}{Must currently be \code{FALSE}; results do not assert current
-live-service mainstem state.}
+\item{check}{Whether to compose mapping matches with bounded live
+\code{mainstems_v3} currentness.}
 
 \item{version}{Registered mapping release.}
 
@@ -25,6 +26,9 @@ live-service mainstem state.}
 lookup.}
 
 \item{client}{An NLDI client created by \code{\link[=gx_client]{gx_client()}}.}
+
+\item{currentness_client}{A reference client used when \code{check = TRUE}, or
+\code{NULL} to construct the default.}
 }
 \value{
 A \code{gx_point_crosswalk} tibble. Its \code{gx_crosswalk} attribute records
@@ -34,5 +38,7 @@ NLDI requests, mapping provenance, counts, and diagnostics.
 Transforms Point geometries to OGC CRS84 with PROJ networking disabled,
 retrieves containing NHDPlusV2 COMIDs from the USGS NLDI position route,
 then maps those COMIDs through the explicitly installed checksum-pinned
-lookup. Lookup data is never installed or refreshed implicitly.
+lookup. Lookup data is never installed or refreshed implicitly. With
+\code{check = TRUE}, matched PIDs are checked against live \code{mainstems_v3} while
+retaining every advertised replacement.
 }
