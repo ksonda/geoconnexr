@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 concurrency:
   group: geoconnexr-live-smoke
@@ -81,3 +82,93 @@ jobs:
             stop_on_warning = TRUE
           )
         shell: Rscript {0}
+
+      - name: Open or refresh the live-smoke incident
+        if: ${{ failure() }}
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const title = "[live-smoke] Weekly upstream compatibility failure";
+            const runUrl =
+              `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const issues = await github.paginate(
+              github.rest.issues.listForRepo,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: "open",
+                per_page: 100
+              }
+            );
+            const existing = issues.find(
+              (issue) => !issue.pull_request && issue.title === title
+            );
+            const body = [
+              "The bounded weekly live smoke workflow failed.",
+              "",
+              `Run: ${runUrl}`,
+              `Commit: \`${context.sha}\``,
+              "",
+              `Owner: @${context.repo.owner}`,
+              "Response target: triage within three business days."
+            ].join("\n");
+
+            if (existing) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body
+              });
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                assignees: [context.repo.owner]
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                assignees: [context.repo.owner]
+              });
+            }
+
+      - name: Close a recovered live-smoke incident
+        if: ${{ success() }}
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const title = "[live-smoke] Weekly upstream compatibility failure";
+            const issues = await github.paginate(
+              github.rest.issues.listForRepo,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: "open",
+                per_page: 100
+              }
+            );
+            const existing = issues.find(
+              (issue) => !issue.pull_request && issue.title === title
+            );
+
+            if (existing) {
+              const runUrl =
+                `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body: `The bounded live checks recovered: ${runUrl}`
+              });
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                state: "closed",
+                state_reason: "completed"
+              });
+            }

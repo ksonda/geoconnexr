@@ -55,6 +55,28 @@ gx_crosswalk_total_bytes <- function(client) {
   )
 }
 
+gx_crosswalk_release_check <- function(check) {
+  valid <- is.logical(check) && length(check) == 1L && !is.na(check) &&
+    is.null(attributes(check))
+  if (!valid) {
+    gx_abort(
+      "{.arg check} must be one non-missing logical value.",
+      "gx_error_crosswalk_input"
+    )
+  }
+  if (isTRUE(check)) {
+    gx_abort(
+      paste(
+        "Live mainstem currentness checks are not part of the public",
+        "crosswalk contract yet; use {.code check = FALSE} for the",
+        "checksum-pinned release mapping."
+      ),
+      "gx_error_crosswalk_currentness_unavailable"
+    )
+  }
+  FALSE
+}
+
 gx_crosswalk_provider_ids <- function(provider_id) {
   if (!is.character(provider_id)) {
     gx_abort(

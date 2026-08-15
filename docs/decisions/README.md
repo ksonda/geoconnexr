@@ -78,6 +78,12 @@ and link both records rather than rewriting history.
 | [0070](0070-public-mixed-resource-frictionless-packages.md) | Accepted public boundary | Complete fixed-package M9 with mixed-resource Frictionless publication |
 | [0071](0071-versioned-publisher-profile.md) | Accepted public boundary | Publish one versioned JSON-LD and sitemap profile |
 | [0072](0072-shared-publisher-conformance.md) | Accepted P4 portability boundary | Share publisher conformance assets across R and Python |
+| [0073](0073-owned-live-smoke-alerts.md) | Accepted operations policy | Assign and notify the weekly live-smoke owner |
+| [0074](0074-configurable-experimental-graph-endpoint.md) | Accepted experimental upstream contract | Keep the documented graph root configurable and experimental |
+| [0075](0075-mainstems-v3-default-and-explicit-migration.md) | Accepted experimental upstream contract | Use mainstems_v3 with explicit migration |
+| [0076](0076-public-release-scoped-comid-crosswalks.md) | Accepted public boundary | Export COMID crosswalks with release-only currentness semantics |
+| [0077](0077-public-huc12-outlet-crosswalk.md) | Accepted public boundary | Map HUC12 outlets through bounded NLDI evidence |
+| [0078](0078-nldi-position-to-pinned-comid-contract.md) | Accepted experimental upstream contract | Resolve points through NLDI COMIDs and the pinned mapping |
 
 Each ADR states its context, decision, consequences, and status. Proposed ADRs
 may change; accepted ADRs govern implementation until superseded.

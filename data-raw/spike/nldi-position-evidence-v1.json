@@ -1,0 +1,49 @@
+{
+  "schema_version": "1",
+  "checked_at": "2026-08-15T10:45:22Z",
+  "service": {
+    "name": "USGS Network Linked Data Index",
+    "endpoint": "https://api.water.usgs.gov/nldi/linked-data/comid/position",
+    "documentation": [
+      "https://api.water.usgs.gov/docs/nldi/feature-sources/",
+      "https://api.water.usgs.gov/docs/nldi/response-formats/"
+    ]
+  },
+  "stored_fixture": {
+    "path": "tests/fixtures/nldi/comid-position-9406116.min.geojson",
+    "normalization": "live response bytes plus one final LF",
+    "bytes": 816,
+    "sha256": "9a7dba3c67d56f5c44035a3227704bd84970aa95e7cca6896ce7a6d5ab1f3a97"
+  },
+  "probes": [
+    {
+      "coords_wkt": "POINT(-75.732089877 39.049379755)",
+      "case": "huc12_demo_outlet",
+      "status": 200,
+      "media_type": "application/geo+json",
+      "bytes": 815,
+      "sha256": "c59c06f5b1f40347e210c5f8d3b852c059829f9324383664cf4da364aa407904",
+      "feature_count": 1,
+      "feature_geometry": "LineString",
+      "source": "comid",
+      "comid": "9406116",
+      "mainstem_uri": null
+    },
+    {
+      "coords_wkt": "POINT(0 0)",
+      "case": "outside_indexed_catchments",
+      "status": 404,
+      "media_type": "application/problem+json",
+      "bytes": 106,
+      "sha256": "86eb70e56e13bfc3eab2b0f01ac8245ad702aa3106ee05fa23a983b3b29426ac",
+      "feature_count": 0
+    }
+  ],
+  "observations": [
+    "The position route returns the containing NHDPlusV2 COMID as a LineString feature.",
+    "Feature id, properties.identifier, and properties.comid repeat the same COMID.",
+    "The checked position response does not advertise a Geoconnex mainstem PID.",
+    "A point outside indexed catchments returns HTTP 404 problem JSON.",
+    "Point-to-mainstem implementation must resolve the returned COMID through the pinned mapping release."
+  ]
+}

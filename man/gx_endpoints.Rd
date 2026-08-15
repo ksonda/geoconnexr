@@ -7,10 +7,12 @@
 gx_endpoints()
 }
 \value{
-A named character vector with \code{graph}, \code{reference}, and \code{pid}.
+A named character vector with \code{graph}, \code{reference}, \code{pid}, and
+\code{nldi}.
 }
 \description{
-Returns the configured service endpoints. These values are defaults, not a
-guarantee that an upstream service is available or stable. Override them
+Returns the configured service endpoints, including the USGS NLDI base used
+by hydrologic crosswalks. These values are defaults, not a guarantee that an
+upstream service is available or stable. Override them
 with \verb{options(geoconnexr.endpoint_<name> = "...")}.
 }

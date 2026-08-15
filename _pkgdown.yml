@@ -81,6 +81,9 @@ reference:
   desc: Map provider identifiers and manage the optional NHDPlus lookup.
   contents:
   - gx_gage_to_pid
+  - gx_comid_to_mainstem
+  - gx_huc12_to_mainstem
+  - gx_mainstem_to_comids
   - gx_mainstem_lookup_info
   - gx_mainstem_lookup_install
 

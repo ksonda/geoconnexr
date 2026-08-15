@@ -1,0 +1,133 @@
+{
+  "evidence_version": "1.0.0",
+  "checked_at": "2026-08-15T10:09:40Z",
+  "live_observations_mutable": true,
+  "purpose": "Bounded current, superseded, v3, and large-geometry evidence for the P0 mainstem vintage decision.",
+  "upstream": {
+    "repository": "https://github.com/internetofwater/ref_rivers",
+    "commit": "0179ae6d4d7bfa4e135f6d2805223a85c489976a",
+    "committed_at": "2026-07-17T20:24:02Z",
+    "dataset_release": "3.0",
+    "dataset_release_date": "2026-01",
+    "persistent_identity_namespace": "https://geoconnex.us/ref/mainstems/",
+    "reported_identifier_count": 850000,
+    "reported_new_identifier_count": 818908,
+    "reported_retained_v2_count": 33745,
+    "reported_superseded_count": 155
+  },
+  "collections": {
+    "legacy": {
+      "id": "mainstems",
+      "title": "Reference Mainstems",
+      "explicit_vintage_metadata": false
+    },
+    "v3": {
+      "id": "mainstems_v3",
+      "title": "Reference Mainstems V3",
+      "explicit_vintage_metadata": false
+    }
+  },
+  "cases": {
+    "current_large": {
+      "id": "29559",
+      "uri": "https://geoconnex.us/ref/mainstems/29559",
+      "superseded": false,
+      "length_km": 2137.5,
+      "legacy": {
+        "retrieval_mode": "filter",
+        "attempt_stages": ["item", "filter"],
+        "request_count": 3,
+        "coordinate_count": 2120,
+        "geometry_wkb_bytes": 33929,
+        "aggregate_response_bytes": 286920,
+        "jsonld_status": 200,
+        "jsonld_media_type": "application/ld+json",
+        "jsonld_bytes": 83678,
+        "jsonld_sha256": "0ff67577c6f27b46d67b68def343178a791d1ca974d168af79b660c1db7acd84",
+        "jsonld_identity": "https://geoconnex.us/ref/mainstems/29559"
+      },
+      "v3": {
+        "retrieval_mode": "item",
+        "attempt_stages": ["item"],
+        "request_count": 2,
+        "coordinate_count": 5448,
+        "geometry_wkb_bytes": 87177,
+        "aggregate_response_bytes": 551832,
+        "jsonld_status": 200,
+        "jsonld_media_type": "application/ld+json",
+        "jsonld_bytes": 213963,
+        "jsonld_sha256": "c69aebd3c58aae33bd24b518b81b78cedfa961db076736fc5a510691ca5bc62b",
+        "jsonld_identity": "https://geoconnex.us/ref/mainstems/29559"
+      }
+    },
+    "superseded": {
+      "id": "12726",
+      "uri": "https://geoconnex.us/ref/mainstems/12726",
+      "superseded": true,
+      "replacement_uris": [
+        "https://geoconnex.us/ref/mainstems/147890"
+      ],
+      "length_km": 31.4,
+      "legacy": {
+        "retrieval_mode": "item",
+        "request_count": 2,
+        "coordinate_count": 36,
+        "geometry_wkb_bytes": 585,
+        "aggregate_response_bytes": 76068,
+        "jsonld_status": 200,
+        "jsonld_media_type": "application/ld+json",
+        "jsonld_bytes": 2444,
+        "jsonld_sha256": "136bc6e08e95db3199a54e34738c33acab272821348cf02860577e02c61fa261",
+        "jsonld_parse": "invalid_json"
+      },
+      "v3": {
+        "retrieval_mode": "item",
+        "request_count": 2,
+        "coordinate_count": 36,
+        "geometry_wkb_bytes": 585,
+        "aggregate_response_bytes": 10096,
+        "jsonld_status": 200,
+        "jsonld_media_type": "application/ld+json",
+        "jsonld_bytes": 2444,
+        "jsonld_sha256": "136bc6e08e95db3199a54e34738c33acab272821348cf02860577e02c61fa261",
+        "jsonld_parse": "invalid_json"
+      }
+    },
+    "replacement_current": {
+      "id": "147890",
+      "uri": "https://geoconnex.us/ref/mainstems/147890",
+      "superseded": false,
+      "length_km": 32.3,
+      "legacy": {
+        "retrieval_mode": "item",
+        "request_count": 2,
+        "coordinate_count": 40,
+        "geometry_wkb_bytes": 649,
+        "aggregate_response_bytes": 9721,
+        "jsonld_status": 200,
+        "jsonld_bytes": 2608,
+        "jsonld_sha256": "3c1d91d2fad27308782cf702ad244c554791d486ec2c9de838cdabb685891cec",
+        "jsonld_identity": "https://geoconnex.us/ref/mainstems/147890"
+      },
+      "v3": {
+        "retrieval_mode": "item",
+        "request_count": 2,
+        "coordinate_count": 40,
+        "geometry_wkb_bytes": 649,
+        "aggregate_response_bytes": 10676,
+        "jsonld_status": 200,
+        "jsonld_bytes": 2608,
+        "jsonld_sha256": "96ec2223b1cc8deee63e9b9b1364deb1bea36590444d7c1f4124a3f281fca88b",
+        "jsonld_identity": "https://geoconnex.us/ref/mainstems/147890"
+      }
+    }
+  },
+  "decision_support": {
+    "default_collection": "mainstems_v3",
+    "dataset_vintage": "3.0",
+    "identity_namespace": "https://geoconnex.us/ref/mainstems/",
+    "migration_policy": "report_supersession_and_replacements_without_automatic_follow",
+    "legacy_collection_fallback": "disabled",
+    "jsonld_fallback": "best_effort_incomplete"
+  }
+}

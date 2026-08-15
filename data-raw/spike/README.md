@@ -19,11 +19,22 @@ POSTs. Store large/raw captures outside the package; commit only minimized,
 sanitized fixtures and SHA-256 evidence sidecars.
 
 The M2 JSON-LD corpus closes its module-level profile fixture requirement. M3
-now has hash-pinned collection/queryable schemas, checked legacy-item failure
-evidence, and deterministic pagination/empty-result tests. Current,
-superseded, v3, and full large-geometry evidence remains open, as do the
-mainstem-vintage decision, graph contract decision, and measured delivery
-estimate.
+has hash-pinned collection/queryable schemas, checked fallback behavior, and
+deterministic pagination/empty-result tests. ADR 0075 selects `mainstems_v3`
+and records current, superseded, replacement, and full large-geometry evidence
+in `mainstem-vintage-evidence-v1.json`. The measured delivery estimate remains
+open. ADR 0074 closes the graph endpoint decision by selecting the documented
+root as a configurable experimental contract. Its bounded SELECT and ASK
+evidence is recorded in `graph-contract-evidence-v1.json`.
+
+`huc12pp-contract-evidence-v1.json` pins successful and absent USGS NLDI
+`huc12pp` item responses, including one HUC12 inside the end-to-end demo HUC10.
+ADR 0077 uses that evidence for the public outlet method. Spatial intersection
+ranking remains open.
+
+`nldi-position-evidence-v1.json` pins successful and absent NLDI
+`comid/position` responses. ADR 0078 selects that route as the point provenance
+boundary and requires every returned COMID to pass through the pinned mapping.
 
 The installed `huc10-usgs-daily-demo.tgz` fixture records the current USGS
 daily fetch, reviewed flow-unit conversion, Frictionless package, closed-tree
@@ -31,7 +42,9 @@ verification, typed hydration, and offline stored-state inspection for HUC10
 `0206000502`. Its caller-supplied profile keeps the case study independent
 of the upstream graph and records that AOI membership was not rechecked.
 Automatic HUC10 site discovery therefore remains an open part of the P0
-spatial evidence gate.
+spatial evidence gate. A 2026-08-15 one-site probe reached the package's
+30-second graph boundary without a result; the evidence report records that
+failure without treating it as proof that the AOI has no sites.
 
 The M4a gage crosswalk has separate hash-pinned queryable and known-answer
 fixtures. `m4-upstream-evidence-v1.json` pins the checked upstream commit,
@@ -39,6 +52,7 @@ release asset, checksum, and contrasting known answers that invalidated the
 earlier COMID→VAA `levelpathi`→mainstem assumption: those identifiers are not
 interchangeable. M4b now mirrors that audit in an immutable installed registry
 and implements an explicit, integrity-checked download/import/offline lifecycle
-plus a local-only forward mapper. Remaining M4 evidence must resolve mainstem
-currentness/supersession, HUC and point provenance, and inverse ranking before
-their public APIs are exported.
+plus public release-scoped forward and inverse mappers. ADR 0077 adds the
+fixture-pinned HUC12 outlet path. Remaining M4 evidence must resolve bounded
+live mainstem currentness, HUC12 intersection ranking, point implementation,
+inverse-gage behavior, and mainstem resolution.

@@ -36,10 +36,10 @@ identifier/recipe foundations, recorded infrastructure evidence, and offline
 tests. Its first protocol slices add bounded, cache-aware PID resolution,
 fail-closed JSON-LD negotiation and profile parsing, a native OGC API Features
 client for Geoconnex reference collections, and a validated provider-gage PID
-crosswalk. A second M4 substrate provides an explicit, checksum-pinned install
-lifecycle for the optional 120 MB COMID-to-mainstem lookup without yet exposing
-the evidence-gated public crosswalks; internal forward and release-scoped
-inverse mappers operate only on verified local bytes. An unexported M5a
+crosswalk. A second M4 slice provides an explicit, checksum-pinned install
+lifecycle for the optional 120 MB COMID-to-mainstem lookup and public
+release-scoped forward and inverse crosswalks over verified local bytes. These
+crosswalks make no live currentness claim. An unexported M5a
 substrate now
 supports bounded one-shot SELECT/ASK evidence through the package safety and
 cache boundary. The M5b named-query manifest is separately hardened for local
@@ -749,25 +749,36 @@ The first crosswalk validates the reference service's advertised
 `provider_id`, gage identity, and PID before returning a match. Repeated inputs
 are queried once and expanded in order; no match receives an explicit sentinel
 row, and multiple distinct matches are all returned as ambiguous. Advertised
-COMIDs remain character values. Advertised mainstem URIs are retained but are
-diagnosed as vintage-unverified until the mainstem policy is resolved.
+COMIDs remain character values. Advertised mainstem URIs are retained without
+an implicit service lookup. ADR 0075 selects `mainstems_v3` and dataset
+vintage 3.0 for explicit currentness checks.
 
 Query-bearing feature responses are intentionally non-cacheable, so filtered
-offline replay and gage crosswalk lookup are not promised. Cross-vintage
-`mainstems_v3` identity aliasing also remains unresolved and is never inferred
-silently. VAA `levelpathi` values are not Geoconnex mainstem identifiers, so
-the package does not construct mainstem PIDs from them.
+offline replay and gage crosswalk lookup are not promised. The
+`mainstems_v3` collection shares the persistent `/ref/mainstems/` PID
+namespace. Superseded PIDs and every advertised replacement remain explicit;
+the package never follows them automatically. VAA `levelpathi` values are not
+Geoconnex mainstem identifiers, so the package does not construct mainstem
+PIDs from them.
 
 The optional NHDPlusV2 lookup is stored outside the expiring HTTP cache and is
 addressed by its pinned v3.2 SHA-256 digest. Installation streams to a staging
 file, validates each HTTPS redirect, exact size, digest, CSV schema, row count,
 known answers, and a non-sensitive provenance receipt before atomic exposure.
-Lookup inspection and the internal vectorized forward and inverse mappers never
+Lookup inspection and the public vectorized forward and inverse mappers never
 download, refresh, or repair data. Inverse matches are complete only within the
 pinned mapping release, use deterministic COMID ordering, and explicitly do not
-assert current service state. The public `gx_comid_to_mainstem()` and
-`gx_mainstem_to_comids()` functions remain unexported until the mainstem
-current/superseded contract is selected.
+assert current service state. `gx_comid_to_mainstem(..., check = FALSE)` and
+`gx_mainstem_to_comids(..., check = FALSE)` expose this release-only contract.
+They return `currentness_policy = "not_checked"`; `check = TRUE` fails with a
+classed error until the bounded live-v3 currentness workflow is implemented.
+
+`gx_huc12_to_mainstem(..., method = "outlet", check = FALSE)` retrieves one
+validated HUC12 pour point from the USGS NLDI `huc12pp` source. It deduplicates
+repeated HUC12 requests, returns explicit not-found rows, and prefers the
+upstream mainstem PID. If NLDI supplies only a COMID, the function uses the
+same explicitly installed pinned mapping. The `intersects` method remains
+unavailable until its multi-match ranking contract is selected.
 
 JSON-LD and parser contracts remain experimental. The fixture corpus now
 contains six observed, minimized pages from four landing hosts and five

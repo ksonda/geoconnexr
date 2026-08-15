@@ -1300,7 +1300,7 @@ test_that("top-level JSON-LD arrays remain compatible with the final fallback", 
   expect_s3_class(sf::st_geometry(out), "sfc_POINT")
 })
 
-test_that("mainstems v3 does not inherit a legacy JSON-LD identity", {
+test_that("mainstems v3 JSON-LD uses the shared persistent identity", {
   id <- "29559"
   setup <- gx_ref_test_client(function(request, state) {
     if (endsWith(request$url, "/collections/mainstems_v3/items/29559?f=json")) {
@@ -1328,15 +1328,18 @@ test_that("mainstems v3 does not inherit a legacy JSON-LD identity", {
     stop("Unexpected request: ", request$url, call. = FALSE)
   })
 
-  error <- tryCatch(
-    gx_ref_feature("mainstems_v3", id, client = setup$client),
-    error = identity
-  )
+  out <- gx_ref_feature("mainstems_v3", id, client = setup$client)
+  metadata <- attr(out, "gx_reference")
 
-  expect_s3_class(error, "gx_error_reference_feature")
-  expect_identical(error$attempts$stage, c("item", "filter", "jsonld"))
-  expect_identical(error$attempts$code[[3]], "reference_identity")
-  expect_equal(nrow(error$requests), 4L)
+  expect_s3_class(out, "gx_ref_feature")
+  expect_identical(out$feature_id, id)
+  expect_identical(out$id, id)
+  expect_s3_class(sf::st_geometry(out), "sfc_LINESTRING")
+  expect_identical(metadata$retrieval_mode, "jsonld")
+  expect_false(metadata$complete)
+  expect_identical(metadata$attempts$stage, c("item", "filter", "jsonld"))
+  expect_true(is.na(metadata$attempts$code[[3]]))
+  expect_equal(nrow(metadata$requests), 4L)
 })
 
 test_that("reference JSON depth budgets hard-stop before fallback", {

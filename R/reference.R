@@ -1909,13 +1909,21 @@ gx_ref_condition_status <- function(cnd) {
   NA_integer_
 }
 
+gx_ref_pid_collection <- function(collection) {
+  if (identical(as.character(collection), "mainstems_v3")) {
+    return("mainstems")
+  }
+  as.character(collection)
+}
+
 #' Retrieve one reference feature with compatible fallbacks
 #'
 #' Tries the OGC item route first, then a collection filter using the
 #' queryable marked `x-ogc-role: id`, and finally direct JSON-LD negotiation on
 #' the item URL. Every successful path verifies the requested identity. The
 #' JSON-LD path is marked incomplete because it can expose fewer properties
-#' than GeoJSON.
+#' than GeoJSON. The `mainstems_v3` collection shares the persistent
+#' `/ref/mainstems/` identity namespace selected by ADR 0075.
 #'
 #' @param collection One advertised collection identifier.
 #' @param id One feature identifier. It is always returned as character.
@@ -2116,9 +2124,13 @@ gx_ref_feature <- function(collection, id, client = gx_client("reference")) {
     gx_ref_assert_total_bytes(requests, max_total_bytes)
     out <- gx_ref_jsonld_feature_sf(negotiated$document, id)
     source_identity <- attr(out, "gx_source_identity")
+    pid_collection_path <- gx_ref_path_segment(
+      gx_ref_pid_collection(collection),
+      "collection"
+    )
     expected_pid <- paste0(
       sub("/+$", "", gx_endpoints()[["pid"]]),
-      "/ref/", collection_path, "/", id_path
+      "/ref/", pid_collection_path, "/", id_path
     )
     if (!is.character(source_identity) || length(source_identity) != 1L ||
         is.na(source_identity) || !source_identity %in% c(item_url, expected_pid)) {

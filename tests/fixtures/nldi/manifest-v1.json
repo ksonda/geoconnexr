@@ -1,0 +1,21 @@
+{
+  "schema_version": "1",
+  "fixtures": [
+    {
+      "path": "huc12pp-010100020101.min.geojson",
+      "evidence": "data-raw/spike/huc12pp-contract-evidence-v1.json",
+      "checked_at": "2026-08-15T10:20:02Z",
+      "normalization": "live response bytes plus one final LF",
+      "bytes": 517,
+      "sha256": "5ffd408a850b3b7d27810c68a98fb55bc5a1a8b21d55121b25e44648797bcadd"
+    },
+    {
+      "path": "comid-position-9406116.min.geojson",
+      "evidence": "data-raw/spike/nldi-position-evidence-v1.json",
+      "checked_at": "2026-08-15T10:45:22Z",
+      "normalization": "live response bytes plus one final LF",
+      "bytes": 816,
+      "sha256": "9a7dba3c67d56f5c44035a3227704bd84970aa95e7cca6896ce7a6d5ab1f3a97"
+    }
+  ]
+}
