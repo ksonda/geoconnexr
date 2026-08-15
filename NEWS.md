@@ -2,6 +2,12 @@
 
 ## Repository foundation
 
+- Added the internal M1 central scheduler under ADR 0088. It reserves total and
+  per-host permits plus physical-attempt request and byte budgets before
+  dispatch, coalesces compatible identical cache keys, releases unused byte
+  reservations on completion, and collects results in source order even when
+  work completes out of order. Curl multi and public fetch integration remain
+  separate slices.
 - Replaced the provisional phase ranges with the measured remaining-delivery
   baseline in ADR 0087. The plan now separates focused implementation days,
   observed CI latency, additive provider-family work, and the upstream-blocked
