@@ -749,14 +749,17 @@ The first crosswalk validates the reference service's advertised
 `provider_id`, gage identity, and PID before returning a match. Repeated inputs
 are queried once and expanded in order; no match receives an explicit sentinel
 row, and multiple distinct matches are all returned as ambiguous. Advertised
-COMIDs remain character values. Advertised mainstem URIs are retained but are
-diagnosed as vintage-unverified until the mainstem policy is resolved.
+COMIDs remain character values. Advertised mainstem URIs are retained without
+an implicit service lookup. ADR 0075 selects `mainstems_v3` and dataset
+vintage 3.0 for explicit currentness checks.
 
 Query-bearing feature responses are intentionally non-cacheable, so filtered
-offline replay and gage crosswalk lookup are not promised. Cross-vintage
-`mainstems_v3` identity aliasing also remains unresolved and is never inferred
-silently. VAA `levelpathi` values are not Geoconnex mainstem identifiers, so
-the package does not construct mainstem PIDs from them.
+offline replay and gage crosswalk lookup are not promised. The
+`mainstems_v3` collection shares the persistent `/ref/mainstems/` PID
+namespace. Superseded PIDs and every advertised replacement remain explicit;
+the package never follows them automatically. VAA `levelpathi` values are not
+Geoconnex mainstem identifiers, so the package does not construct mainstem
+PIDs from them.
 
 The optional NHDPlusV2 lookup is stored outside the expiring HTTP cache and is
 addressed by its pinned v3.2 SHA-256 digest. Installation streams to a staging
@@ -766,8 +769,8 @@ Lookup inspection and the internal vectorized forward and inverse mappers never
 download, refresh, or repair data. Inverse matches are complete only within the
 pinned mapping release, use deterministic COMID ordering, and explicitly do not
 assert current service state. The public `gx_comid_to_mainstem()` and
-`gx_mainstem_to_comids()` functions remain unexported until the mainstem
-current/superseded contract is selected.
+`gx_mainstem_to_comids()` functions remain unexported until their wrappers
+compose the selected live v3 check or label results as release-only.
 
 JSON-LD and parser contracts remain experimental. The fixture corpus now
 contains six observed, minimized pages from four landing hosts and five

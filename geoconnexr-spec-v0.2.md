@@ -27,8 +27,8 @@ The target remains an R-first package for discovery, identifier crosswalks, and 
 |---|---|
 | M1 | Partial experimental slice: bounded transport, cache/offline behavior, redirects, PID resolution, package-owned retries, full physical-attempt accounting, and per-host throttling are implemented; bounded concurrency remains open. |
 | M2 | Experimental PID/JSON-LD/profile slice implemented with a hash-pinned provider corpus; contract freeze remains P0-gated. |
-| M3 | Experimental native reference-client slice implemented with typed schemas, bounded pagination, and identity-checked fallbacks; cross-vintage and full large-geometry evidence remain open under ADR 0004. |
-| M4 | Partial experimental slices M4a/M4b/M4c: `gx_gage_to_pid()` is implemented, and the v3.2 COMID lookup now has an explicit verified install lifecycle plus internal offline forward and release-scoped inverse mappers; public COMID, HUC12, point, inverse, and currentness contracts remain gated under ADRs 0004, 0008, 0009, and 0015. |
+| M3 | Experimental native reference-client slice implemented with typed schemas, bounded pagination, and identity-checked fallbacks. ADR 0075 selects `mainstems_v3`, preserves the shared persistent PID namespace, and records current, superseded, replacement, and full large-geometry evidence. |
+| M4 | Partial experimental slices M4a/M4b/M4c: `gx_gage_to_pid()` is implemented, and the v3.2 COMID lookup has an explicit verified install lifecycle plus internal offline forward and release-scoped inverse mappers. ADR 0075 closes the vintage and migration policy; public COMID wrappers still need an explicit live-v3 or release-only result contract, while HUC12 and point ranking remain gated. |
 | M5 | Partial experimental M5a/M5b: an unexported one-logical-request SELECT/ASK substrate provides strict bounded SPARQL 1.1 Results JSON parsing and provenance, while the public local renderer consumes an exact-byte-pinned render-only v2 template manifest with execution, chunking, and pagination disabled. ADR 0074 selects the documented graph root as a configurable experimental contract; public raw graph APIs and paging remain gated. |
 | M6 | Public bounded slice under ADR 0035: `gx_aoi()` canonicalizes identifiers and custom polygonal geometry; `gx_catalog()` populates the strict catalog value object from one graph page, explicit PID profiles, or named caller-supplied local JSON-LD. Automatic graph discovery remains upstream-dependent, and nonempty reference layers, general merge, full replay, and upstream-derived AOI modes remain gated. |
 | M7 | Complete for the supported subset under ADR 0034. `gx_fetch_plan()` publishes deterministic catalog selection, and `gx_fetch()` returns a validated `gx_fetched` object over direct CSV, WQP Result, EDR position, current USGS continuous, current USGS daily, and OGC API Features. Execution is sequential, bounded, single-page, failure-isolating, and provenance-preserving. Latest/legacy USGS, other EDR queries, pagination, registration, serialization, and replay are deferred enhancements and do not reopen M7. |
@@ -49,7 +49,7 @@ evidence for this plan, not permanent API guarantees.
 | Gage lookup | `provider_id=USGS-08332622` returns gage `1000001`, mainstem `1622734`, and COMID `17789327` | Retain as a fixture-backed known answer |
 | COMID/mainstem mapping | NHDPlus VAA `levelpathi` values do not equal Geoconnex mainstem identifiers; `ref_rivers` v3.2 supplies a 120,422,425-byte, 2,357,730-row lookup with unique COMIDs | Never construct a mainstem PID from `levelpathi`; require an explicit checksum-pinned install and never auto-download from a crosswalk |
 | Gage JSON-LD | Content negotiation works, but the live document uses a literal hydro-location type, string provider IRI, nested `HY_IndirectPosition`, and a WKT value object | Standards expansion plus tolerant profile extraction and diagnostics are required |
-| Mainstem item | `/collections/mainstems/items/29559` returned HTTP 500 while filtered collection retrieval worked | Implement item → filtered collection → negotiated JSON-LD fallbacks; include a large geometry fixture |
+| Mainstem collections | The legacy large-item route still needs exact-filter fallback; `mainstems_v3` returns fuller geometry directly, shares the persistent PID namespace, and exposes supersession replacements | Default to `mainstems_v3`; never auto-follow replacements or silently downgrade to legacy geometry |
 | SPARQL | Official documentation names the graph root and shows POST; bounded SELECT and ASK probes returned SPARQL Results JSON, while the documentation still calls graph querying active development | Use the root as a configurable experimental default; keep raw graph APIs unexported |
 | GeoSPARQL | Spatial functions use namespace `http://www.opengis.net/def/function/geosparql/` and prefix `geof:` | `gsp:sfIntersects` from v0.1 is a correctness bug and must not appear in templates |
 | NLDI | `huc12pp` is advertised, but its HUC12 response contract is not yet fixture-pinned | Gate HUC12 implementation on bounded response evidence, then resolve any returned COMID through the checksum-pinned mainstem lookup |
@@ -139,7 +139,8 @@ Implementation may scaffold before these finish, but public 0.1.0 contracts may 
 1. package name and owning GitHub organization — closed by ADR 0001;
 2. MIT vs Apache-2.0 license — closed by ADR 0002;
 3. CRAN intent and release channel — closed by ADR 0003;
-4. `mainstems` vs `mainstems_v3` default and vintage/migration policy — open;
+4. `mainstems` vs `mainstems_v3` default and vintage/migration policy,
+   closed by ADR 0075;
 5. whether graph POST-at-root is a supported public contract, closed as
    configurable and experimental by ADR 0074;
 6. support/ownership for weekly live-service alerts, closed by ADR 0073.
@@ -255,8 +256,8 @@ The implemented M4a slice is `gx_gage_to_pid()`. It verifies that the service
 honored each provider filter and that feature, property, and advertised PID
 identities agree; returns explicit not-found and ambiguous rows; preserves
 duplicate input order while deduplicating transport; and enforces aggregate
-batch budgets. Advertised mainstem URIs are retained as vintage-unverified
-related values.
+batch budgets. Advertised mainstem URIs are retained without performing the
+separate live v3 currentness check selected by ADR 0075.
 
 The implemented M4b substrate pins the `ref_rivers` v3.2 asset in an immutable
 runtime registry. `gx_mainstem_lookup_install()` is the only disclosed download
@@ -271,8 +272,10 @@ URI and returns every member COMID in deterministic order, or one explicit
 not-found sentinel. It preserves duplicate input order, caps aggregate matches
 and expanded rows, and carries release and checksum provenance. Completeness
 and active status are scoped only to that mapping release; current service
-state is not checked. Neither public direction is exported until
-supersession/currentness, point-provenance, and ranking contracts are resolved.
+state is not checked. ADR 0075 now defines supersession and migration, but
+neither public direction is exported until its wrapper composes an explicit
+live-v3 or release-only result contract. Point provenance and ranking remain
+separate gates.
 
 The intersects spike must decide whether ranking means outlet-in-polygon, intersection length, drainage area, or a documented combination. `is_largest` alone is not an outlet semantic.
 
@@ -2091,10 +2094,10 @@ De-scope in this order: SensorThings, report polish, optional reference layers, 
 
 Only these product decisions remain open after this review:
 
-1. mainstem vintage/default and migration behavior;
-2. whether administrative layers such as water rights are future scope.
+1. whether administrative layers such as water rights are future scope.
 
 ADR 0073 closes live-monitor ownership and response expectations. ADR 0074
-closes the graph endpoint decision without exposing a stable raw-query API.
+closes the graph endpoint decision without exposing a stable raw-query API. ADR
+0075 closes the mainstem vintage and migration decision.
 
 The old EDR package-status question and the existence of `huc12pp` are no longer open. SensorThings is evidence-gated rather than assumed.

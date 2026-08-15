@@ -2,6 +2,11 @@
 
 ## Repository foundation
 
+- Selected `mainstems_v3` and dataset vintage 3.0 as the default mainstem
+  representation under ADR 0075 while preserving the shared
+  `/ref/mainstems/` PID namespace. The v3 JSON-LD fallback now accepts that
+  exact shared identity. Superseded identifiers and all advertised
+  replacements remain explicit and are never followed automatically.
 - Added an installed HUC10 case study that runs catalog, bounded current-USGS
   daily fetch, harmonization, Frictionless packaging, closed-tree verification,
   typed hydration, and offline stored-state inspection. The live guide uses a

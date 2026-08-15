@@ -19,13 +19,13 @@ POSTs. Store large/raw captures outside the package; commit only minimized,
 sanitized fixtures and SHA-256 evidence sidecars.
 
 The M2 JSON-LD corpus closes its module-level profile fixture requirement. M3
-now has hash-pinned collection/queryable schemas, checked legacy-item failure
-evidence, and deterministic pagination/empty-result tests. Current,
-superseded, v3, and full large-geometry evidence remains open, as do the
-mainstem-vintage decision and measured delivery estimate. ADR 0074 closes the
-graph endpoint decision by selecting the documented root as a configurable
-experimental contract. The bounded SELECT and ASK evidence is recorded in
-`graph-contract-evidence-v1.json`.
+has hash-pinned collection/queryable schemas, checked fallback behavior, and
+deterministic pagination/empty-result tests. ADR 0075 selects `mainstems_v3`
+and records current, superseded, replacement, and full large-geometry evidence
+in `mainstem-vintage-evidence-v1.json`. The measured delivery estimate remains
+open. ADR 0074 closes the graph endpoint decision by selecting the documented
+root as a configurable experimental contract. Its bounded SELECT and ASK
+evidence is recorded in `graph-contract-evidence-v1.json`.
 
 The installed `huc10-usgs-daily-demo.tgz` fixture records the current USGS
 daily fetch, reviewed flow-unit conversion, Frictionless package, closed-tree
