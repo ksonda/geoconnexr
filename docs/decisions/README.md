@@ -79,6 +79,7 @@ and link both records rather than rewriting history.
 | [0071](0071-versioned-publisher-profile.md) | Accepted public boundary | Publish one versioned JSON-LD and sitemap profile |
 | [0072](0072-shared-publisher-conformance.md) | Accepted P4 portability boundary | Share publisher conformance assets across R and Python |
 | [0073](0073-owned-live-smoke-alerts.md) | Accepted operations policy | Assign and notify the weekly live-smoke owner |
+| [0074](0074-configurable-experimental-graph-endpoint.md) | Accepted experimental upstream contract | Keep the documented graph root configurable and experimental |
 
 Each ADR states its context, decision, consequences, and status. Proposed ADRs
 may change; accepted ADRs govern implementation until superseded.

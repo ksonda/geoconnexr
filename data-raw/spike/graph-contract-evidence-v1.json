@@ -1,0 +1,58 @@
+{
+  "evidence_version": "1.0.0",
+  "checked_at": "2026-08-15T10:03:09Z",
+  "live_observations_mutable": true,
+  "purpose": "Bounded evidence for the P0 graph endpoint decision and the remaining HUC10 spatial-discovery gate.",
+  "sources": [
+    {
+      "id": "official-dataset-discovery-docs",
+      "url": "https://docs.geoconnex.us/access/examples/datasets/",
+      "observation": "The documentation names https://graph.geoconnex.us as the SPARQL endpoint and includes a POST example using application/sparql-query."
+    },
+    {
+      "id": "official-access-overview",
+      "url": "https://docs.geoconnex.us/access/overview",
+      "observation": "The documentation describes graph query functionality as active development."
+    }
+  ],
+  "probes": {
+    "select": {
+      "endpoint": "https://graph.geoconnex.us/",
+      "query": "sites_on_mainstem",
+      "mainstem_uri": "https://geoconnex.us/ref/mainstems/1622734",
+      "limit": 10,
+      "status": 200,
+      "media_type": "application/sparql-results+json",
+      "response_bytes": 2382,
+      "body_sha256": "490036f193a2a17690a78b08bd2c12bb172decb6fa7c5939e47921de20b84677",
+      "rows": 4,
+      "physical_attempts": 1,
+      "checked_gage_uri": "https://geoconnex.us/ref/gages/1000001",
+      "checked_gage_present": true
+    },
+    "ask": {
+      "endpoint": "https://graph.geoconnex.us/",
+      "subject_uri": "https://geoconnex.us/ref/gages/1000001",
+      "status": 200,
+      "media_type": "application/sparql-results+json",
+      "response_bytes": 38,
+      "body_sha256": "d952aa3737c9d3555dc6930dae8d669be9699456ddc42cc302e4394d60b9a975",
+      "physical_attempts": 1,
+      "value": true
+    },
+    "spatial_huc10": {
+      "huc10": "0206000502",
+      "template": "sites_in_aoi",
+      "limit": 1,
+      "graph_timeout_seconds": 30,
+      "elapsed_seconds": 31.223,
+      "outcome": "error",
+      "error_class": "gx_error_catalog_discovery_graph",
+      "message": "The bounded Geoconnex graph site query failed."
+    }
+  },
+  "decision_support": {
+    "endpoint_contract": "configurable_experimental",
+    "automatic_huc10_spatial_discovery": "open"
+  }
+}

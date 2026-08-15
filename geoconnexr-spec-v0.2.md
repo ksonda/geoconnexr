@@ -2,7 +2,7 @@
 
 **Status:** Accepted implementation roadmap; a stable 0.1.0 contract freeze is gated on the remaining P0 decisions and vertical-spike evidence below
 **Version:** 0.2.0
-**Reviewed:** 2026-07-27
+**Reviewed:** 2026-08-15
 
 ## 0. Executive decision
 
@@ -21,7 +21,7 @@ The product concept is worth building and the layered architecture is sound. The
 
 The target remains an R-first package for discovery, identifier crosswalks, and watershed data snapshots across the Geoconnex ecosystem.
 
-### Implementation status (2026-08-03)
+### Implementation status (2026-08-15)
 
 | Module | Status |
 |---|---|
@@ -29,7 +29,7 @@ The target remains an R-first package for discovery, identifier crosswalks, and 
 | M2 | Experimental PID/JSON-LD/profile slice implemented with a hash-pinned provider corpus; contract freeze remains P0-gated. |
 | M3 | Experimental native reference-client slice implemented with typed schemas, bounded pagination, and identity-checked fallbacks; cross-vintage and full large-geometry evidence remain open under ADR 0004. |
 | M4 | Partial experimental slices M4a/M4b/M4c: `gx_gage_to_pid()` is implemented, and the v3.2 COMID lookup now has an explicit verified install lifecycle plus internal offline forward and release-scoped inverse mappers; public COMID, HUC12, point, inverse, and currentness contracts remain gated under ADRs 0004, 0008, 0009, and 0015. |
-| M5 | Partial experimental M5a/M5b: an unexported one-logical-request SELECT/ASK substrate provides strict bounded SPARQL 1.1 Results JSON parsing and provenance, while the public local renderer now consumes an exact-byte-pinned render-only v2 template manifest with explicit disabled execution, chunking, and pagination; public graph APIs, endpoint support, and paging remain gated under ADRs 0004, 0012, and 0013. |
+| M5 | Partial experimental M5a/M5b: an unexported one-logical-request SELECT/ASK substrate provides strict bounded SPARQL 1.1 Results JSON parsing and provenance, while the public local renderer consumes an exact-byte-pinned render-only v2 template manifest with execution, chunking, and pagination disabled. ADR 0074 selects the documented graph root as a configurable experimental contract; public raw graph APIs and paging remain gated. |
 | M6 | Public bounded slice under ADR 0035: `gx_aoi()` canonicalizes identifiers and custom polygonal geometry; `gx_catalog()` populates the strict catalog value object from one graph page, explicit PID profiles, or named caller-supplied local JSON-LD. Automatic graph discovery remains upstream-dependent, and nonempty reference layers, general merge, full replay, and upstream-derived AOI modes remain gated. |
 | M7 | Complete for the supported subset under ADR 0034. `gx_fetch_plan()` publishes deterministic catalog selection, and `gx_fetch()` returns a validated `gx_fetched` object over direct CSV, WQP Result, EDR position, current USGS continuous, current USGS daily, and OGC API Features. Execution is sequential, bounded, single-page, failure-isolating, and provenance-preserving. Latest/legacy USGS, other EDR queries, pagination, registration, serialization, and replay are deferred enhancements and do not reopen M7. |
 | M8 | Partial M8a–M8e under ADRs 0036–0040: `gx_target_units()` selects reviewed dimension-safe targets and `gx_harmonize()` normalizes strict EDR position, current USGS continuous/daily, exact catalog-aligned single-characteristic WQP payloads, explicitly mapped single-variable UTC direct-CSV tables, and explicitly mapped OGC API Features properties offline. WQP civil times use a hash-bound reviewed fixed-offset asset for 23 active WQX timezone codes. `gx_csv_mapping()` and `gx_feature_mapping()` bind exact field roles and missing tokens without schema inference; generated feature IDs and geometry cannot supply observation roles. The result preserves raw/native access and applies only exact directed rules after catalog/native corroboration. Broader WQP/CSV/Features schemas and broader variable alignment remain open; the fixed M9 CSV/raw package path now admits harmonized inputs. |
@@ -38,7 +38,9 @@ The target remains an R-first package for discovery, identifier crosswalks, and 
 
 ## 1. Validation ledger
 
-These observations were checked against production or current primary package documentation on 2026-07-12, 2026-07-13, and 2026-07-20. They are evidence for this plan, not permanent API guarantees.
+These observations were checked against production or current primary package
+documentation on 2026-07-12, 2026-07-13, 2026-07-20, and 2026-08-15. They are
+evidence for this plan, not permanent API guarantees.
 
 | Surface | Observation | Planning consequence |
 |---|---|---|
@@ -48,7 +50,7 @@ These observations were checked against production or current primary package do
 | COMID/mainstem mapping | NHDPlus VAA `levelpathi` values do not equal Geoconnex mainstem identifiers; `ref_rivers` v3.2 supplies a 120,422,425-byte, 2,357,730-row lookup with unique COMIDs | Never construct a mainstem PID from `levelpathi`; require an explicit checksum-pinned install and never auto-download from a crosswalk |
 | Gage JSON-LD | Content negotiation works, but the live document uses a literal hydro-location type, string provider IRI, nested `HY_IndirectPosition`, and a WKT value object | Standards expansion plus tolerant profile extraction and diagnostics are required |
 | Mainstem item | `/collections/mainstems/items/29559` returned HTTP 500 while filtered collection retrieval worked | Implement item → filtered collection → negotiated JSON-LD fallbacks; include a large geometry fixture |
-| SPARQL | POSTing a small SELECT to the graph root works; the verified indirect-position path returns four sites for mainstem `1622734` | POST only; retain the two-path UNION while the graph shape is mixed |
+| SPARQL | Official documentation names the graph root and shows POST; bounded SELECT and ASK probes returned SPARQL Results JSON, while the documentation still calls graph querying active development | Use the root as a configurable experimental default; keep raw graph APIs unexported |
 | GeoSPARQL | Spatial functions use namespace `http://www.opengis.net/def/function/geosparql/` and prefix `geof:` | `gsp:sfIntersects` from v0.1 is a correctness bug and must not appear in templates |
 | NLDI | `huc12pp` is advertised, but its HUC12 response contract is not yet fixture-pinned | Gate HUC12 implementation on bounded response evidence, then resolve any returned COMID through the checksum-pinned mainstem lookup |
 | `nhdplusTools` | Current docs expose `get_vaa(atts=)`, `discover_nhdplus_id()`, `get_nldi_basin()`, and Geoconnex reference helpers | Use guarded wrappers; do not re-export a package in Suggests |
@@ -138,7 +140,8 @@ Implementation may scaffold before these finish, but public 0.1.0 contracts may 
 2. MIT vs Apache-2.0 license — closed by ADR 0002;
 3. CRAN intent and release channel — closed by ADR 0003;
 4. `mainstems` vs `mainstems_v3` default and vintage/migration policy — open;
-5. whether graph POST-at-root is a supported public contract — open;
+5. whether graph POST-at-root is a supported public contract, closed as
+   configurable and experimental by ADR 0074;
 6. support/ownership for weekly live-service alerts, closed by ADR 0073.
 
 ### 4.2 Required vertical spike
@@ -309,8 +312,9 @@ rows, zero-width solutions, all-unbound solutions, and bound empty literals
 without allocating a dense rows-by-variables table. ASK preserves one logical
 value. Both forms retain query/document hashes and redacted request/physical-
 attempt provenance, never the raw query or response body. This checkpoint does
-not implement or export `gx_sparql()`, satisfy M5 acceptance, prove the graph
-root as a supported endpoint, or authorize arbitrary user SPARQL.
+not implement or export `gx_sparql()`, satisfy M5 acceptance, or authorize
+arbitrary user SPARQL. ADR 0074 later accepts the documented graph root only as
+a configurable experimental upstream contract.
 
 The implemented M5b checkpoint replaces the earlier aspirational manifest with
 a render-only v2 contract. Every reviewed SELECT template declares its exact
@@ -2088,9 +2092,9 @@ De-scope in this order: SensorThings, report polish, optional reference layers, 
 Only these product decisions remain open after this review:
 
 1. mainstem vintage/default and migration behavior;
-2. supported SPARQL public endpoint contract;
-3. whether administrative layers such as water rights are future scope.
+2. whether administrative layers such as water rights are future scope.
 
-ADR 0073 closes live-monitor ownership and response expectations.
+ADR 0073 closes live-monitor ownership and response expectations. ADR 0074
+closes the graph endpoint decision without exposing a stable raw-query API.
 
 The old EDR package-status question and the existence of `huc12pp` are no longer open. SensorThings is evidence-gated rather than assumed.

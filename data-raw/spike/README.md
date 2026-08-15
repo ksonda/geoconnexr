@@ -22,8 +22,10 @@ The M2 JSON-LD corpus closes its module-level profile fixture requirement. M3
 now has hash-pinned collection/queryable schemas, checked legacy-item failure
 evidence, and deterministic pagination/empty-result tests. Current,
 superseded, v3, and full large-geometry evidence remains open, as do the
-mainstem-vintage decision, graph contract decision, and measured delivery
-estimate.
+mainstem-vintage decision and measured delivery estimate. ADR 0074 closes the
+graph endpoint decision by selecting the documented root as a configurable
+experimental contract. The bounded SELECT and ASK evidence is recorded in
+`graph-contract-evidence-v1.json`.
 
 The installed `huc10-usgs-daily-demo.tgz` fixture records the current USGS
 daily fetch, reviewed flow-unit conversion, Frictionless package, closed-tree
@@ -31,7 +33,9 @@ verification, typed hydration, and offline stored-state inspection for HUC10
 `0206000502`. Its caller-supplied profile keeps the case study independent
 of the upstream graph and records that AOI membership was not rechecked.
 Automatic HUC10 site discovery therefore remains an open part of the P0
-spatial evidence gate.
+spatial evidence gate. A 2026-08-15 one-site probe reached the package's
+30-second graph boundary without a result; the evidence report records that
+failure without treating it as proof that the AOI has no sites.
 
 The M4a gage crosswalk has separate hash-pinned queryable and known-answer
 fixtures. `m4-upstream-evidence-v1.json` pins the checked upstream commit,
