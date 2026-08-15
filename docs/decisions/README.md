@@ -86,6 +86,7 @@ and link both records rather than rewriting history.
 | [0078](0078-nldi-position-to-pinned-comid-contract.md) | Accepted experimental upstream contract | Resolve points through NLDI COMIDs and the pinned mapping |
 | [0079](0079-public-point-to-mainstem-crosswalk.md) | Accepted public boundary | Publish bounded Point to mainstem crosswalking |
 | [0080](0080-public-mainstem-currentness.md) | Accepted public boundary | Publish bounded mainstem currentness without following replacements |
+| [0081](0081-public-mainstem-to-gages.md) | Accepted public boundary | Map mainstem PIDs to every matching reference gage |
 
 Each ADR states its context, decision, consequences, and status. Proposed ADRs
 may change; accepted ADRs govern implementation until superseded.

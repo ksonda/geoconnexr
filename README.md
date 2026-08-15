@@ -795,6 +795,12 @@ retains every advertised replacement PID. It never follows or ranks a
 replacement, never falls back to legacy mainstem geometry, and does not change
 the release-only semantics of the other crosswalks.
 
+`gx_mainstem_to_gages(mainstem_uri)` queries the reference service's advertised
+`mainstem_uri` property and returns every matching gage in deterministic PID
+order. It deduplicates repeated inputs, returns a sentinel row for a complete
+empty answer, and validates gage, provider, mainstem, and optional COMID
+identity. The result records that live mainstem currentness was not checked.
+
 JSON-LD and parser contracts remain experimental. The fixture corpus now
 contains six observed, minimized pages from four landing hosts and five
 semantic providers, plus synthetic conformance/adversarial cases. This closes

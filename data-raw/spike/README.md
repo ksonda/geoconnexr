@@ -36,6 +36,11 @@ ranking remains open.
 `comid/position` responses. ADRs 0078 and 0079 select and expose that point
 provenance boundary; every returned COMID passes through the pinned mapping.
 
+`inverse-gage-evidence-v1.json` records the live `mainstem_uri` gage queryable,
+a complete three-gage known answer, and a complete empty answer. ADR 0081 uses
+that direct reference filter instead of expanding a mainstem through every
+COMID in the optional mapping.
+
 The installed `huc10-usgs-daily-demo.tgz` fixture records the current USGS
 daily fetch, reviewed flow-unit conversion, Frictionless package, closed-tree
 verification, typed hydration, and offline stored-state inspection for HUC10
@@ -55,6 +60,6 @@ and implements an explicit, integrity-checked download/import/offline lifecycle
 plus public release-scoped forward and inverse mappers. ADR 0077 adds the
 fixture-pinned HUC12 outlet path, and ADR 0079 adds the Point position path.
 ADR 0080 exposes the checked `mainstems_v3` currentness and replacement
-contract. Remaining M4 evidence must resolve HUC12 intersection ranking,
-inverse-gage behavior, and composition of live currentness with release-scoped
-crosswalks.
+contract. ADR 0081 exposes the direct inverse-gage filter. Remaining M4
+evidence must resolve HUC12 intersection ranking and composition of live
+currentness with release-scoped crosswalks.

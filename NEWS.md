@@ -2,6 +2,11 @@
 
 ## Repository foundation
 
+- Added public `gx_mainstem_to_gages()` under ADR 0081. It uses the reference
+  service's advertised `mainstem_uri` filter, returns every matching gage in
+  deterministic order, preserves complete empty answers, and validates all
+  repeated identities. It does not require the optional COMID mapping and does
+  not imply that the requested mainstem is current.
 - Added public `gx_mainstem()` under ADR 0080. It performs bounded live
   `mainstems_v3` currentness checks, deduplicates repeated PIDs, preserves every
   replacement in input order, and keeps unresolved supersession visible. It
