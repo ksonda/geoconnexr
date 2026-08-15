@@ -22,8 +22,9 @@ The M2 JSON-LD corpus closes its module-level profile fixture requirement. M3
 has hash-pinned collection/queryable schemas, checked fallback behavior, and
 deterministic pagination/empty-result tests. ADR 0075 selects `mainstems_v3`
 and records current, superseded, replacement, and full large-geometry evidence
-in `mainstem-vintage-evidence-v1.json`. The measured delivery estimate remains
-open. ADR 0074 closes the graph endpoint decision by selecting the documented
+in `mainstem-vintage-evidence-v1.json`. ADR 0087 replaces the provisional
+roadmap ranges with a measured remaining delivery estimate. ADR 0074 closes
+the graph endpoint decision by selecting the documented
 root as a configurable experimental contract. Its bounded SELECT and ASK
 evidence is recorded in `graph-contract-evidence-v1.json`. ADR 0085 adds the
 successful bound-site spatial control and the remaining unbound-search timeout

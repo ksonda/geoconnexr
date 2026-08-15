@@ -165,7 +165,8 @@ Build disposable code and fixtures—not production abstractions—to prove:
 - Spike fixtures and an evidence report are committed.
 - The data contracts in Section 6 have survived the vertical slice.
 - A threat model covers provider-controlled URLs, redirects, remote JSON-LD contexts, decompression, and local/private addresses.
-- A measured delivery estimate replaces the provisional roadmap ranges.
+- ADR 0087 replaces the provisional roadmap ranges with a measured remaining
+  delivery estimate.
 
 ## 5. Module specifications
 
@@ -2107,16 +2108,20 @@ README quickstart, package help, crosswalk and discovery vignettes, cache/offlin
 
 ## 9. Revised roadmap
 
-| Phase | Scope | Exit | Provisional effort |
-|---|---|---|---|
-| P0 — Decisions and spike | Release gates, live evidence, threat model, one vertical slice, draft schemas | Section 4.3 complete | 2–3 weeks |
-| P1 — Protocol and identity | M1–M3; fixtures; package/CI scaffold | Request/PID/JSON-LD/reference ACs; 0.1.0-dev | 3–4 weeks |
-| P2 — Crosswalk and discovery | M4–M5; provider audit; schema freeze for v1 | Crosswalk/discovery ACs; contracts v1 | 4–5 weeks |
-| P3a — Catalog and package | M6 plus catalog-only M9 | Offline-verifiable catalog snapshot case study | 3–4 weeks |
-| P3b — Fetch and harmonize | M7–M8 plus fetched M9; USGS, EDR, WQP, Features, CSV | End-to-end HUC case study; 0.5.0 | 5–7 weeks |
-| P4: Report/publisher/port | Report polish, M10, shared conformance assets, Python feasibility | M10 and the shared R/Python known-answer suite are complete; broader report polish remains | 4-6 weeks |
+| Phase | Observed state | Remaining estimate |
+|---|---|---|
+| P0: decisions and spike | Product decisions, safety threat decisions, profiles, mainstem evidence, request plans, and the installed vertical package are complete. Automatic HUC10 graph discovery remains upstream-blocked under ADR 0085. | No internal graph estimate |
+| P1: protocol and identity | M2 and M3 are implemented. M1 request safety, retries, cache, and host throttling are implemented. | 3 to 5 focused days for bounded concurrency |
+| P2: crosswalk and discovery | M4 is complete through checked composition. The graph root is configurable and experimental; public raw query APIs remain gated. | Current merge stack plus the external graph gate |
+| P3a: catalog and package | Catalog construction and the fixed offline-verifiable package path are complete. | Included in release hardening |
+| P3b: fetch and harmonize | The frozen six-handler fetch subset, conservative harmonization, fetched packaging, and HUC10 case study are complete. | 1 to 2 focused days per additional named M8 family |
+| P4: report, publisher, and portability | Fixed verified reports, M10, and shared R/Python publisher conformance are complete. | Included in release hardening |
+| Release hardening | Documentation, lifecycle review, and CRAN preparation remain. | 2 to 3 focused days |
 
-P0 must replace these ranges with evidence-based estimates. P3a can ship useful discovery/package value even if a provider handler delays P3b.
+ADR 0087 estimates the unblocked fixed scope at 9 to 14 focused engineering
+days, plus one aggregate CI matrix per reviewable slice. The current measured
+matrix allowance is 90 minutes per head revision. Broader M8 work is additive,
+and the upstream graph capability is excluded from the internal total.
 
 The installed HUC10 case study now records a bounded current-USGS daily fetch,
 harmonization, Frictionless packaging, closed-tree verification, typed

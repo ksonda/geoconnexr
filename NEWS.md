@@ -2,6 +2,10 @@
 
 ## Repository foundation
 
+- Replaced the provisional phase ranges with the measured remaining-delivery
+  baseline in ADR 0087. The plan now separates focused implementation days,
+  observed CI latency, additive provider-family work, and the upstream-blocked
+  graph query.
 - Closed the remaining product-scope decision under ADR 0086. Water rights and
   other administrative layers stay outside the supported 0.x core until a
   named source completes a separate authority, licence, identity, temporal,
