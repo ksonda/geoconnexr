@@ -21,9 +21,17 @@ sanitized fixtures and SHA-256 evidence sidecars.
 The M2 JSON-LD corpus closes its module-level profile fixture requirement. M3
 now has hash-pinned collection/queryable schemas, checked legacy-item failure
 evidence, and deterministic pagination/empty-result tests. Current,
-superseded, v3, and full large-geometry evidence remains open, as do the HUC10
-fetch/package path, mainstem-vintage decision, graph contract decision, and
-measured delivery estimate.
+superseded, v3, and full large-geometry evidence remains open, as do the
+mainstem-vintage decision, graph contract decision, and measured delivery
+estimate.
+
+The installed `huc10-usgs-daily-demo.tgz` fixture records the current USGS
+daily fetch, reviewed flow-unit conversion, Frictionless package, closed-tree
+verification, typed hydration, and offline stored-state inspection for HUC10
+`0206000502`. Its caller-supplied profile keeps the case study independent
+of the upstream graph and records that AOI membership was not rechecked.
+Automatic HUC10 site discovery therefore remains an open part of the P0
+spatial evidence gate.
 
 The M4a gage crosswalk has separate hash-pinned queryable and known-answer
 fixtures. `m4-upstream-evidence-v1.json` pins the checked upstream commit,

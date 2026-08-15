@@ -12,7 +12,7 @@ vignette: >
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
 ```
 
-This guide exercises the complete public path available today:
+This guide exercises the provider fetch portion of the public path:
 
 ```text
 AOI -> catalog -> fetch plan -> provider response -> typed result
@@ -171,4 +171,6 @@ never presented as proof that the site lies inside the AOI.
 
 The current boundary supports direct CSV, WQP Result, EDR position, current
 USGS continuous and daily data, and OGC API Features. It is single-page and
-sequential by contract. Harmonization is the next roadmap milestone.
+sequential by contract. See
+[Build and verify a HUC10 package end to end](end-to-end-huc10.html) for the
+full catalog, fetch, harmonize, package, and offline verification workflow.

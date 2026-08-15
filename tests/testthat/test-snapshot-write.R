@@ -6,6 +6,18 @@ writer_test_clock <- function() {
   as.POSIXct("2026-07-15 12:34:56", tz = "UTC")
 }
 
+test_that("snapshot timestamps preserve rounded microseconds exactly", {
+  stamp <- as.POSIXct("2026-08-15 04:27:54", tz = "UTC") + 0.613437
+  text <- gx_snapshot_writer_time(stamp)
+  parsed <- gx_snapshot_catalog_view_time_impl(
+    text, "test", allow_blank = FALSE
+  )
+  rebound <- gx_snapshot_time_text_impl(parsed)
+
+  expect_identical(text, "2026-08-15T04:27:54.613437Z")
+  expect_identical(rebound, text)
+})
+
 writer_test_aoi <- function() {
   gx_aoi("02070010", type = "huc")
 }

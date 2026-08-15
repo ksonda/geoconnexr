@@ -127,6 +127,18 @@ typed inspection, report access, and offline stored-state inspection. Live
 refresh and procedural replay remain explicitly deferred under ADR 0066 until
 a complete reproducible request recipe exists; they are not another
 fixed-package implementation gate.
+M10 adds offline publisher tools under one explicit profile. `gx_context()`
+returns the fixed local context, and `gx_jsonld_build()` turns exact catalog
+site and dataset tables into deterministic publisher-profile 1.0.0 JSON-LD.
+`gx_jsonld_validate()` reports errors and warnings with stable rule IDs, JSON
+pointers, and suggested fixes. `gx_sitemap()` writes up to 50,000 canonical
+HTTP(S) URIs to one verified XML sitemap at a new destination. None of these
+functions submits or publishes content remotely.
+The installed publisher conformance corpus now supplies shared known answers
+for the language-neutral input, deterministic JSON-LD, exact validation
+findings, and sitemap bytes. The R suite and a standard-library Python harness
+both reproduce those answers. This establishes P4 port feasibility without
+claiming a supported Python client.
 Internal M7a adds deterministic, selection-only fetch plans bound
 to strict portable-classifier and R-implementation metadata assets; M7b adds a
 separate host-specific advisory check using bounded direct reads of selected
@@ -254,6 +266,10 @@ inspection view and never reconstructs live workflow objects. Fixed report
 access is offline and byte-preserving; only explicit package creation with
 `report = TRUE` invokes the reviewed Quarto runtime.
 
+The [HUC10 end-to-end case study](vignettes/end-to-end-huc10.Rmd) runs this
+whole chain against the current USGS daily API and includes a verified
+network-free package for local demonstration.
+
 ## Available in the P0 scaffold
 
 ```r
@@ -278,6 +294,16 @@ document <- gx_jsonld("https://geoconnex.us/ref/gages/1000001")
 location <- gx_parse_location(document)
 datasets <- gx_parse_datasets(document)
 attr(location, "diagnostics")
+
+# Build and validate the same fixed publisher profile without network access
+publisher <- list(
+  uri = "https://example.org/provider/water-office",
+  name = "Water Office",
+  url = "https://example.org"
+)
+# published <- gx_jsonld_build(catalog$sites, catalog$datasets, publisher)
+# gx_jsonld_validate(published)
+# gx_sitemap(published_site_uris, "path/to/new-sitemap-directory")
 
 # Discover typed reference filters, then retrieve a bounded feature result
 gx_ref_collections()
@@ -713,7 +739,11 @@ and [ADR 0059](docs/decisions/0059-fixed-in-memory-arrow-parquet.md), and
 [ADR 0068](docs/decisions/0068-public-all-csv-frictionless-packages.md), and
 [ADR 0069](docs/decisions/0069-pinned-mixed-resource-frictionless-validation.md),
 and [ADR 0070](docs/decisions/0070-public-mixed-resource-frictionless-packages.md),
-which closes the fixed-package M9 roadmap.
+which closes the fixed-package M9 roadmap. Publisher profile and sitemap
+boundaries are defined by
+[ADR 0071](docs/decisions/0071-versioned-publisher-profile.md).
+The shared R and Python known-answer boundary is recorded in
+[ADR 0072](docs/decisions/0072-shared-publisher-conformance.md).
 
 The first crosswalk validates the reference service's advertised
 `provider_id`, gage identity, and PID before returning a match. Repeated inputs

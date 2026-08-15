@@ -1,0 +1,26 @@
+[
+  {
+    "severity": "error",
+    "json_pointer": "/@graph/0/hyf:HY_HydroLocationType",
+    "rule_id": "site.location_type",
+    "profile_version": "1.0.0",
+    "message": "The site location type is not a canonical IRI or an approved literal.",
+    "suggested_fix": "Use a canonical location-type IRI, hydrometricStation, or Unknown."
+  },
+  {
+    "severity": "error",
+    "json_pointer": "/@graph/0/schema:provider/schema:name",
+    "rule_id": "site.provider_name",
+    "profile_version": "1.0.0",
+    "message": "The site provider does not have a name.",
+    "suggested_fix": "Add a nonempty schema:name to the provider object."
+  },
+  {
+    "severity": "error",
+    "json_pointer": "/gx:profileVersion",
+    "rule_id": "profile.version",
+    "profile_version": "1.0.0",
+    "message": "The document does not declare publisher profile version 1.0.0.",
+    "suggested_fix": "Set gx:profileVersion to 1.0.0 and retain the gx prefix mapping."
+  }
+]

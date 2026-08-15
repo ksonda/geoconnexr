@@ -76,6 +76,8 @@ and link both records rather than rewriting history.
 | [0068](0068-public-all-csv-frictionless-packages.md) | Accepted public boundary | Publish Frictionless descriptors for fixed all-CSV packages |
 | [0069](0069-pinned-mixed-resource-frictionless-validation.md) | Accepted internal validation gate | Validate raw, Parquet, and report resources as opaque Frictionless files |
 | [0070](0070-public-mixed-resource-frictionless-packages.md) | Accepted public boundary | Complete fixed-package M9 with mixed-resource Frictionless publication |
+| [0071](0071-versioned-publisher-profile.md) | Accepted public boundary | Publish one versioned JSON-LD and sitemap profile |
+| [0072](0072-shared-publisher-conformance.md) | Accepted P4 portability boundary | Share publisher conformance assets across R and Python |
 
 Each ADR states its context, decision, consequences, and status. Proposed ADRs
 may change; accepted ADRs govern implementation until superseded.

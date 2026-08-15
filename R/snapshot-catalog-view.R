@@ -48,13 +48,18 @@ gx_snapshot_catalog_view_time_impl <- function(
       format = "%Y-%m-%dT%H:%M:%OSZ",
       tz = "UTC"
     )
-    rebound <- format(
-      parsed,
-      "%Y-%m-%dT%H:%M:%OS6Z",
-      tz = "UTC",
-      usetz = FALSE
+    rebound <- tryCatch(
+      vapply(
+        as.list(parsed),
+        gx_snapshot_time_text_impl,
+        character(1),
+        USE.NAMES = FALSE
+      ),
+      error = function(cnd) NULL,
+      warning = function(cnd) NULL
     )
-    if (anyNA(parsed) || !identical(unname(rebound), unname(x[present]))) {
+    if (anyNA(parsed) || is.null(rebound) ||
+        !identical(unname(rebound), unname(x[present]))) {
       gx_snapshot_catalog_view_abort(
         "The redacted catalog view timestamp is not an exact UTC instant in {label}.",
         "gx_error_snapshot_catalog_view_type"

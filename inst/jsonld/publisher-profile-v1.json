@@ -1,0 +1,28 @@
+{
+  "profile_version": "1.0.0",
+  "profile_iri": "https://ksonda.github.io/geoconnexr/profiles/publisher-v1",
+  "input_contract": "geoconnexr.catalog/0.1.0",
+  "context": {
+    "schema": "https://schema.org/",
+    "hyf": "https://www.opengis.net/def/schema/hy_features/hyf/",
+    "geo": "http://www.opengis.net/ont/geosparql#",
+    "gx": "https://ksonda.github.io/geoconnexr/vocab/"
+  },
+  "approved_location_type_literals": [
+    "Unknown",
+    "hydrometricStation"
+  ],
+  "validation_finding_columns": [
+    "severity",
+    "json_pointer",
+    "rule_id",
+    "profile_version",
+    "message",
+    "suggested_fix"
+  ],
+  "sitemap": {
+    "max_urls": 50000,
+    "max_uncompressed_bytes": 52428800,
+    "max_uri_bytes": 2047
+  }
+}

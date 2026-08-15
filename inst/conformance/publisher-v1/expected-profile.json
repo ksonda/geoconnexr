@@ -1,0 +1,87 @@
+{
+  "@context": {
+    "schema": "https://schema.org/",
+    "hyf": "https://www.opengis.net/def/schema/hy_features/hyf/",
+    "geo": "http://www.opengis.net/ont/geosparql#",
+    "gx": "https://ksonda.github.io/geoconnexr/vocab/"
+  },
+  "gx:profile": "https://ksonda.github.io/geoconnexr/profiles/publisher-v1",
+  "gx:profileVersion": "1.0.0",
+  "@graph": [
+    {
+      "@id": "https://example.org/site/00001",
+      "hyf:HY_HydroLocationType": "hydrometricStation",
+      "@type": [
+        "hyf:HY_HydrometricFeature"
+      ],
+      "schema:name": "Example & Test Site",
+      "schema:description": "Publisher round-trip fixture",
+      "schema:provider": {
+        "@id": "https://example.org/provider/fixture",
+        "schema:name": "Fixture Provider",
+        "schema:url": "https://example.org/provider"
+      },
+      "geo:hasGeometry": {
+        "@type": "geo:Geometry",
+        "geo:asWKT": "POINT (-78.5 37.25)",
+        "geo:crs": "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
+      },
+      "hyf:referencedPosition": {
+        "@type": "hyf:HY_IndirectPosition",
+        "hyf:linearElement": {
+          "@id": "https://geoconnex.us/ref/mainstems/29559"
+        }
+      },
+      "schema:subjectOf": [
+        {
+          "@type": "schema:Dataset",
+          "@id": "https://example.org/dataset/flow",
+          "schema:name": "Flow observations",
+          "schema:description": "Two distributions and two variables",
+          "schema:temporalCoverage": "2024-01-01T00:00:00Z/2024-12-31T00:00:00Z",
+          "schema:license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "schema:accessRights": "public",
+          "schema:provider": {
+            "@id": "https://example.org/provider/fixture",
+            "schema:name": "Fixture Provider",
+            "schema:url": "https://example.org/provider"
+          },
+          "schema:distribution": [
+            {
+              "@type": "schema:DataDownload",
+              "schema:contentUrl": "https://example.org/data/flow.csv",
+              "schema:encodingFormat": "text/csv",
+              "schema:conformsTo": [
+                "https://example.org/spec/a",
+                "https://example.org/spec/b"
+              ]
+            },
+            {
+              "@type": "schema:DataDownload",
+              "schema:contentUrl": "https://example.org/data/flow.json",
+              "schema:encodingFormat": "application/json",
+              "schema:conformsTo": [
+                "https://example.org/spec/a",
+                "https://example.org/spec/b"
+              ]
+            }
+          ],
+          "schema:variableMeasured": [
+            {
+              "@id": "https://example.org/variable/flow",
+              "schema:name": "Flow",
+              "schema:unitCode": "https://qudt.org/vocab/unit/M3-PER-SEC",
+              "schema:unitText": "m3/s"
+            },
+            {
+              "@id": "https://example.org/variable/temperature",
+              "schema:name": "Temperature",
+              "schema:unitCode": "https://qudt.org/vocab/unit/DEG_C",
+              "schema:unitText": "deg C"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

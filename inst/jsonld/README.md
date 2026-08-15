@@ -22,3 +22,8 @@ schema snapshot.
 Geoconnex profile defects such as the current reference-gage use of `gsp:`
 without a matching context definition. Adding a remote context or prefix is a
 reviewed contract change.
+
+`publisher-profile-v1.json` declares the exact local context, accepted
+evidence-backed location-type literals, validation finding columns, catalog
+input contract, and sitemap limits for publisher profile 1.0.0. Runtime code
+checks the complete asset shape before building, validating, or writing.
