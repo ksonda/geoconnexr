@@ -28,7 +28,7 @@ The target remains an R-first package for discovery, identifier crosswalks, and 
 | M1 | Partial experimental slice: bounded transport, cache/offline behavior, redirects, PID resolution, package-owned retries, full physical-attempt accounting, and per-host throttling are implemented; bounded concurrency remains open. |
 | M2 | Experimental PID/JSON-LD/profile slice implemented with a hash-pinned provider corpus; contract freeze remains P0-gated. |
 | M3 | Experimental native reference-client slice implemented with typed schemas, bounded pagination, and identity-checked fallbacks. ADR 0075 selects `mainstems_v3`, preserves the shared persistent PID namespace, and records current, superseded, replacement, and full large-geometry evidence. |
-| M4 | Partial experimental slices M4a through M4g: `gx_gage_to_pid()`, release-scoped public COMID/inverse wrappers, the NLDI HUC12 outlet method, the NLDI Point to pinned-COMID mapper, bounded live `mainstems_v3` currentness, and direct mainstem-to-gage lookup are implemented. The v3.2 COMID lookup has an explicit verified install lifecycle. HUC12 intersection ranking and composition of live currentness with release-scoped crosswalks remain open. |
+| M4 | Partial experimental slices M4a through M4g: `gx_gage_to_pid()`, release-scoped public COMID/inverse wrappers, the NLDI HUC12 outlet method, the NLDI Point to pinned-COMID mapper, bounded live `mainstems_v3` currentness, and direct mainstem-to-gage lookup are implemented. The v3.2 COMID lookup has an explicit verified install lifecycle. ADR 0082 selects the HUC12 intersection ranking; its implementation and composition of live currentness with release-scoped crosswalks remain open. |
 | M5 | Partial experimental M5a/M5b: an unexported one-logical-request SELECT/ASK substrate provides strict bounded SPARQL 1.1 Results JSON parsing and provenance, while the public local renderer consumes an exact-byte-pinned render-only v2 template manifest with execution, chunking, and pagination disabled. ADR 0074 selects the documented graph root as a configurable experimental contract; public raw graph APIs and paging remain gated. |
 | M6 | Public bounded slice under ADR 0035: `gx_aoi()` canonicalizes identifiers and custom polygonal geometry; `gx_catalog()` populates the strict catalog value object from one graph page, explicit PID profiles, or named caller-supplied local JSON-LD. Automatic graph discovery remains upstream-dependent, and nonempty reference layers, general merge, full replay, and upstream-derived AOI modes remain gated. |
 | M7 | Complete for the supported subset under ADR 0034. `gx_fetch_plan()` publishes deterministic catalog selection, and `gx_fetch()` returns a validated `gx_fetched` object over direct CSV, WQP Result, EDR position, current USGS continuous, current USGS daily, and OGC API Features. Execution is sequential, bounded, single-page, failure-isolating, and provenance-preserving. Latest/legacy USGS, other EDR queries, pagination, registration, serialization, and replay are deferred enhancements and do not reopen M7. |
@@ -307,7 +307,11 @@ preserves duplicate inputs without duplicate transport. A complete empty
 answer is explicit. It does not require the optional COMID mapping and labels
 mainstem currentness as unchecked.
 
-The intersects spike must decide whether ranking means outlet-in-polygon, intersection length, drainage area, or a documented combination. `is_largest` alone is not an outlet semantic.
+ADR 0082 selects the `intersects` ranking. Return all local S2 geometry matches,
+sorting current before superseded, exact advertised outlet-HUC12 matches before
+other crossings, then geodesic intersection length and outlet drainage area in
+descending order, with PID as the final bytewise tie-breaker. Rank is
+descriptive and never selects one row. The bounded implementation remains open.
 
 **Acceptance:** retain the checked gage answer; pin and verify the mapping
 registry, explicit install/import/offline/integrity behavior, both COMID known

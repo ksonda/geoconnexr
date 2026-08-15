@@ -41,6 +41,12 @@ a complete three-gage known answer, and a complete empty answer. ADR 0081 uses
 that direct reference filter instead of expanding a mainstem through every
 COMID in the optional mapping.
 
+`huc12-intersection-evidence-v1.json` records the reference HUC12 polygon, 41
+bounded `mainstems_v3` bounding-box candidates, and 17 local S2 geometry
+intersections. ADR 0082 ranks current features first, then exact advertised
+outlet-HUC12 matches, intersection length, drainage area, and PID. The ranking
+never selects one result.
+
 The installed `huc10-usgs-daily-demo.tgz` fixture records the current USGS
 daily fetch, reviewed flow-unit conversion, Frictionless package, closed-tree
 verification, typed hydration, and offline stored-state inspection for HUC10
@@ -60,6 +66,6 @@ and implements an explicit, integrity-checked download/import/offline lifecycle
 plus public release-scoped forward and inverse mappers. ADR 0077 adds the
 fixture-pinned HUC12 outlet path, and ADR 0079 adds the Point position path.
 ADR 0080 exposes the checked `mainstems_v3` currentness and replacement
-contract. ADR 0081 exposes the direct inverse-gage filter. Remaining M4
-evidence must resolve HUC12 intersection ranking and composition of live
-currentness with release-scoped crosswalks.
+contract. ADR 0081 exposes the direct inverse-gage filter, and ADR 0082 selects
+the HUC12 intersection ranking. Remaining M4 work must implement that method
+and compose live currentness with release-scoped crosswalks.

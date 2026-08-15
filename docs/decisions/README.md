@@ -87,6 +87,7 @@ and link both records rather than rewriting history.
 | [0079](0079-public-point-to-mainstem-crosswalk.md) | Accepted public boundary | Publish bounded Point to mainstem crosswalking |
 | [0080](0080-public-mainstem-currentness.md) | Accepted public boundary | Publish bounded mainstem currentness without following replacements |
 | [0081](0081-public-mainstem-to-gages.md) | Accepted public boundary | Map mainstem PIDs to every matching reference gage |
+| [0082](0082-huc12-intersection-ranking.md) | Accepted experimental upstream contract | Rank every HUC12 mainstem intersection without selecting one |
 
 Each ADR states its context, decision, consequences, and status. Proposed ADRs
 may change; accepted ADRs govern implementation until superseded.

@@ -2,6 +2,11 @@
 
 ## Repository foundation
 
+- Selected the HUC12 intersection ranking under ADR 0082. The bounded reference
+  probe reduces 41 bounding-box candidates to 17 local S2 intersections and
+  ranks every retained result by currentness, exact outlet-HUC12 agreement,
+  intersection length, drainage area, and PID. Ranking never selects one
+  mainstem.
 - Added public `gx_mainstem_to_gages()` under ADR 0081. It uses the reference
   service's advertised `mainstem_uri` filter, returns every matching gage in
   deterministic order, preserves complete empty answers, and validates all
