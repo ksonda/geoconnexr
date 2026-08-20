@@ -2,6 +2,10 @@ gx_lookup_fixture <- function(name) {
   testthat::test_path("..", "fixtures", "crosswalk", name)
 }
 
+gx_lookup_test_clock <- function() {
+  as.POSIXct("2026-08-15 23:59:59", tz = "UTC")
+}
+
 gx_lookup_test_spec <- function(
     path = gx_lookup_fixture("nhdpv2-lookup-v3.2.sample.csv"),
     forward_cardinality = "zero_or_one",
@@ -42,6 +46,10 @@ gx_lookup_test_spec <- function(
 }
 
 gx_lookup_mock_spec <- function(spec, .env = rlang::caller_env()) {
+  withr::local_options(
+    list(geoconnexr.clock = gx_lookup_test_clock),
+    .local_envir = .env
+  )
   testthat::local_mocked_bindings(
     gx_mainstem_lookup_spec = function(version = spec$release) spec,
     .package = "geoconnexr",
