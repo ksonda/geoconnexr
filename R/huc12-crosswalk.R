@@ -24,7 +24,7 @@ gx_crosswalk_huc12s <- function(huc12) {
 }
 
 gx_huc12_method <- function(method) {
-  method <- tryCatch(
+  tryCatch(
     match.arg(method, c("outlet", "intersects")),
     error = function(cnd) {
       gx_abort(
@@ -33,16 +33,6 @@ gx_huc12_method <- function(method) {
       )
     }
   )
-  if (identical(method, "intersects")) {
-    gx_abort(
-      paste(
-        "HUC12 intersection ranking is not part of the public contract yet;",
-        "use {.code method = \"outlet\"}."
-      ),
-      "gx_error_crosswalk_method_unavailable"
-    )
-  }
-  method
 }
 
 gx_huc12_client <- function(client) {
@@ -67,11 +57,24 @@ gx_empty_huc12_crosswalk <- function() {
     mainstem_uri = character(),
     match_source = character(),
     mainstem_status = character(),
+    replacement_uris = list(),
+    mainstem_observed_at = as.POSIXct(character(), tz = "UTC"),
+    mainstem_retrieval_mode = character(),
     diagnostics = list()
   )
 }
 
-gx_huc12_row_diagnostics <- function(status, input_index, source = NA_character_) {
+gx_huc12_row_diagnostics <- function(
+    status,
+    input_index,
+    source = NA_character_,
+    mainstem_status = if (identical(status, "not_found")) {
+      NA_character_
+    } else if (identical(source, "nldi_mainstem")) {
+      "currentness_not_checked"
+    } else {
+      "active_in_mapping_release"
+    }) {
   path <- paste0("/inputs/", input_index - 1L)
   if (identical(status, "not_found")) {
     message <- if (identical(source, "pinned_comid_mapping")) {
@@ -86,9 +89,8 @@ gx_huc12_row_diagnostics <- function(status, input_index, source = NA_character_
     }
     return(gx_diagnostic("warning", code, path, message))
   }
-  diagnostics <- gx_diagnostic(
-    "info",
-    "mainstem_currentness_not_checked",
+  diagnostics <- gx_crosswalk_currentness_diagnostic(
+    mainstem_status,
     path,
     "The HUC12 outlet match does not assert current mainstem service state."
   )
@@ -263,7 +265,15 @@ gx_huc12_fetch_one <- function(huc12, client, state, max_requests,
   )
 }
 
-gx_huc12_metadata <- function(x, huc12, requests, client, mapping = NULL) {
+gx_huc12_metadata <- function(
+    x,
+    huc12,
+    requests,
+    client,
+    mapping = NULL,
+    currentness_policy = "not_checked",
+    currentness_collection = NA_character_,
+    currentness_dataset_vintage = NA_character_) {
   statuses <- if (length(huc12)) {
     vapply(seq_along(huc12), function(index) {
       unique(x$status[x$input_index == index])[[1]]
@@ -280,7 +290,9 @@ gx_huc12_metadata <- function(x, huc12, requests, client, mapping = NULL) {
     contract_version = .gx_crosswalk_contract_version,
     operation = "huc12_to_mainstem",
     method = "outlet",
-    currentness_policy = "not_checked",
+    currentness_policy = currentness_policy,
+    currentness_collection = currentness_collection,
+    currentness_dataset_vintage = currentness_dataset_vintage,
     input_count = as.integer(length(huc12)),
     unique_input_count = as.integer(length(unique(huc12))),
     matched_input_count = as.integer(sum(statuses == "matched")),
@@ -301,6 +313,7 @@ gx_validate_huc12_crosswalk <- function(x, metadata = attr(x, "gx_crosswalk")) {
   expected <- names(gx_empty_huc12_crosswalk())
   metadata_expected <- c(
     "contract_version", "operation", "method", "currentness_policy",
+    "currentness_collection", "currentness_dataset_vintage",
     "input_count", "unique_input_count", "matched_input_count",
     "match_count", "not_found_input_count", "ambiguous_input_count",
     "complete", "retrieved_at", "requests", "diagnostics", "nldi", "mapping"
@@ -317,7 +330,9 @@ gx_validate_huc12_crosswalk <- function(x, metadata = attr(x, "gx_crosswalk")) {
     is.character(x$status) && is.integer(x$match_index) &&
     is.character(x$huc12) && is.character(x$comid) &&
     is.character(x$mainstem_uri) && is.character(x$match_source) &&
-    is.character(x$mainstem_status) && is.list(x$diagnostics) &&
+    is.character(x$mainstem_status) && is.list(x$replacement_uris) &&
+    inherits(x$mainstem_observed_at, "POSIXct") &&
+    is.character(x$mainstem_retrieval_mode) && is.list(x$diagnostics) &&
     all(vapply(x$diagnostics, function(item) {
       is.data.frame(item) && identical(names(item), diagnostic_names)
     }, logical(1))) &&
@@ -329,7 +344,11 @@ gx_validate_huc12_crosswalk <- function(x, metadata = attr(x, "gx_crosswalk")) {
     identical(metadata$contract_version, .gx_crosswalk_contract_version) &&
     identical(metadata$operation, "huc12_to_mainstem") &&
     identical(metadata$method, "outlet") &&
-    identical(metadata$currentness_policy, "not_checked") &&
+    metadata$currentness_policy %in% c("not_checked", "live_v3_observed") &&
+    is.character(metadata$currentness_collection) &&
+    length(metadata$currentness_collection) == 1L &&
+    is.character(metadata$currentness_dataset_vintage) &&
+    length(metadata$currentness_dataset_vintage) == 1L &&
     all(vapply(metadata[count_names], function(value) {
       is.integer(value) && length(value) == 1L && !is.na(value) && value >= 0L
     }, logical(1))) &&
@@ -354,6 +373,14 @@ gx_validate_huc12_crosswalk <- function(x, metadata = attr(x, "gx_crosswalk")) {
     mapped <- !is.na(x$match_source) &
       x$match_source == "pinned_comid_mapping"
     not_found <- !found
+    allowed_mainstem_status <- if (identical(
+      metadata$currentness_policy,
+      "not_checked"
+    )) {
+      c("currentness_not_checked", "active_in_mapping_release")
+    } else {
+      c("current", "superseded", "superseded_unresolved")
+    }
     identities_ok <- all(is.na(x$huc12[!found]) | x$huc12[!found] ==
       x$requested_huc12[!found]) &&
       all(x$huc12[found] == x$requested_huc12[found]) &&
@@ -368,19 +395,48 @@ gx_validate_huc12_crosswalk <- function(x, metadata = attr(x, "gx_crosswalk")) {
       all(direct | mapped | not_found) &&
       all(!is.na(x$comid[direct | mapped])) &&
       all(grepl("^[1-9][0-9]{0,9}\\z", x$comid[direct | mapped], perl = TRUE)) &&
-      all(x$mainstem_status[direct & found] == "currentness_not_checked") &&
-      all(x$mainstem_status[mapped & found] == "active_in_mapping_release") &&
+      all(x$mainstem_status[found] %in% allowed_mainstem_status) &&
       all(is.na(x$mainstem_uri[not_found])) &&
       all(is.na(x$match_index[not_found]))
+    currentness_rows_ok <- all(vapply(seq_len(nrow(x)), function(row) {
+      replacements <- x$replacement_uris[[row]]
+      valid_replacements <- all(vapply(
+        replacements,
+        gx_crosswalk_valid_mainstem_uri,
+        logical(1),
+        allow_na = FALSE
+      )) && !anyDuplicated(replacements)
+      if (!valid_replacements) return(FALSE)
+      if (!found[[row]]) {
+        return(length(replacements) == 0L &&
+          is.na(x$mainstem_observed_at[[row]]) &&
+          is.na(x$mainstem_retrieval_mode[[row]]))
+      }
+      if (identical(metadata$currentness_policy, "not_checked")) {
+        return(length(replacements) == 0L &&
+          is.na(x$mainstem_observed_at[[row]]) &&
+          is.na(x$mainstem_retrieval_mode[[row]]))
+      }
+      state_ok <- if (identical(x$mainstem_status[[row]], "current")) {
+        length(replacements) == 0L
+      } else if (identical(x$mainstem_status[[row]], "superseded")) {
+        length(replacements) > 0L
+      } else {
+        length(replacements) == 0L
+      }
+      state_ok && !is.na(x$mainstem_observed_at[[row]]) &&
+        x$mainstem_retrieval_mode[[row]] %in% c("item", "filter")
+    }, logical(1)))
     diagnostics_ok <- all(vapply(seq_len(nrow(x)), function(row) {
       identical(
         x$diagnostics[[row]],
         gx_huc12_row_diagnostics(
-          x$status[[row]], x$input_index[[row]], x$match_source[[row]]
+          x$status[[row]], x$input_index[[row]], x$match_source[[row]],
+          x$mainstem_status[[row]]
         )
       )
     }, logical(1)))
-    if (!identities_ok || !diagnostics_ok) {
+    if (!identities_ok || !currentness_rows_ok || !diagnostics_ok) {
       gx_abort(
         "HUC12 crosswalk identities do not satisfy their contract.",
         "gx_error_crosswalk_contract"
@@ -420,13 +476,26 @@ gx_validate_huc12_crosswalk <- function(x, metadata = attr(x, "gx_crosswalk")) {
   } else {
     gx_validate_comid_mapping_metadata(metadata$mapping)
   }
+  currentness_metadata_ok <- if (identical(
+    metadata$currentness_policy,
+    "not_checked"
+  )) {
+    is.na(metadata$currentness_collection) &&
+      is.na(metadata$currentness_dataset_vintage)
+  } else {
+    identical(metadata$currentness_collection, .gx_mainstem_collection) &&
+      identical(
+        metadata$currentness_dataset_vintage,
+        .gx_mainstem_dataset_vintage
+      )
+  }
   time_ok <- if (nrow(metadata$requests)) {
     !is.na(metadata$retrieved_at) &&
       identical(metadata$retrieved_at, max(metadata$requests$retrieved_at))
   } else {
     is.na(metadata$retrieved_at)
   }
-  if (!time_ok) {
+  if (!time_ok || !isTRUE(currentness_metadata_ok)) {
     gx_abort(
       "HUC12 crosswalk retrieval time does not reconcile with its ledger.",
       "gx_error_crosswalk_contract"
@@ -442,28 +511,75 @@ gx_new_huc12_crosswalk <- function(x, metadata) {
   x
 }
 
+gx_huc12_compose_currentness <- function(
+    out,
+    metadata,
+    client,
+    max_requests,
+    max_total_bytes) {
+  composed <- gx_crosswalk_apply_currentness(
+    out,
+    client,
+    requests = metadata$requests,
+    max_requests = max_requests,
+    max_total_bytes = max_total_bytes
+  )
+  out <- composed$rows
+  out$diagnostics <- lapply(seq_len(nrow(out)), function(row) {
+    gx_huc12_row_diagnostics(
+      out$status[[row]], out$input_index[[row]], out$match_source[[row]],
+      out$mainstem_status[[row]]
+    )
+  })
+  metadata$currentness_policy <- composed$currentness_policy
+  metadata$currentness_collection <- composed$currentness_collection
+  metadata$currentness_dataset_vintage <-
+    composed$currentness_dataset_vintage
+  metadata$retrieved_at <- gx_crosswalk_retrieved_at(composed$requests)
+  metadata$requests <- composed$requests
+  metadata$diagnostics <- if (nrow(out)) {
+    do.call(
+      gx_bind_diagnostics,
+      c(list(gx_empty_diagnostics()), out$diagnostics)
+    )
+  } else {
+    gx_empty_diagnostics()
+  }
+  attr(out, "gx_crosswalk") <- NULL
+  class(out) <- intersect(class(out), c("tbl_df", "tbl", "data.frame"))
+  gx_new_huc12_crosswalk(out, metadata)
+}
+
 #' Map HUC12 outlets to mainstem PIDs
 #'
 #' Retrieves one HUC12 pour point from the USGS NLDI `huc12pp` source. An
 #' advertised mainstem PID is preferred. If the response has only a COMID, the
 #' function resolves it through the explicitly installed checksum-pinned
-#' mapping release. No lookup data is downloaded or refreshed implicitly.
+#' mapping release. No lookup data is downloaded or refreshed implicitly. In
+#' outlet mode, `check = TRUE` composes every match with live `mainstems_v3`
+#' currentness without following or ranking replacements.
 #'
 #' @param huc12 Character vector containing exact 12-digit hydrologic unit
 #'   codes.
-#' @param method Only `"outlet"` is currently available. Intersection ranking
-#'   remains a separate roadmap decision.
-#' @param check Must currently be `FALSE`; returned mainstems do not assert
-#'   current live-service state.
+#' @param method `"outlet"` uses the NLDI pour point. `"intersects"` retrieves
+#'   the reference HUC12 polygon and returns every locally intersecting
+#'   `mainstems_v3` geometry with disclosed ranking metrics.
+#' @param check Whether outlet matches should include bounded live currentness.
+#'   Intersection matches already carry observed `mainstems_v3` state.
 #' @param version Registered mapping release used only when an NLDI response
 #'   omits its mainstem PID.
 #' @param data_dir Package data directory containing an explicitly installed
 #'   lookup when COMID fallback is needed.
-#' @param client An NLDI client created by [gx_client()].
+#' @param client An NLDI client for `method = "outlet"`, a reference client for
+#'   `method = "intersects"`, or `NULL` to construct the matching default.
+#' @param currentness_client A reference client used for checked outlet matches,
+#'   or `NULL` to construct the default.
 #'
-#' @return A `gx_huc12_crosswalk` tibble with one or more rows per input. Its
-#'   `gx_crosswalk` attribute records NLDI requests, diagnostics, counts, and
-#'   release provenance when the COMID fallback was used.
+#' @return For `method = "outlet"`, a `gx_huc12_crosswalk` tibble with NLDI and
+#'   optional mapping provenance. For `method = "intersects"`, a
+#'   `gx_huc12_intersection_crosswalk` tibble containing every ranked geometry
+#'   match, its metrics, observed currentness, replacements, and reference
+#'   request ledger.
 #' @export
 gx_huc12_to_mainstem <- function(
     huc12,
@@ -471,21 +587,35 @@ gx_huc12_to_mainstem <- function(
     check = FALSE,
     version = "v3.2",
     data_dir = gx_default_data_dir(),
-    client = gx_client("nldi")) {
+    client = NULL,
+    currentness_client = NULL) {
   method <- gx_huc12_method(method)
-  gx_crosswalk_release_check(check)
+  check <- gx_crosswalk_check(check)
   huc12 <- gx_crosswalk_huc12s(huc12)
+  if (is.null(client)) {
+    client <- gx_client(if (identical(method, "outlet")) "nldi" else "reference")
+  }
+  if (identical(method, "intersects")) {
+    return(gx_huc12_to_mainstem_intersects(huc12, client))
+  }
   gx_huc12_client(client)
+  max_requests <- gx_crosswalk_max_requests()
+  max_total_bytes <- gx_crosswalk_total_bytes(client)
+  if (check && is.null(currentness_client)) {
+    currentness_client <- gx_client("reference")
+  }
   if (!length(huc12)) {
     out <- gx_empty_huc12_crosswalk()
     metadata <- gx_huc12_metadata(
       out, huc12, gx_crosswalk_empty_requests(), client
     )
-    return(gx_new_huc12_crosswalk(out, metadata))
+    out <- gx_new_huc12_crosswalk(out, metadata)
+    if (!check) return(out)
+    return(gx_huc12_compose_currentness(
+      out, metadata, currentness_client, max_requests, max_total_bytes
+    ))
   }
 
-  max_requests <- gx_crosswalk_max_requests()
-  max_total_bytes <- gx_crosswalk_total_bytes(client)
   state <- new.env(parent = emptyenv())
   state$requests <- gx_crosswalk_empty_requests()
   unique_huc12 <- unique(huc12)
@@ -526,6 +656,9 @@ gx_huc12_to_mainstem <- function(
         mainstem_uri = NA_character_,
         match_source = NA_character_,
         mainstem_status = NA_character_,
+        replacement_uris = list(character()),
+        mainstem_observed_at = as.POSIXct(NA, tz = "UTC"),
+        mainstem_retrieval_mode = NA_character_,
         diagnostics = list(gx_huc12_row_diagnostics(status, input_index))
       )
       next
@@ -543,6 +676,9 @@ gx_huc12_to_mainstem <- function(
         mainstem_uri = item$mainstem_uri,
         match_source = "nldi_mainstem",
         mainstem_status = "currentness_not_checked",
+        replacement_uris = list(character()),
+        mainstem_observed_at = as.POSIXct(NA, tz = "UTC"),
+        mainstem_retrieval_mode = NA_character_,
         diagnostics = list(gx_huc12_row_diagnostics(
           status, input_index, "nldi_mainstem"
         ))
@@ -564,6 +700,9 @@ gx_huc12_to_mainstem <- function(
         match_source = "pinned_comid_mapping",
         mainstem_status = if (status == "not_found") NA_character_ else
           "active_in_mapping_release",
+        replacement_uris = list(character()),
+        mainstem_observed_at = as.POSIXct(NA, tz = "UTC"),
+        mainstem_retrieval_mode = NA_character_,
         diagnostics = list(gx_huc12_row_diagnostics(
           status, input_index, "pinned_comid_mapping"
         ))
@@ -574,5 +713,9 @@ gx_huc12_to_mainstem <- function(
   metadata <- gx_huc12_metadata(
     out, huc12, state$requests, client, mapping = mapping
   )
-  gx_new_huc12_crosswalk(out, metadata)
+  out <- gx_new_huc12_crosswalk(out, metadata)
+  if (!check) return(out)
+  gx_huc12_compose_currentness(
+    out, metadata, currentness_client, max_requests, max_total_bytes
+  )
 }

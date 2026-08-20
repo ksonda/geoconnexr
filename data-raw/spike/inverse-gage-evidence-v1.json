@@ -1,0 +1,60 @@
+{
+  "evidence_version": "1.0.0",
+  "checked_at": "2026-08-15T15:28:32Z",
+  "service_root": "https://reference.geoconnex.us",
+  "collection": "gages",
+  "queryables": {
+    "url": "https://reference.geoconnex.us/collections/gages/queryables",
+    "status": 200,
+    "media_type": "application/schema+json",
+    "bytes": 2309,
+    "body_sha256": "83b28935c51debb734ba93bd324923bbcb33d29846639f7ea45addb73091fc43",
+    "identity_queryable": "id",
+    "mainstem_uri_types": ["string"]
+  },
+  "known_answer": {
+    "mainstem_uri": "https://geoconnex.us/ref/mainstems/1622734",
+    "status": 200,
+    "media_type": "application/json",
+    "bytes": 7649,
+    "body_sha256": "a2e60031f982fa2d3f04ee7ec85a3c293d44523cd3c06799866292012ee3b1b1",
+    "number_matched": 3,
+    "number_returned": 3,
+    "truncated": false,
+    "gages": [
+      {
+        "id": "1000001",
+        "uri": "https://geoconnex.us/ref/gages/1000001",
+        "provider_id": "USGS-08332622",
+        "nhdpv2_comid": "17789327"
+      },
+      {
+        "id": "1000002",
+        "uri": "https://geoconnex.us/ref/gages/1000002",
+        "provider_id": "USGS-08332620",
+        "nhdpv2_comid": "17789327"
+      },
+      {
+        "id": "1028940",
+        "uri": "https://geoconnex.us/ref/gages/1028940",
+        "provider_id": "USGS-08332624",
+        "nhdpv2_comid": "17789327"
+      }
+    ]
+  },
+  "absent_answer": {
+    "mainstem_uri": "https://geoconnex.us/ref/mainstems/999999999",
+    "status": 200,
+    "media_type": "application/json",
+    "bytes": 3424,
+    "body_sha256": "a34a641ff634ba6b1953cc7beeadf671c8d2eb496d51da2f95ded6681762b30b",
+    "number_matched": 0,
+    "number_returned": 0,
+    "truncated": false
+  },
+  "notes": [
+    "The live gages queryables advertise mainstem_uri as a string.",
+    "The checked known answer returns three gages that repeat the requested mainstem URI.",
+    "The absent query returns a complete empty FeatureCollection rather than HTTP 404."
+  ]
+}

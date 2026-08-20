@@ -106,19 +106,30 @@ test_that("public release crosswalks make currentness scope explicit", {
   )
   expect_false(dir.exists(data_dir))
 
-  for (value in list(TRUE, NA, 1, "false", c(FALSE, FALSE))) {
-    expected <- if (isTRUE(value)) {
-      "gx_error_crosswalk_currentness_unavailable"
-    } else {
-      "gx_error_crosswalk_input"
-    }
+  checked_forward <- gx_comid_to_mainstem(
+    character(), check = TRUE, data_dir = data_dir
+  )
+  checked_inverse <- gx_mainstem_to_comids(
+    character(), check = TRUE, data_dir = data_dir
+  )
+  expect_identical(
+    attr(checked_forward, "gx_crosswalk")$currentness_policy,
+    "live_v3_observed"
+  )
+  expect_identical(
+    attr(checked_inverse, "gx_crosswalk")$currentness_policy,
+    "live_v3_observed"
+  )
+  expect_false(dir.exists(data_dir))
+
+  for (value in list(NA, 1, "false", c(FALSE, FALSE))) {
     expect_error(
       gx_comid_to_mainstem(character(), check = value, data_dir = data_dir),
-      class = expected
+      class = "gx_error_crosswalk_input"
     )
     expect_error(
       gx_mainstem_to_comids(character(), check = value, data_dir = data_dir),
-      class = expected
+      class = "gx_error_crosswalk_input"
     )
   }
 })
@@ -220,6 +231,69 @@ test_that("local installation verifies provenance and supports offline mapping",
     attr(out, "gx_crosswalk")$diagnostics$code ==
       "mainstem_currentness_not_checked"
   ))
+})
+
+test_that("public COMID crosswalks compose bounded live currentness", {
+  data_dir <- withr::local_tempdir()
+  fixture <- gx_lookup_fixture("nhdpv2-lookup-v3.2.sample.csv")
+  spec <- gx_lookup_test_spec(fixture)
+  gx_lookup_mock_spec(spec)
+  gx_mainstem_lookup_install(
+    source = "file", file = fixture, version = spec$release,
+    confirm = FALSE, offline = TRUE, data_dir = data_dir
+  )
+  replacement <- "https://geoconnex.us/ref/mainstems/400000"
+  setup <- gx_currentness_test_client(list(
+    `1622734` = gx_currentness_test_feature("1622734"),
+    `323742` = gx_currentness_test_feature(
+      "323742", TRUE, paste0("['", replacement, "']")
+    ),
+    `999` = gx_currentness_test_feature("999")
+  ))
+
+  forward <- gx_comid_to_mainstem(
+    c("17789327", "13637491", "999999999", "17789327"),
+    check = TRUE,
+    version = spec$release,
+    data_dir = data_dir,
+    currentness_client = setup$client
+  )
+  expect_identical(
+    forward$mainstem_status,
+    c("current", "superseded", NA_character_, "current")
+  )
+  expect_identical(
+    forward$replacement_uris,
+    list(character(), replacement, character(), character())
+  )
+  expect_true(all(!is.na(forward$mainstem_observed_at[forward$status != "not_found"])))
+  expect_identical(
+    attr(forward, "gx_crosswalk")$currentness_policy,
+    "live_v3_observed"
+  )
+  expect_identical(
+    attr(forward, "gx_crosswalk")$currentness_dataset_vintage,
+    "3.0"
+  )
+
+  inverse <- gx_mainstem_to_comids(
+    c(
+      "https://geoconnex.us/ref/mainstems/1622734",
+      "https://geoconnex.us/ref/mainstems/999"
+    ),
+    check = TRUE,
+    version = spec$release,
+    data_dir = data_dir,
+    currentness_client = setup$client
+  )
+  expect_identical(inverse$status, c("matched", "not_found"))
+  expect_identical(inverse$mainstem_status, rep("current", 2L))
+  expect_true(all(!is.na(inverse$mainstem_observed_at)))
+  expect_contains(
+    inverse$diagnostics[[2L]]$code,
+    c("not_found_in_mapping_release", "mainstem_current")
+  )
+  expect_true(length(setup$state$calls) >= 6L)
 })
 
 test_that("future zero-to-many lookup adapters retain deterministic ambiguity", {

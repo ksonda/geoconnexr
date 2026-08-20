@@ -84,6 +84,15 @@ and link both records rather than rewriting history.
 | [0076](0076-public-release-scoped-comid-crosswalks.md) | Accepted public boundary | Export COMID crosswalks with release-only currentness semantics |
 | [0077](0077-public-huc12-outlet-crosswalk.md) | Accepted public boundary | Map HUC12 outlets through bounded NLDI evidence |
 | [0078](0078-nldi-position-to-pinned-comid-contract.md) | Accepted experimental upstream contract | Resolve points through NLDI COMIDs and the pinned mapping |
+| [0079](0079-public-point-to-mainstem-crosswalk.md) | Accepted public boundary | Publish bounded Point to mainstem crosswalking |
+| [0080](0080-public-mainstem-currentness.md) | Accepted public boundary | Publish bounded mainstem currentness without following replacements |
+| [0081](0081-public-mainstem-to-gages.md) | Accepted public boundary | Map mainstem PIDs to every matching reference gage |
+| [0082](0082-huc12-intersection-ranking.md) | Accepted experimental upstream contract | Rank every HUC12 mainstem intersection without selecting one |
+| [0083](0083-public-huc12-intersections.md) | Accepted public boundary | Publish bounded HUC12 mainstem intersections |
+| [0084](0084-composed-crosswalk-currentness.md) | Accepted public boundary | Compose release and NLDI crosswalks with live mainstem currentness |
+| [0085](0085-huc10-graph-spatial-gate.md) | Recorded upstream gate | Keep automatic HUC10 discovery behind a bounded graph spatial probe |
+| [0086](0086-administrative-layers-future-scope.md) | Accepted product scope | Keep administrative layers outside the 0.x core |
+| [0087](0087-measured-remaining-delivery-estimate.md) | Accepted planning baseline | Replace provisional phase ranges with measured remaining delivery units |
 
 Each ADR states its context, decision, consequences, and status. Proposed ADRs
 may change; accepted ADRs govern implementation until superseded.

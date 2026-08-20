@@ -39,6 +39,6 @@ remains release-scoped with currentness unchecked.
 
 - The point provenance and identifier namespace are selected.
 - Point crosswalking does not require `nhdplusTools`.
-- Public implementation still needs fixture-backed geometry, transport,
-  mapping, duplicate, not-found, and budget tests.
+- ADR 0079 fulfills the public implementation gate with fixture-backed
+  geometry, transport, mapping, duplicate, not-found, and budget tests.
 - Live-v3 currentness remains a separate contract.

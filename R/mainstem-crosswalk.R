@@ -40,36 +40,56 @@ gx_empty_mainstem_comid_crosswalk <- function() {
     comid = character(),
     mapping_release = character(),
     mainstem_status = character(),
+    replacement_uris = list(),
+    mainstem_observed_at = as.POSIXct(character(), tz = "UTC"),
+    mainstem_retrieval_mode = character(),
     diagnostics = list()
   )
 }
 
-gx_mainstem_comid_row_diagnostics <- function(status, input_index) {
+gx_mainstem_comid_row_diagnostics <- function(
+    status,
+    input_index,
+    mainstem_status = if (identical(status, "not_found")) {
+      NA_character_
+    } else {
+      "active_in_mapping_release"
+    }) {
   path <- paste0("/inputs/", input_index - 1L)
+  diagnostics <- gx_empty_diagnostics()
   if (identical(status, "not_found")) {
-    return(gx_diagnostic(
+    diagnostics <- gx_diagnostic(
       "warning",
       "not_found_in_mapping_release",
       path,
       "The mainstem PID is absent from the pinned mapping release."
-    ))
+    )
   }
-  gx_diagnostic(
-    "info",
-    "mainstem_currentness_not_checked",
-    path,
-    paste(
+  if (!is.na(mainstem_status)) {
+    diagnostics <- gx_bind_diagnostics(
+      diagnostics,
+      gx_crosswalk_currentness_diagnostic(
+        mainstem_status,
+        path,
+        paste(
       "The mainstem is active in the pinned mapping release;",
       "current service state was not checked."
+        )
+      )
     )
-  )
+  }
+  diagnostics
 }
 
 gx_mainstem_comid_metadata <- function(
     x,
     mainstem_uri,
     spec,
-    verification = NULL) {
+    verification = NULL,
+    requests = gx_crosswalk_empty_requests(),
+    currentness_policy = "not_checked",
+    currentness_collection = NA_character_,
+    currentness_dataset_vintage = NA_character_) {
   statuses <- if (length(mainstem_uri)) {
     vapply(seq_along(mainstem_uri), function(index) {
       values <- unique(x$status[x$input_index == index])
@@ -86,6 +106,9 @@ gx_mainstem_comid_metadata <- function(
   list(
     contract_version = .gx_crosswalk_contract_version,
     operation = "mainstem_to_comids",
+    currentness_policy = currentness_policy,
+    currentness_collection = currentness_collection,
+    currentness_dataset_vintage = currentness_dataset_vintage,
     input_count = as.integer(length(mainstem_uri)),
     unique_input_count = as.integer(length(unique(mainstem_uri))),
     matched_input_count = as.integer(sum(statuses == "matched")),
@@ -93,8 +116,11 @@ gx_mainstem_comid_metadata <- function(
     not_found_input_count = as.integer(sum(statuses == "not_found")),
     ambiguous_input_count = 0L,
     complete = TRUE,
-    retrieved_at = verification$verified_at %||% as.POSIXct(NA, tz = "UTC"),
-    requests = gx_crosswalk_empty_requests(),
+    retrieved_at = gx_crosswalk_retrieved_at(
+      requests,
+      verification$verified_at %||% as.POSIXct(NA, tz = "UTC")
+    ),
+    requests = requests,
     diagnostics = diagnostics,
     mapping = gx_comid_mapping_metadata(spec, verification)
   )
@@ -102,7 +128,9 @@ gx_mainstem_comid_metadata <- function(
 
 gx_validate_mainstem_comid_metadata <- function(metadata, x) {
   expected <- c(
-    "contract_version", "operation", "input_count", "unique_input_count",
+    "contract_version", "operation", "currentness_policy",
+    "currentness_collection", "currentness_dataset_vintage",
+    "input_count", "unique_input_count",
     "matched_input_count", "match_count", "not_found_input_count",
     "ambiguous_input_count", "complete", "retrieved_at", "requests",
     "diagnostics", "mapping"
@@ -114,6 +142,11 @@ gx_validate_mainstem_comid_metadata <- function(metadata, x) {
   valid <- is.list(metadata) && identical(names(metadata), expected) &&
     identical(metadata$contract_version, .gx_crosswalk_contract_version) &&
     identical(metadata$operation, "mainstem_to_comids") &&
+    metadata$currentness_policy %in% c("not_checked", "live_v3_observed") &&
+    is.character(metadata$currentness_collection) &&
+    length(metadata$currentness_collection) == 1L &&
+    is.character(metadata$currentness_dataset_vintage) &&
+    length(metadata$currentness_dataset_vintage) == 1L &&
     all(vapply(metadata[counts], function(value) {
       is.integer(value) && length(value) == 1L && !is.na(value) && value >= 0L
     }, logical(1))) &&
@@ -121,7 +154,8 @@ gx_validate_mainstem_comid_metadata <- function(metadata, x) {
     is.logical(metadata$complete) && length(metadata$complete) == 1L &&
     isTRUE(metadata$complete) &&
     inherits(metadata$retrieved_at, "POSIXct") && length(metadata$retrieved_at) == 1L &&
-    identical(metadata$requests, gx_crosswalk_empty_requests()) &&
+    is.data.frame(metadata$requests) &&
+    identical(names(metadata$requests), names(gx_crosswalk_empty_requests())) &&
     is.data.frame(metadata$diagnostics) &&
     identical(names(metadata$diagnostics), names(gx_empty_diagnostics()))
   if (!isTRUE(valid)) {
@@ -159,6 +193,20 @@ gx_validate_mainstem_comid_metadata <- function(metadata, x) {
   }
 
   gx_validate_comid_mapping_metadata(metadata$mapping)
+  currentness_metadata_ok <- if (identical(
+    metadata$currentness_policy,
+    "not_checked"
+  )) {
+    is.na(metadata$currentness_collection) &&
+      is.na(metadata$currentness_dataset_vintage) &&
+      nrow(metadata$requests) == 0L
+  } else {
+    identical(metadata$currentness_collection, .gx_mainstem_collection) &&
+      identical(
+        metadata$currentness_dataset_vintage,
+        .gx_mainstem_dataset_vintage
+      )
+  }
   lifecycle_ok <- if (metadata$input_count == 0L) {
     identical(metadata$mapping$cache_origin, "not_loaded") &&
       is.na(metadata$mapping$installed_at) &&
@@ -169,10 +217,10 @@ gx_validate_mainstem_comid_metadata <- function(metadata, x) {
       !is.na(metadata$mapping$installed_at) &&
       !is.na(metadata$mapping$verified_at) &&
       !is.na(metadata$retrieved_at) &&
-      identical(metadata$retrieved_at, metadata$mapping$verified_at) &&
+      metadata$retrieved_at >= metadata$mapping$verified_at &&
       metadata$mapping$installed_at <= metadata$mapping$verified_at
   }
-  if (!isTRUE(lifecycle_ok)) {
+  if (!isTRUE(lifecycle_ok) || !isTRUE(currentness_metadata_ok)) {
     gx_abort(
       "Mainstem inverse crosswalk lookup lifecycle does not reconcile with its rows.",
       "gx_error_crosswalk_contract"
@@ -191,7 +239,9 @@ gx_validate_mainstem_comid_crosswalk <- function(
     is.character(x$requested_mainstem_uri) && is.character(x$status) &&
     is.integer(x$match_index) && is.character(x$mainstem_uri) &&
     is.character(x$comid) && is.character(x$mapping_release) &&
-    is.character(x$mainstem_status) && is.list(x$diagnostics) &&
+    is.character(x$mainstem_status) && is.list(x$replacement_uris) &&
+    inherits(x$mainstem_observed_at, "POSIXct") &&
+    is.character(x$mainstem_retrieval_mode) && is.list(x$diagnostics) &&
     all(vapply(x$diagnostics, function(value) {
       is.data.frame(value) && identical(names(value), diagnostic_names)
     }, logical(1))) &&
@@ -219,18 +269,58 @@ gx_validate_mainstem_comid_crosswalk <- function(
     matched <- !missing
     missing_ok <- all(is.na(x$match_index[missing])) &&
       all(is.na(x$mainstem_uri[missing])) && all(is.na(x$comid[missing])) &&
-      all(is.na(x$mainstem_status[missing]))
+      if (identical(metadata$currentness_policy, "not_checked")) {
+        all(is.na(x$mainstem_status[missing]))
+      } else {
+        all(x$mainstem_status[missing] %in% c(
+          "current", "superseded", "superseded_unresolved"
+        ))
+      }
+    allowed_mainstem_status <- if (identical(
+      metadata$currentness_policy,
+      "not_checked"
+    )) {
+      "active_in_mapping_release"
+    } else {
+      c("current", "superseded", "superseded_unresolved")
+    }
     matched_ok <- all(!is.na(x$match_index[matched]) & x$match_index[matched] >= 1L) &&
       all(!is.na(x$mainstem_uri[matched])) &&
       all(x$mainstem_uri[matched] == x$requested_mainstem_uri[matched]) &&
       all(!is.na(x$comid[matched])) &&
       all(grepl("^[1-9][0-9]{0,9}\\z", x$comid[matched], perl = TRUE)) &&
       all(!is.na(x$mainstem_status[matched])) &&
-      all(x$mainstem_status[matched] == "active_in_mapping_release")
+      all(x$mainstem_status[matched] %in% allowed_mainstem_status)
+    currentness_rows_ok <- all(vapply(seq_len(nrow(x)), function(row) {
+      replacements <- x$replacement_uris[[row]]
+      valid_replacements <- all(vapply(
+        replacements,
+        gx_crosswalk_valid_mainstem_uri,
+        logical(1),
+        allow_na = FALSE
+      )) && !anyDuplicated(replacements)
+      if (!valid_replacements) return(FALSE)
+      if (identical(metadata$currentness_policy, "not_checked")) {
+        return(length(replacements) == 0L &&
+          is.na(x$mainstem_observed_at[[row]]) &&
+          is.na(x$mainstem_retrieval_mode[[row]]))
+      }
+      state_ok <- if (identical(x$mainstem_status[[row]], "current")) {
+        length(replacements) == 0L
+      } else if (identical(x$mainstem_status[[row]], "superseded")) {
+        length(replacements) > 0L
+      } else {
+        length(replacements) == 0L
+      }
+      state_ok && !is.na(x$mainstem_observed_at[[row]]) &&
+        x$mainstem_retrieval_mode[[row]] %in% c("item", "filter")
+    }, logical(1)))
     diagnostics_ok <- all(vapply(seq_len(nrow(x)), function(row) {
       identical(
         x$diagnostics[[row]],
-        gx_mainstem_comid_row_diagnostics(x$status[[row]], x$input_index[[row]])
+        gx_mainstem_comid_row_diagnostics(
+          x$status[[row]], x$input_index[[row]], x$mainstem_status[[row]]
+        )
       )
     }, logical(1)))
     groups_ok <- all(vapply(split(seq_len(nrow(x)), x$input_index), function(rows) {
@@ -249,7 +339,7 @@ gx_validate_mainstem_comid_crosswalk <- function(
       order(x$input_index, method = "radix"),
       seq_len(nrow(x))
     )
-    if (!missing_ok || !matched_ok || !diagnostics_ok ||
+    if (!missing_ok || !matched_ok || !currentness_rows_ok || !diagnostics_ok ||
         !groups_ok || !ordered_inputs) {
       gx_abort(
         "Mainstem inverse crosswalk identities or statuses do not satisfy their contract.",
@@ -275,8 +365,7 @@ gx_new_mainstem_comid_crosswalk <- function(x, metadata) {
   x
 }
 
-# Internal M4c substrate. It reports membership in one verified mapping release;
-# it does not select or check the current mainstem collection or service state.
+# Internal release-scoped inverse. It does not check live service state.
 gx_mainstem_to_comids_impl <- function(
     mainstem_uri,
     version = "v3.2",
@@ -333,6 +422,9 @@ gx_mainstem_to_comids_impl <- function(
         comid = NA_character_,
         mapping_release = lookup$spec$release,
         mainstem_status = NA_character_,
+        replacement_uris = list(character()),
+        mainstem_observed_at = as.POSIXct(NA, tz = "UTC"),
+        mainstem_retrieval_mode = NA_character_,
         diagnostics = list(gx_mainstem_comid_row_diagnostics(
           "not_found", input_index
         ))
@@ -352,6 +444,9 @@ gx_mainstem_to_comids_impl <- function(
         comid = as.character(result$comid[[match_index]]),
         mapping_release = lookup$spec$release,
         mainstem_status = "active_in_mapping_release",
+        replacement_uris = list(character()),
+        mainstem_observed_at = as.POSIXct(NA, tz = "UTC"),
+        mainstem_retrieval_mode = NA_character_,
         diagnostics = list(gx_mainstem_comid_row_diagnostics(
           "matched", input_index
         ))
@@ -373,29 +468,70 @@ gx_mainstem_to_comids_impl <- function(
 #'
 #' Returns every NHDPlus COMID associated with each canonical mainstem PID in
 #' an explicitly installed, checksum-pinned `ref_rivers` lookup. The function
-#' never downloads or refreshes lookup data. Results are complete only within
-#' that mapping release and do not claim current live-service state.
+#' never downloads or refreshes lookup data. With `check = TRUE`, the requested
+#' PIDs are also checked against `mainstems_v3`, including PIDs with no COMID in
+#' the selected mapping release.
 #'
 #' @param mainstem_uri Character vector of canonical Geoconnex mainstem PIDs.
-#' @param check Must currently be `FALSE`. Live `mainstems_v3` currentness and
-#'   supersession checks remain a separate roadmap slice.
+#' @param check Whether to compose release membership with bounded live
+#'   `mainstems_v3` currentness.
 #' @param version Registered mapping release.
 #' @param data_dir Package data directory containing an explicitly installed
 #'   lookup. See [gx_mainstem_lookup_install()].
+#' @param currentness_client A reference client used only when `check = TRUE`,
+#'   or `NULL` to construct the default.
 #'
 #' @return A `gx_mainstem_comid_crosswalk` tibble. Its `gx_crosswalk` attribute
-#'   records mapping release, checksum provenance, counts, and the
-#'   `not_checked` currentness policy.
+#'   records mapping release, checksum provenance, counts, currentness policy,
+#'   and the redacted live request ledger.
 #' @export
 gx_mainstem_to_comids <- function(
     mainstem_uri,
     check = FALSE,
     version = "v3.2",
-    data_dir = gx_default_data_dir()) {
-  gx_crosswalk_release_check(check)
-  gx_mainstem_to_comids_impl(
+    data_dir = gx_default_data_dir(),
+    currentness_client = NULL) {
+  check <- gx_crosswalk_check(check)
+  out <- gx_mainstem_to_comids_impl(
     mainstem_uri,
     version = version,
     data_dir = data_dir
   )
+  if (!check) return(out)
+  if (is.null(currentness_client)) currentness_client <- gx_client("reference")
+  metadata <- attr(out, "gx_crosswalk")
+  composed <- gx_crosswalk_apply_currentness(
+    out,
+    currentness_client,
+    requests = metadata$requests,
+    max_requests = gx_crosswalk_max_requests(),
+    max_total_bytes = gx_crosswalk_total_bytes(currentness_client),
+    uri_column = "requested_mainstem_uri"
+  )
+  out <- composed$rows
+  out$diagnostics <- lapply(seq_len(nrow(out)), function(row) {
+    gx_mainstem_comid_row_diagnostics(
+      out$status[[row]], out$input_index[[row]], out$mainstem_status[[row]]
+    )
+  })
+  metadata$currentness_policy <- composed$currentness_policy
+  metadata$currentness_collection <- composed$currentness_collection
+  metadata$currentness_dataset_vintage <-
+    composed$currentness_dataset_vintage
+  metadata$retrieved_at <- gx_crosswalk_retrieved_at(
+    composed$requests,
+    metadata$mapping$verified_at
+  )
+  metadata$requests <- composed$requests
+  metadata$diagnostics <- if (nrow(out)) {
+    do.call(
+      gx_bind_diagnostics,
+      c(list(gx_empty_diagnostics()), out$diagnostics)
+    )
+  } else {
+    gx_empty_diagnostics()
+  }
+  attr(out, "gx_crosswalk") <- NULL
+  class(out) <- intersect(class(out), c("tbl_df", "tbl", "data.frame"))
+  gx_new_mainstem_comid_crosswalk(out, metadata)
 }

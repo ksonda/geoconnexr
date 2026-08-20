@@ -1,6 +1,6 @@
 {
   "evidence_version": "1.0.0",
-  "checked_at": "2026-08-15T10:03:09Z",
+  "checked_at": "2026-08-15T12:29:29Z",
   "live_observations_mutable": true,
   "purpose": "Bounded evidence for the P0 graph endpoint decision and the remaining HUC10 spatial-discovery gate.",
   "sources": [
@@ -49,10 +49,59 @@
       "outcome": "error",
       "error_class": "gx_error_catalog_discovery_graph",
       "message": "The bounded Geoconnex graph site query failed."
+    },
+    "spatial_bound_control": {
+      "site_uri": "https://geoconnex.us/ref/gages/1000001",
+      "site_wkt": "POINT (-107.2826306 35.9456833)",
+      "function": "geof:sfIntersects",
+      "site_bound_before_filter": true,
+      "limit": 1,
+      "status": 200,
+      "media_type": "application/sparql-results+json",
+      "query_bytes": 344,
+      "response_bytes": 442,
+      "rows": 1,
+      "elapsed_seconds": 0.206,
+      "checked_gage_present": true
+    },
+    "spatial_huc10_typed_exact": {
+      "huc10": "0206000502",
+      "geometry": "exact_reference_polygon",
+      "site_type": "https://www.opengis.net/def/schema/hy_features/hyf/HY_HydrometricFeature",
+      "operand_order": "site_then_aoi",
+      "limit": 1,
+      "graph_timeout_seconds": 20,
+      "elapsed_seconds": 20.083,
+      "outcome": "error",
+      "error_class": "gx_error_graph_transport"
+    },
+    "spatial_huc10_typed_bbox": {
+      "huc10": "0206000502",
+      "geometry": "reference_polygon_bbox",
+      "site_type": "https://www.opengis.net/def/schema/hy_features/hyf/HY_HydrometricFeature",
+      "operand_order": "site_then_aoi",
+      "limit": 1,
+      "query_bytes": 725,
+      "graph_timeout_seconds": 20,
+      "elapsed_seconds": 20.083,
+      "outcome": "error",
+      "error_class": "gx_error_graph_transport"
+    },
+    "spatial_huc10_typed_bbox_reversed": {
+      "huc10": "0206000502",
+      "geometry": "reference_polygon_bbox",
+      "site_type": "https://www.opengis.net/def/schema/hy_features/hyf/HY_HydrometricFeature",
+      "operand_order": "aoi_then_site",
+      "limit": 1,
+      "graph_timeout_seconds": 20,
+      "elapsed_seconds": 20.084,
+      "outcome": "error",
+      "error_class": "gx_error_graph_transport"
     }
   },
   "decision_support": {
     "endpoint_contract": "configurable_experimental",
-    "automatic_huc10_spatial_discovery": "open"
+    "automatic_huc10_spatial_discovery": "blocked_on_unbound_spatial_search",
+    "safe_reference_gage_fallback": false
   }
 }

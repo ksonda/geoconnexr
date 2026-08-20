@@ -10,18 +10,20 @@ gx_huc12_to_mainstem(
   check = FALSE,
   version = "v3.2",
   data_dir = gx_default_data_dir(),
-  client = gx_client("nldi")
+  client = NULL,
+  currentness_client = NULL
 )
 }
 \arguments{
 \item{huc12}{Character vector containing exact 12-digit hydrologic unit
 codes.}
 
-\item{method}{Only \code{"outlet"} is currently available. Intersection ranking
-remains a separate roadmap decision.}
+\item{method}{\code{"outlet"} uses the NLDI pour point. \code{"intersects"} retrieves
+the reference HUC12 polygon and returns every locally intersecting
+\code{mainstems_v3} geometry with disclosed ranking metrics.}
 
-\item{check}{Must currently be \code{FALSE}; returned mainstems do not assert
-current live-service state.}
+\item{check}{Whether outlet matches should include bounded live currentness.
+Intersection matches already carry observed \code{mainstems_v3} state.}
 
 \item{version}{Registered mapping release used only when an NLDI response
 omits its mainstem PID.}
@@ -29,16 +31,24 @@ omits its mainstem PID.}
 \item{data_dir}{Package data directory containing an explicitly installed
 lookup when COMID fallback is needed.}
 
-\item{client}{An NLDI client created by \code{\link[=gx_client]{gx_client()}}.}
+\item{client}{An NLDI client for \code{method = "outlet"}, a reference client for
+\code{method = "intersects"}, or \code{NULL} to construct the matching default.}
+
+\item{currentness_client}{A reference client used for checked outlet matches,
+or \code{NULL} to construct the default.}
 }
 \value{
-A \code{gx_huc12_crosswalk} tibble with one or more rows per input. Its
-\code{gx_crosswalk} attribute records NLDI requests, diagnostics, counts, and
-release provenance when the COMID fallback was used.
+For \code{method = "outlet"}, a \code{gx_huc12_crosswalk} tibble with NLDI and
+optional mapping provenance. For \code{method = "intersects"}, a
+\code{gx_huc12_intersection_crosswalk} tibble containing every ranked geometry
+match, its metrics, observed currentness, replacements, and reference
+request ledger.
 }
 \description{
 Retrieves one HUC12 pour point from the USGS NLDI \code{huc12pp} source. An
 advertised mainstem PID is preferred. If the response has only a COMID, the
 function resolves it through the explicitly installed checksum-pinned
-mapping release. No lookup data is downloaded or refreshed implicitly.
+mapping release. No lookup data is downloaded or refreshed implicitly. In
+outlet mode, \code{check = TRUE} composes every match with live \code{mainstems_v3}
+currentness without following or ranking replacements.
 }

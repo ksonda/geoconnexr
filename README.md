@@ -30,16 +30,17 @@ The initializing prompt was:
 `geoconnexr` is an R-first discovery, identifier-crosswalk, and watershed
 data-packaging client for the Geoconnex ecosystem.
 
-The repository is currently in its P0 architecture-spike phase. The initial
-scaffold provides versioned contracts, safe SPARQL template metadata,
+The repository is in 0.x contract hardening. The initial scaffold provides
+versioned contracts, safe SPARQL template metadata,
 identifier/recipe foundations, recorded infrastructure evidence, and offline
 tests. Its first protocol slices add bounded, cache-aware PID resolution,
 fail-closed JSON-LD negotiation and profile parsing, a native OGC API Features
 client for Geoconnex reference collections, and a validated provider-gage PID
 crosswalk. A second M4 slice provides an explicit, checksum-pinned install
 lifecycle for the optional 120 MB COMID-to-mainstem lookup and public
-release-scoped forward and inverse crosswalks over verified local bytes. These
-crosswalks make no live currentness claim. An unexported M5a
+release-scoped forward and inverse crosswalks over verified local bytes.
+Unchecked calls make no live currentness claim; checked calls add bounded
+`mainstems_v3` observations without replacing or selecting a PID. An unexported M5a
 substrate now
 supports bounded one-shot SELECT/ASK evidence through the package safety and
 cache boundary. The M5b named-query manifest is separately hardened for local
@@ -270,7 +271,7 @@ The [HUC10 end-to-end case study](vignettes/end-to-end-huc10.Rmd) runs this
 whole chain against the current USGS daily API and includes a verified
 network-free package for local demonstration.
 
-## Available in the P0 scaffold
+## Public workflow and contract examples
 
 ```r
 # Deterministic identifier recipe (no network)
@@ -770,15 +771,43 @@ download, refresh, or repair data. Inverse matches are complete only within the
 pinned mapping release, use deterministic COMID ordering, and explicitly do not
 assert current service state. `gx_comid_to_mainstem(..., check = FALSE)` and
 `gx_mainstem_to_comids(..., check = FALSE)` expose this release-only contract.
-They return `currentness_policy = "not_checked"`; `check = TRUE` fails with a
-classed error until the bounded live-v3 currentness workflow is implemented.
+They return `currentness_policy = "not_checked"`. With `check = TRUE`, each
+source match keeps its original PID and adds bounded live-v3 status, observation
+provenance, and every advertised replacement. The inverse also checks a
+requested PID that is absent from the selected mapping release.
 
 `gx_huc12_to_mainstem(..., method = "outlet", check = FALSE)` retrieves one
 validated HUC12 pour point from the USGS NLDI `huc12pp` source. It deduplicates
 repeated HUC12 requests, returns explicit not-found rows, and prefers the
 upstream mainstem PID. If NLDI supplies only a COMID, the function uses the
 same explicitly installed pinned mapping. The `intersects` method remains
-unavailable until its multi-match ranking contract is selected.
+separate: it retrieves the reference HUC12 polygon and bounded `mainstems_v3`
+bounding-box candidates, computes true intersections locally with S2, and
+returns every match. Rows are ranked by disclosed currentness, outlet-HUC12,
+intersection-length, drainage-area, and PID metrics without selecting one.
+
+`gx_point_to_mainstem(points, check = FALSE)` accepts nonempty
+two-dimensional `sf` or `sfc` Points with a declared CRS. It transforms them to
+OGC CRS84 with PROJ networking disabled, deduplicates identical transformed
+points, and retrieves containing COMIDs through the bounded NLDI position
+route. Every COMID then passes through the explicitly installed pinned mapping.
+An NLDI miss and a COMID absent from the mapping release remain distinct rows;
+neither state triggers an implicit download. `check = TRUE` adds the same
+bounded live currentness record to every matched PID.
+
+`gx_mainstem(mainstem_uri)` performs the separate live currentness check
+against `mainstems_v3`. It deduplicates transport while preserving input order,
+reports current, superseded, and superseded-without-replacement states, and
+retains every advertised replacement PID. It never follows or ranks a
+replacement or falls back to legacy mainstem geometry. ADR 0084 composes this
+contract into the checked COMID, HUC12 outlet, and Point crosswalks without
+changing their source matches.
+
+`gx_mainstem_to_gages(mainstem_uri)` queries the reference service's advertised
+`mainstem_uri` property and returns every matching gage in deterministic PID
+order. It deduplicates repeated inputs, returns a sentinel row for a complete
+empty answer, and validates gage, provider, mainstem, and optional COMID
+identity. The result records that live mainstem currentness was not checked.
 
 JSON-LD and parser contracts remain experimental. The fixture corpus now
 contains six observed, minimized pages from four landing hosts and five
