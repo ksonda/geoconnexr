@@ -2,9 +2,9 @@
 
 Maps character NHDPlus COMIDs through an explicitly installed,
 checksum-pinned `ref_rivers` lookup. The function never downloads or
-refreshes lookup data. Returned matches describe membership in the
-mapping release and do not claim that a mainstem is current in the live
-reference service.
+refreshes lookup data. With `check = TRUE`, every matched PID is also
+checked against `mainstems_v3`; superseded PIDs retain every advertised
+replacement without following or ranking it.
 
 ## Usage
 
@@ -13,7 +13,8 @@ gx_comid_to_mainstem(
   comid,
   check = FALSE,
   version = "v3.2",
-  data_dir = gx_default_data_dir()
+  data_dir = gx_default_data_dir(),
+  currentness_client = NULL
 )
 ```
 
@@ -25,8 +26,8 @@ gx_comid_to_mainstem(
 
 - check:
 
-  Must currently be `FALSE`. Live `mainstems_v3` currentness and
-  supersession checks remain a separate roadmap slice.
+  Whether to compose the release mapping with bounded live
+  `mainstems_v3` currentness.
 
 - version:
 
@@ -37,8 +38,13 @@ gx_comid_to_mainstem(
   Package data directory containing an explicitly installed lookup. See
   [`gx_mainstem_lookup_install()`](https://ksonda.github.io/geoconnexr/reference/gx_mainstem_lookup_install.md).
 
+- currentness_client:
+
+  A reference client used only when `check = TRUE`, or `NULL` to
+  construct the default.
+
 ## Value
 
 A `gx_comid_crosswalk` tibble. Its `gx_crosswalk` attribute records
-mapping release, checksum provenance, counts, and the `not_checked`
-currentness policy.
+mapping release, checksum provenance, counts, currentness policy, and
+redacted live request ledger.

@@ -1,8 +1,8 @@
 # geoconnexr — validated specification and build roadmap
 
 **Status:** Accepted implementation roadmap; a stable 0.1.0 contract
-freeze is gated on the remaining P0 decisions and vertical-spike
-evidence below **Version:** 0.2.0 **Reviewed:** 2026-08-15
+freeze is gated on the remaining HUC10 graph spatial evidence and
+provider/schema review below **Version:** 0.2.0 **Reviewed:** 2026-08-15
 
 ## 0. Executive decision
 
@@ -37,10 +37,10 @@ crosswalks, and watershed data snapshots across the Geoconnex ecosystem.
 
 | Module | Status |
 |----|----|
-| M1 | Partial experimental slice: bounded transport, cache/offline behavior, redirects, PID resolution, package-owned retries, full physical-attempt accounting, and per-host throttling are implemented; bounded concurrency remains open. |
+| M1 | Partial experimental slice: bounded transport, cache/offline behavior, redirects, PID resolution, package-owned retries, full physical-attempt accounting, per-host throttling, the central scheduler, and internal curl multi transport with cache integration are implemented. Public fetch orchestration remains open. |
 | M2 | Experimental PID/JSON-LD/profile slice implemented with a hash-pinned provider corpus; contract freeze remains P0-gated. |
 | M3 | Experimental native reference-client slice implemented with typed schemas, bounded pagination, and identity-checked fallbacks. ADR 0075 selects `mainstems_v3`, preserves the shared persistent PID namespace, and records current, superseded, replacement, and full large-geometry evidence. |
-| M4 | Partial experimental slices M4a through M4d: [`gx_gage_to_pid()`](https://ksonda.github.io/geoconnexr/reference/gx_gage_to_pid.md), release-scoped public COMID/inverse wrappers, and the NLDI HUC12 outlet method are implemented. The v3.2 COMID lookup has an explicit verified install lifecycle. ADR 0078 selects NLDI COMID position lookup plus the pinned mapping for points. Bounded live-v3 currentness, HUC12 intersection ranking, point implementation, inverse-gage, and mainstem-resolution work remain open. |
+| M4 | Complete for the specified public crosswalks through M4i. [`gx_gage_to_pid()`](https://ksonda.github.io/geoconnexr/reference/gx_gage_to_pid.md), COMID and inverse COMID mapping, both HUC12 methods, Point mapping, bounded live `mainstems_v3` currentness, and direct mainstem-to-gage lookup are implemented. The v3.2 COMID lookup has an explicit verified install lifecycle. `check = TRUE` composes release or NLDI matches with live currentness while preserving every replacement without following it. |
 | M5 | Partial experimental M5a/M5b: an unexported one-logical-request SELECT/ASK substrate provides strict bounded SPARQL 1.1 Results JSON parsing and provenance, while the public local renderer consumes an exact-byte-pinned render-only v2 template manifest with execution, chunking, and pagination disabled. ADR 0074 selects the documented graph root as a configurable experimental contract; public raw graph APIs and paging remain gated. |
 | M6 | Public bounded slice under ADR 0035: [`gx_aoi()`](https://ksonda.github.io/geoconnexr/reference/gx_aoi.md) canonicalizes identifiers and custom polygonal geometry; [`gx_catalog()`](https://ksonda.github.io/geoconnexr/reference/gx_catalog.md) populates the strict catalog value object from one graph page, explicit PID profiles, or named caller-supplied local JSON-LD. Automatic graph discovery remains upstream-dependent, and nonempty reference layers, general merge, full replay, and upstream-derived AOI modes remain gated. |
 | M7 | Complete for the supported subset under ADR 0034. [`gx_fetch_plan()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch_plan.md) publishes deterministic catalog selection, and [`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md) returns a validated `gx_fetched` object over direct CSV, WQP Result, EDR position, current USGS continuous, current USGS daily, and OGC API Features. Execution is sequential, bounded, single-page, failure-isolating, and provenance-preserving. Latest/legacy USGS, other EDR queries, pagination, registration, serialization, and replay are deferred enhancements and do not reopen M7. |
@@ -190,7 +190,9 @@ contracts may not be tagged until all gates close.
 5.  whether graph POST-at-root is a supported public contract, closed as
     configurable and experimental by ADR 0074;
 6.  support/ownership for weekly live-service alerts, closed by ADR
-    0073.
+    0073;
+7.  administrative layers such as water rights, closed as future scope
+    for the 0.x core by ADR 0086.
 
 ### 4.2 Required vertical spike
 
@@ -208,12 +210,13 @@ Build disposable code and fixtures—not production abstractions—to prove:
 
 ### 4.3 P0 exit criteria
 
-- A decision log closes gates 1–5 or names an owner and deadline.
+- The decision log closes every product-owner decision.
 - Spike fixtures and an evidence report are committed.
 - The data contracts in Section 6 have survived the vertical slice.
 - A threat model covers provider-controlled URLs, redirects, remote
   JSON-LD contexts, decompression, and local/private addresses.
-- A measured delivery estimate replaces the provisional roadmap ranges.
+- ADR 0087 replaces the provisional roadmap ranges with a measured
+  remaining delivery estimate.
 
 ## 5. Module specifications
 
@@ -333,7 +336,7 @@ large-mainstem item failure, and an empty collection.
 gx_comid_to_mainstem(comid, check = FALSE)
 gx_huc12_to_mainstem(huc12, method = c("outlet", "intersects"),
                      check = FALSE)
-gx_point_to_mainstem(points)
+gx_point_to_mainstem(points, check = FALSE)
 gx_gage_to_pid(provider_id)
 gx_mainstem_to_comids(mainstem_uri, check = FALSE)
 gx_mainstem_to_gages(mainstem_uri)
@@ -382,23 +385,61 @@ mainstem URI and returns every member COMID in deterministic order, or
 one explicit not-found sentinel. It preserves duplicate input order,
 caps aggregate matches and expanded rows, and carries release and
 checksum provenance. Completeness and active status are scoped only to
-that mapping release; current service state is not checked. Both public
-functions require `check = FALSE` and reject `check = TRUE` with a
-classed error. ADR 0075 defines supersession and migration; composing
-the bounded live-v3 check remains a separate M4 slice.
+that mapping release when `check = FALSE`. ADR 0084 allows
+`check = TRUE` to add bounded live-v3 state, observation provenance, and
+every advertised replacement without changing the release match.
 
 M4d exposes the HUC12 outlet method through the bounded USGS NLDI
 `huc12pp` item endpoint. It validates repeated HUC12 identity, Point
 geometry, source, COMID, and mainstem PID, deduplicates transport, and
 preserves not-found rows. The advertised mainstem is preferred. A
 response with only COMID uses the explicitly installed pinned mapping
-without triggering a download. The `intersects` method fails as
-unavailable until its ranking rule is selected. Point provenance and
-ranking remain separate gates.
+without triggering a download. The `intersects` method returns every
+local S2 match under the ranking selected by ADR 0082. M4e exposes Point
+crosswalking through the NLDI position contract from ADR 0078. It
+accepts only nonempty two-dimensional Points with a declared CRS,
+disables PROJ networking during transformation to OGC CRS84,
+deduplicates identical transformed coordinates, and validates repeated
+COMID identity in the returned LineString feature. Every returned COMID
+passes through the installed pinned mapping. NLDI misses and
+mapping-release misses remain distinct. Checked outlet and Point matches
+compose the live-v3 result without following a replacement.
 
-The intersects spike must decide whether ranking means
-outlet-in-polygon, intersection length, drainage area, or a documented
-combination. `is_largest` alone is not an outlet semantic.
+M4f exposes
+[`gx_mainstem()`](https://ksonda.github.io/geoconnexr/reference/gx_mainstem.md)
+as the bounded live currentness boundary. It retrieves complete
+`mainstems_v3` features, validates the requested PID and migration
+properties, and preserves current, superseded, and unresolved superseded
+states. Repeated PIDs share transport. Every advertised replacement gets
+its own row, and none is followed or ranked. Crosswalk `check = TRUE`
+composition stores all replacements on the source match without
+expanding or selecting them.
+
+M4g exposes
+[`gx_mainstem_to_gages()`](https://ksonda.github.io/geoconnexr/reference/gx_mainstem_to_gages.md)
+through the reference service’s advertised `mainstem_uri` filter. It
+validates every returned gage, provider, mainstem, and optional COMID
+identity, returns all members in deterministic order, and preserves
+duplicate inputs without duplicate transport. A complete empty answer is
+explicit. It does not require the optional COMID mapping and labels
+mainstem currentness as unchecked.
+
+ADR 0082 selects the `intersects` ranking. Return all local S2 geometry
+matches, sorting current before superseded, exact advertised
+outlet-HUC12 matches before other crossings, then geodesic intersection
+length and outlet drainage area in descending order, with PID as the
+final bytewise tie-breaker. Rank is descriptive and never selects one
+row. ADR 0083 implements that bounded method through the reference
+`hu12` and `mainstems_v3` collections, with a dedicated typed result,
+aggregate candidate and transport ceilings, explicit empty answers, and
+no NLDI or legacy-mainstem fallback.
+
+M4i implements ADR 0084. Checked COMID, inverse COMID, HUC12 outlet, and
+Point crosswalks merge their source and reference request ledgers under
+one aggregate budget. Rows retain the original matched PID and add live
+status, every replacement, observation time, and retrieval mode. The
+inverse checks requested PIDs even when the mapping release has no COMID
+member. No checked workflow retrieves or chooses a replacement.
 
 **Acceptance:** retain the checked gage answer; pin and verify the
 mapping registry, explicit install/import/offline/integrity behavior,
@@ -481,6 +522,14 @@ An AOI or other selective filter is required unless a finite low limit
 is supplied. If graph spatial capability becomes unavailable, the
 function returns a partial-result diagnostic; it must not substitute
 reference gages and present them as all monitoring sites.
+
+ADR 0085 records the remaining HUC10 discovery gate. A bound known-gage
+`geof:sfIntersects` control succeeds, but exact-polygon, typed-site,
+bounding-box, and reversed-operand unbound searches all exceed the
+bounded transport timeout with `LIMIT 1`. Automatic discovery therefore
+remains open; the package does not replace graph monitoring sites with
+reference gages or claim a truncated bounding-box candidate set is
+complete.
 
 **Acceptance:** fixture tests for all templates and encoders; mutation
 tests for injection; stable pagination tests with duplicate/missing page
@@ -2470,17 +2519,21 @@ policy, and support expectations.
 
 ## 9. Revised roadmap
 
-| Phase | Scope | Exit | Provisional effort |
-|----|----|----|----|
-| P0 — Decisions and spike | Release gates, live evidence, threat model, one vertical slice, draft schemas | Section 4.3 complete | 2–3 weeks |
-| P1 — Protocol and identity | M1–M3; fixtures; package/CI scaffold | Request/PID/JSON-LD/reference ACs; 0.1.0-dev | 3–4 weeks |
-| P2 — Crosswalk and discovery | M4–M5; provider audit; schema freeze for v1 | Crosswalk/discovery ACs; contracts v1 | 4–5 weeks |
-| P3a — Catalog and package | M6 plus catalog-only M9 | Offline-verifiable catalog snapshot case study | 3–4 weeks |
-| P3b — Fetch and harmonize | M7–M8 plus fetched M9; USGS, EDR, WQP, Features, CSV | End-to-end HUC case study; 0.5.0 | 5–7 weeks |
-| P4: Report/publisher/port | Report polish, M10, shared conformance assets, Python feasibility | M10 and the shared R/Python known-answer suite are complete; broader report polish remains | 4-6 weeks |
+| Phase | Observed state | Remaining estimate |
+|----|----|----|
+| P0: decisions and spike | Product decisions, safety threat decisions, profiles, mainstem evidence, request plans, and the installed vertical package are complete. Automatic HUC10 graph discovery remains upstream-blocked under ADR 0085. | No internal graph estimate |
+| P1: protocol and identity | M2 and M3 are implemented. M1 request safety, retries, cache, host throttling, the central scheduler, and internal curl multi transport are implemented. | 1 to 2 focused days for public fetch orchestration |
+| P2: crosswalk and discovery | M4 is complete through checked composition. The graph root is configurable and experimental; public raw query APIs remain gated. | Current merge stack plus the external graph gate |
+| P3a: catalog and package | Catalog construction and the fixed offline-verifiable package path are complete. | Included in release hardening |
+| P3b: fetch and harmonize | The frozen six-handler fetch subset, conservative harmonization, fetched packaging, and HUC10 case study are complete. | 1 to 2 focused days per additional named M8 family |
+| P4: report, publisher, and portability | Fixed verified reports, M10, and shared R/Python publisher conformance are complete. | Included in release hardening |
+| Release hardening | Documentation, lifecycle review, and CRAN preparation remain. | 2 to 3 focused days |
 
-P0 must replace these ranges with evidence-based estimates. P3a can ship
-useful discovery/package value even if a provider handler delays P3b.
+ADR 0087 estimates the unblocked fixed scope at 9 to 14 focused
+engineering days, plus one aggregate CI matrix per reviewable slice. The
+current measured matrix allowance is 90 minutes per head revision.
+Broader M8 work is additive, and the upstream graph capability is
+excluded from the internal total.
 
 The installed HUC10 case study now records a bounded current-USGS daily
 fetch, harmonization, Frictionless packaging, closed-tree verification,
@@ -2516,14 +2569,15 @@ recipe/snapshot distinction, or raw-value preservation.
 
 ## 11. Remaining decisions
 
-Only these product decisions remain open after this review:
-
-1.  whether administrative layers such as water rights are future scope.
+No product-owner scope decisions remain open. ADR 0086 keeps
+administrative layers such as water rights outside the supported 0.x
+core until a named source completes a separate authority, licence,
+identity, temporal, and legal semantics review.
 
 ADR 0073 closes live-monitor ownership and response expectations. ADR
 0074 closes the graph endpoint decision without exposing a stable
 raw-query API. ADR 0075 closes the mainstem vintage and migration
-decision.
+decision. ADR 0086 closes the administrative-layer scope decision.
 
 The old EDR package-status question and the existence of `huc12pp` are
 no longer open. SensorThings is evidence-gated rather than assumed.

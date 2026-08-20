@@ -228,6 +228,12 @@ Map provider identifiers and manage the optional NHDPlus lookup.
   : Map NHDPlus COMIDs to mainstem PIDs in a pinned release
 - [`gx_huc12_to_mainstem()`](https://ksonda.github.io/geoconnexr/reference/gx_huc12_to_mainstem.md)
   : Map HUC12 outlets to mainstem PIDs
+- [`gx_point_to_mainstem()`](https://ksonda.github.io/geoconnexr/reference/gx_point_to_mainstem.md)
+  : Map Points to release-scoped mainstem PIDs
+- [`gx_mainstem()`](https://ksonda.github.io/geoconnexr/reference/gx_mainstem.md)
+  : Check current and superseded mainstem PIDs
+- [`gx_mainstem_to_gages()`](https://ksonda.github.io/geoconnexr/reference/gx_mainstem_to_gages.md)
+  : Map mainstem PIDs to reference gages
 - [`gx_mainstem_to_comids()`](https://ksonda.github.io/geoconnexr/reference/gx_mainstem_to_comids.md)
   : Map mainstem PIDs to NHDPlus COMIDs in a pinned release
 - [`gx_mainstem_lookup_info()`](https://ksonda.github.io/geoconnexr/reference/gx_mainstem_lookup_info.md)

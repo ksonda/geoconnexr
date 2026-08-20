@@ -4,6 +4,70 @@
 
 ### Repository foundation
 
+- Added the internal M1 curl multi transport under ADR 0089. Central
+  scheduler reservations now drive public-address-pinned concurrent
+  handles with hard streaming ceilings, completion-order-independent
+  results, single-flight cache reuse, offline cache admission, and exact
+  aggregate budget deferral. Public
+  [`gx_fetch()`](https://ksonda.github.io/geoconnexr/reference/gx_fetch.md)
+  remains sequential until the handler orchestration slice.
+- Added the internal M1 central scheduler under ADR 0088. It reserves
+  total and per-host permits plus physical-attempt request and byte
+  budgets before dispatch, coalesces compatible identical cache keys,
+  releases unused byte reservations on completion, and collects results
+  in source order even when work completes out of order. Curl multi and
+  public fetch integration remain separate slices.
+- Replaced the provisional phase ranges with the measured
+  remaining-delivery baseline in ADR 0087. The plan now separates
+  focused implementation days, observed CI latency, additive
+  provider-family work, and the upstream-blocked graph query.
+- Closed the remaining product-scope decision under ADR 0086. Water
+  rights and other administrative layers stay outside the supported 0.x
+  core until a named source completes a separate authority, licence,
+  identity, temporal, spatial, and legal-semantics review.
+- Recorded the automatic HUC10 graph gate under ADR 0085. A bound-site
+  `geof:sfIntersects` control succeeds, while unbound one-row HUC10
+  searches still exceed the transport timeout after type, bounding-box,
+  and operand-order probes. The package does not substitute reference
+  gages as a complete graph site catalog.
+- Completed M4 currentness composition under ADR 0084. The public COMID,
+  inverse COMID, HUC12 outlet, and Point crosswalks now accept
+  `check = TRUE`, retain the original match, preserve every live
+  replacement, and merge the bounded request evidence. No replacement is
+  followed or selected.
+- Added public `gx_huc12_to_mainstem(..., method = "intersects")` under
+  ADR
+  83. It validates reference HUC12 and `mainstems_v3` contracts, rejects
+      incomplete bounding-box candidate sets, computes true
+      intersections locally with S2, and returns every ranked match with
+      currentness and replacements. It never selects the first row.
+- Selected the HUC12 intersection ranking under ADR 0082. The bounded
+  reference probe reduces 41 bounding-box candidates to 17 local S2
+  intersections and ranks every retained result by currentness, exact
+  outlet-HUC12 agreement, intersection length, drainage area, and PID.
+  Ranking never selects one mainstem.
+- Added public
+  [`gx_mainstem_to_gages()`](https://ksonda.github.io/geoconnexr/reference/gx_mainstem_to_gages.md)
+  under ADR 0081. It uses the reference service’s advertised
+  `mainstem_uri` filter, returns every matching gage in deterministic
+  order, preserves complete empty answers, and validates all repeated
+  identities. It does not require the optional COMID mapping and does
+  not imply that the requested mainstem is current.
+- Added public
+  [`gx_mainstem()`](https://ksonda.github.io/geoconnexr/reference/gx_mainstem.md)
+  under ADR 0080. It performs bounded live `mainstems_v3` currentness
+  checks, deduplicates repeated PIDs, preserves every replacement in
+  input order, and keeps unresolved supersession visible. It never
+  follows, ranks, or selects a replacement and never falls back to the
+  legacy collection.
+- Added public
+  [`gx_point_to_mainstem()`](https://ksonda.github.io/geoconnexr/reference/gx_point_to_mainstem.md)
+  under ADR 0079. It accepts declared-CRS two-dimensional Points,
+  disables PROJ networking while transforming to OGC CRS84, deduplicates
+  NLDI position requests, validates repeated COMID identity, and
+  resolves only through the installed pinned mapping. NLDI and mapping
+  not-found states remain distinct, and live mainstem currentness is
+  unchecked.
 - Selected the USGS NLDI `comid/position` route as the point-to-COMID
   provenance boundary under ADR 0078. Bounded live evidence confirms
   that the route returns NHDPlusV2 COMID identity rather than a
@@ -14,15 +78,14 @@
   lookups, validates the HUC12 outlet identity and Point geometry,
   prefers the advertised mainstem, and uses the installed pinned COMID
   mapping only when needed. Not-found rows and release-only currentness
-  semantics stay explicit; intersection ranking remains gated.
+  semantics stay explicit.
 - Exported release-scoped
   [`gx_comid_to_mainstem()`](https://ksonda.github.io/geoconnexr/reference/gx_comid_to_mainstem.md)
   and
   [`gx_mainstem_to_comids()`](https://ksonda.github.io/geoconnexr/reference/gx_mainstem_to_comids.md)
   under ADR 0076. Both operate only on an explicitly installed
-  checksum-pinned lookup, keep `currentness_policy = "not_checked"`, and
-  reject `check = TRUE` until the separate bounded live-v3 currentness
-  workflow is implemented.
+  checksum-pinned lookup and keep `currentness_policy = "not_checked"`
+  unless the caller requests the separate bounded live-v3 composition.
 - Selected `mainstems_v3` and dataset vintage 3.0 as the default
   mainstem representation under ADR 0075 while preserving the shared
   `/ref/mainstems/` PID namespace. The v3 JSON-LD fallback now accepts

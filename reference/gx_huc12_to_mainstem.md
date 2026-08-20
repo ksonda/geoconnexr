@@ -4,7 +4,9 @@ Retrieves one HUC12 pour point from the USGS NLDI `huc12pp` source. An
 advertised mainstem PID is preferred. If the response has only a COMID,
 the function resolves it through the explicitly installed
 checksum-pinned mapping release. No lookup data is downloaded or
-refreshed implicitly.
+refreshed implicitly. In outlet mode, `check = TRUE` composes every
+match with live `mainstems_v3` currentness without following or ranking
+replacements.
 
 ## Usage
 
@@ -15,7 +17,8 @@ gx_huc12_to_mainstem(
   check = FALSE,
   version = "v3.2",
   data_dir = gx_default_data_dir(),
-  client = gx_client("nldi")
+  client = NULL,
+  currentness_client = NULL
 )
 ```
 
@@ -27,13 +30,14 @@ gx_huc12_to_mainstem(
 
 - method:
 
-  Only `"outlet"` is currently available. Intersection ranking remains a
-  separate roadmap decision.
+  `"outlet"` uses the NLDI pour point. `"intersects"` retrieves the
+  reference HUC12 polygon and returns every locally intersecting
+  `mainstems_v3` geometry with disclosed ranking metrics.
 
 - check:
 
-  Must currently be `FALSE`; returned mainstems do not assert current
-  live-service state.
+  Whether outlet matches should include bounded live currentness.
+  Intersection matches already carry observed `mainstems_v3` state.
 
 - version:
 
@@ -47,11 +51,18 @@ gx_huc12_to_mainstem(
 
 - client:
 
-  An NLDI client created by
-  [`gx_client()`](https://ksonda.github.io/geoconnexr/reference/gx_client.md).
+  An NLDI client for `method = "outlet"`, a reference client for
+  `method = "intersects"`, or `NULL` to construct the matching default.
+
+- currentness_client:
+
+  A reference client used for checked outlet matches, or `NULL` to
+  construct the default.
 
 ## Value
 
-A `gx_huc12_crosswalk` tibble with one or more rows per input. Its
-`gx_crosswalk` attribute records NLDI requests, diagnostics, counts, and
-release provenance when the COMID fallback was used.
+For `method = "outlet"`, a `gx_huc12_crosswalk` tibble with NLDI and
+optional mapping provenance. For `method = "intersects"`, a
+`gx_huc12_intersection_crosswalk` tibble containing every ranked
+geometry match, its metrics, observed currentness, replacements, and
+reference request ledger.
