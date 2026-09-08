@@ -85,7 +85,7 @@ jobs:
 
       - name: Open or refresh the live-smoke incident
         if: ${{ failure() }}
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const title = "[live-smoke] Weekly upstream compatibility failure";
@@ -138,7 +138,7 @@ jobs:
 
       - name: Close a recovered live-smoke incident
         if: ${{ success() }}
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const title = "[live-smoke] Weekly upstream compatibility failure";
